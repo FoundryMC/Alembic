@@ -1,0 +1,21 @@
+{
+  "priority": 1,
+  "id": "eldritch_damage",
+  "min": 0.0,
+  "max": 1024.0,
+  "default": 1.0,
+  "shielding": true,
+  "absorption": true,
+  "resistance": true,
+  "particles": false,
+  "color": "#A100F1",
+  "tags": [
+    {
+      "id": "AlembicParticleTag",
+      "properties": [
+        {
+          "minecraft:dust": [1,0,1,1]
+        }]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "priority": 1,
+  "id": "fire_damage",
+  "min": 0.0,
+  "max": 1024.0,
+  "default": 1.0,
+  "shielding": false,
+  "absorption": true,
+  "resistance": false,
+  "particles": true,
+  "color": "#12b88e",
+  "tags": [
+    {"id":  "AlembicParticleTag", "properties":  [
+      {
+        "minecraft:flame": [1,1,1,1]
+      }]}
+  ]
+}

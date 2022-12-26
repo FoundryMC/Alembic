@@ -1,0 +1,22 @@
+{
+  "priority": 5,
+  "id": "alchemical_damage",
+  "min": -25.0,
+  "max": 25.0,
+  "default": 1.0,
+  "shielding": true,
+  "absorption": true,
+  "resistance": true,
+  "particles": true,
+  "color": "#FF00FF",
+  "tags": [
+    {
+      "id": "AlembicParticleTag",
+      "properties": [
+        {
+          "minecraft:enchanted_hit": [ 1,1,1,1 ]
+        }
+      ]
+    }
+  ]
+}
