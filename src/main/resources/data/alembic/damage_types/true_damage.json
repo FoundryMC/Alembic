@@ -1,9 +1,9 @@
 {
   "priority": 1,
   "id": "true_damage",
-  "min": 0,
+  "min": 0.0,
   "max": 8.0,
-  "default": 1.0,
+  "default": 0.0,
   "shielding": true,
   "absorption": true,
   "resistance": true,

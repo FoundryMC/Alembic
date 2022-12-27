@@ -3,7 +3,7 @@
   "id": "fire_damage",
   "min": 0.0,
   "max": 1024.0,
-  "default": 1.0,
+  "default": 0.0,
   "shielding": false,
   "absorption": true,
   "resistance": false,

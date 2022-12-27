@@ -27,20 +27,17 @@ public class AlembicTagRegistry<T extends AlembicTag<?,?>> {
 
     public static <T extends AlembicTag<?,?>> T create(String name, AlembicTagDataHolder data) {
         AlembicTagType type = TAGS.get(name);
-        Alembic.LOGGER.error("Creating tag {} with data {}", name, data.data);
         if (type == null) {
             return null;
         }
         try {
             Constructor<?> constructor = type.getClazz().getConstructor(type.getArgs());
             ResourceLocation RL = ResourceLocation.tryParse((String)data.data.get(0));
-            Alembic.LOGGER.error("RL: {}", RL);
             if(RL.getPath().equals("dust")){
                 Vector3f color = (Vector3f) data.data.get(1);
                 float alpha = (float) data.data.get(2);
                 return (T) constructor.newInstance(RL, color, alpha);
             } else {
-                Alembic.LOGGER.error("Creating tag {} with args {}", name, RL);
                 return (T) constructor.newInstance(RL, Vector3f.ZERO, 1.0f);
             }
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

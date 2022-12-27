@@ -1,5 +1,9 @@
 package foundry.alembic;
 
+import com.mojang.datafixers.util.Pair;
+import foundry.alembic.override.AlembicOverride;
+import foundry.alembic.override.AlembicOverrideHolder;
+import foundry.alembic.override.OverrideJSONListener;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
@@ -19,6 +23,9 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.List;
 
 import static foundry.alembic.Alembic.MODID;
 
@@ -32,6 +39,7 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onJsonListener(AddReloadListenerEvent event){
         DamageTypeJSONListener.register(event);
+        OverrideJSONListener.register(event);
     }
 
     @SubscribeEvent
@@ -81,17 +89,69 @@ public class ForgeEvents {
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
+        if(e.getSource().getDirectEntity() == null){
+            noRecurse = false;
+            LivingEntity target = e.getEntity();
+            float totalDamage = e.getAmount();
+            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(e.getSource().msgId);
+            boolean entityOverride = !pairs.isEmpty();
+            if(entityOverride){
+                for(Pair<AlembicDamageType, AlembicOverride> pair : pairs){
+                    AlembicDamageType damageType = pair.getFirst();
+                    AlembicOverride override = pair.getSecond();
+                    target.sendSystemMessage(Component.literal("Damaged by type: "+damageType.getId().toString()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
+                    float damage = totalDamage * override.getPercentage();
+                    totalDamage -= damage;
+                    if(damage <= 0) {
+                        Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
+                        totalDamage += damage;
+                        continue;
+                    }
+                    float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
+                    float resistMult = damageType.hasResistance() ? Math.max(0, 1 - attrValue) : 1;
+                    damage *= resistMult;
+                    totalDamage += damage;
+                }
+                target.hurt(e.getSource(), totalDamage);
+                noRecurse = false;
+                e.setCanceled(true);
+            }
+        }
         if (e.getSource().getDirectEntity() instanceof LivingEntity attacker) {
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
+            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(ForgeRegistries.ENTITY_TYPES.getKey(attacker.getType()).toString());
+            boolean entityOverride = !pairs.isEmpty();
+            if(entityOverride){
+                for(Pair<AlembicDamageType, AlembicOverride> pair : pairs){
+                    AlembicDamageType damageType = pair.getFirst();
+                    AlembicOverride override = pair.getSecond();
+                    float damage = totalDamage * override.getPercentage();
+                    totalDamage -= damage;
+                    if(damage <= 0) {
+                        Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
+                        totalDamage += damage;
+                        continue;
+                    }
+                    float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
+                    float resistMult = damageType.hasResistance() ? Math.max(0, 1 - attrValue) : 1;
+                    damage *= resistMult;
+                    totalDamage += damage;
+                    target.sendSystemMessage(Component.literal("Damaged by type: "+damageType.getId().toString()).withStyle(s -> s.withColor(damageType.getColor())));
+                }
+            }
             for(AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()){
                 if(attacker.getAttribute(damageType.getAttribute()).getValue() > 0){
+                    float dmg = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
                     float resistMult = damageType.hasResistance()? Math.max(0, 1 - attrValue) : 1;
-                    totalDamage += attacker.getAttribute(damageType.getAttribute()).getValue() * resistMult;
-                    damageType.getTags().forEach(tag -> {
-                        tag.run(attacker.level, target);
-                    });
+                    if(dmg > 0) {
+                        DamageTypeRegistry.getDamageTypes().stream().filter(s -> s.equals(damageType)).findFirst().get().getTags().forEach(r -> {
+                            r.run(target.level, target);
+                        });
+                    }
+                    totalDamage += dmg * resistMult;
+
                 }
             }
             int time = target.invulnerableTime;

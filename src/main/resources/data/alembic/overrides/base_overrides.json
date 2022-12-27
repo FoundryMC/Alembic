@@ -1,0 +1,10 @@
+{
+  "id": "testmod",
+  "priority": 1,
+  "sourceOverrides": {
+    "alchemical_damage": [{"minecraft:zombie": 0.5}, {"minecraft:wither_skeleton":1.0}],
+    "true_damage": [{"minecraft:zombie": 0.5}, {"OUT_OF_WORLD": 0.75}],
+    "fire_damage": [{"FIRE": 1.0}, {"FREEZE": 0.25}],
+    "eldritch_damage": [{"DROWN": 1.0}]
+  }
+}

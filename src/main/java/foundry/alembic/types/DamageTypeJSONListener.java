@@ -66,7 +66,7 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
                         });
                         AlembicTagDataHolder dataHolder = new AlembicTagDataHolder(particleId.get(), color.get(), alpha.get());
                         if(AlembicTagRegistry.isRegistered(tagId)){
-                            Alembic.LOGGER.error("Registering tag {} for damage type {}", tagId, damageType);
+                            Alembic.LOGGER.debug("Registering tag {} for damage type {}", tagId, damageType);
                             tags.add(AlembicTagRegistry.create(tagId, dataHolder));
                         } else {
                             Alembic.LOGGER.error("Tag {} is not registered! Valid tags are {}", tagId, AlembicTagRegistry.getRegisteredTags());

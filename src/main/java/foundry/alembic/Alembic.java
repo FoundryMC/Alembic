@@ -48,7 +48,7 @@ public class Alembic {
     }
     public static void setupConfig(){
         for (String s : AlembicConfig.list.get()) {
-            LOGGER.error("Registered Damage Type: " + s);
+            LOGGER.info("Registered Damage Type: " + s);
             AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
             DamageTypeRegistry.registerDamageType(damageType);
         }
