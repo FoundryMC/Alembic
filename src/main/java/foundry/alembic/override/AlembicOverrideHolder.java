@@ -54,9 +54,6 @@ public class AlembicOverrideHolder {
         } else {
             add(id, override);
         }
-        if(override.getEntityType() != null){
-            Alembic.LOGGER.debug("ETYPE: " + override.getEntityType().toString());
-        }
     }
 
     public static void addOverride(AlembicDamageType id, AlembicOverride override){

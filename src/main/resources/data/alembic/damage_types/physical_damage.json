@@ -1,22 +1,21 @@
 {
   "priority": 1,
-  "id": "alchemical_damage",
-  "min": 0,
-  "max": 1024,
+  "id": "physical_damage",
+  "min": 0.0,
+  "max": 1024.0,
   "default": 0.0,
   "shielding": true,
   "absorption": true,
   "resistance": true,
-  "particles": true,
-  "color": "#FF00FF",
+  "particles": false,
+  "color": "#A100F1",
   "tags": [
     {
       "id": "AlembicParticleTag",
       "properties": [
         {
-          "alembic:alchemical_damage": [ 1,1,1,1 ]
-        }
-      ]
+          "alembic:physical_damage": [1,1,1,1]
+        }]
     }
   ]
 }

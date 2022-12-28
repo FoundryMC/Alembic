@@ -60,6 +60,5 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
                 }
             });
         });
-        System.out.println(AlembicOverrideHolder.getOverrides());
     }
 }

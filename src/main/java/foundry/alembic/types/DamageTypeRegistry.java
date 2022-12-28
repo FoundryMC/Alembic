@@ -3,6 +3,7 @@ package foundry.alembic.types;
 import foundry.alembic.Alembic;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -14,6 +15,7 @@ public class DamageTypeRegistry {
     private static final List<AlembicDamageType> damageTypes = new ArrayList<>();
     public static final DeferredRegister<Attribute> DAMAGE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, "alembic");
     public static final DeferredRegister<Attribute> DEFENSIVE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, "alembic");
+    public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
 
     public static void registerDamageType(AlembicDamageType damageType) {
         damageTypes.add(damageType);

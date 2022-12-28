@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AlembicTagRegistry<T extends AlembicTag<?,?>> {
+public class AlembicTagRegistry<T extends AlembicTag<?,?,?>> {
     public static Map<String, AlembicTagType> TAGS = new HashMap<>();
 
     public static void init(){
@@ -25,7 +25,7 @@ public class AlembicTagRegistry<T extends AlembicTag<?,?>> {
         return TAGS.containsKey(name);
     }
 
-    public static <T extends AlembicTag<?,?>> T create(String name, AlembicTagDataHolder data) {
+    public static <T extends AlembicTag<?,?,?>> T create(String name, AlembicTagDataHolder data) {
         AlembicTagType type = TAGS.get(name);
         if (type == null) {
             return null;

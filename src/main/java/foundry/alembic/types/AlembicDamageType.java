@@ -4,6 +4,7 @@ import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,12 @@ public class AlembicDamageType {
     private AlembicAttribute attribute;
     private DamageSource damageSource;
     private int color;
-    private List<AlembicTag<?, ?>> tags = new ArrayList<>();
+    private List<AlembicTag<?, ?, ?>> tags = new ArrayList<>();
     private AlembicAttribute shieldAttribute;
     private AlembicAttribute resistanceAttribute;
+    private MobEffect resistanceEffect;
     private AlembicAttribute absorptionAttribute;
+    private MobEffect absorptionEffect;
 
     public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, int color, boolean enableParticles) {
         this.priority = priority;
@@ -45,14 +48,11 @@ public class AlembicDamageType {
         this.absorptionAttribute = new AlembicAttribute(id.toString() + "_absorption", 0, 0, 1024);
     }
 
-    public void addTag(AlembicTag<?, ?> tag) {
-        if (tag.toString().equals("PARTICLE")) {
-            System.out.println("WHY");
-        }
+    public void addTag(AlembicTag<?, ?, ?> tag) {
         this.tags.add(tag);
     }
 
-    public List<AlembicTag<?, ?>> getTags() {
+    public List<AlembicTag<?, ?, ?>> getTags() {
         return this.tags;
     }
 
@@ -116,7 +116,7 @@ public class AlembicDamageType {
 
     public String tagString() {
         StringBuilder tagString = new StringBuilder();
-        for (AlembicTag<?, ?> tag : tags) {
+        for (AlembicTag<?, ?, ?> tag : tags) {
             tagString.append(tag.toString()).append(", ");
         }
         return tagString.toString();

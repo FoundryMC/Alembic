@@ -12,7 +12,7 @@
   "tags": [
     {"id":  "AlembicParticleTag", "properties":  [
       {
-        "minecraft:electric_spark": [1,1,1,1]
+        "alembic:true_damage": [1,1,1,1]
       }]}
   ]
 }

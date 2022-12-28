@@ -46,7 +46,7 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
             boolean hasResistance = json.get("resistance").getAsBoolean();
             boolean hasAbsorption = json.get("absorption").getAsBoolean();
             boolean enableParticles = json.get("particles").getAsBoolean();
-            List<AlembicTag<?,?>> tags = new ArrayList<>();
+            List<AlembicTag<?,?,?>> tags = new ArrayList<>();
             json.get("tags").getAsJsonArray().forEach(jsonElement1 -> {
                 JsonObject tag = jsonElement1.getAsJsonObject();
                 String tagId = tag.get("id").getAsString();

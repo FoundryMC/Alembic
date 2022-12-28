@@ -1,6 +1,6 @@
 {
   "priority": 1,
-  "id": "eldritch_damage",
+  "id": "funny_damage",
   "min": 0.0,
   "max": 1024.0,
   "default": 0.0,
@@ -8,13 +8,13 @@
   "absorption": true,
   "resistance": true,
   "particles": false,
-  "color": "#A100F1",
+  "color": "#FFFFFF",
   "tags": [
     {
       "id": "AlembicParticleTag",
       "properties": [
         {
-          "minecraft:dust": [1,0,1,1]
+          "alembic:funny_damage": [1,1,1,1]
         }]
     }
   ]

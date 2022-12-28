@@ -64,7 +64,8 @@ public class AlembicOverride {
         DRAGON_BREATH("dragonBreath"),
         DRIED_OUT("dryout"),
         FREEZE("freeze"),
-        PIERCED("fallingStalactite","stalagmite");
+        PIERCED("fallingStalactite","stalagmite"),
+        ATTACK("mob", "player");
 
         private final List<String> sources;
 
