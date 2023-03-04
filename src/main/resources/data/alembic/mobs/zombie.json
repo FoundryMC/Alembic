@@ -1,0 +1,16 @@
+{
+  "id": "alembic:zombie",
+  "priority": 1,
+  "type": "minecraft:zombie",
+  "resistances": {
+    "alchemical_damage": 1.25,
+    "physical_damage": 1.0,
+    "fire_damage": 0.0,
+    "arcane_damage": 1.0,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "alchemical_damage": 0.5,
+    "physical_damage": 0.5
+  }
+}

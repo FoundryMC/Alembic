@@ -1,6 +1,6 @@
 {
   "priority": 1,
-  "id": "magic_damage",
+  "id": "arcane_damage",
   "min": 0.0,
   "max": 1024.0,
   "default": 0.0,
@@ -14,8 +14,19 @@
       "id": "AlembicParticleTag",
       "properties": [
         {
-          "alembic:magic_damage": [1,1,1,1]
+          "alembic:arcane_damage": [1,1,1,1]
         }]
+    },
+    {
+      "id": "AlembicPerLevelTag",
+      "properties": [
+        {
+          "perLevel": 1,
+          "max": 10,
+          "levelDifference": 5,
+          "type": "resistance"
+        }
+      ]
     }
   ]
 }

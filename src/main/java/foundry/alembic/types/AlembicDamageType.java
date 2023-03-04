@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,13 @@ public class AlembicDamageType {
     private DamageSource damageSource;
     private int color;
     private List<AlembicTag<?, ?, ?>> tags = new ArrayList<>();
-    private AlembicAttribute shieldAttribute;
+    private RangedAttribute shieldAttribute;
     private AlembicAttribute resistanceAttribute;
     private MobEffect resistanceEffect;
     private AlembicAttribute absorptionAttribute;
     private MobEffect absorptionEffect;
+
+    private String translationString;
 
     public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, int color, boolean enableParticles) {
         this.priority = priority;
@@ -46,6 +49,11 @@ public class AlembicDamageType {
         this.shieldAttribute = new AlembicAttribute(id.toString() + "_shield", 0, 0, 1024);
         this.resistanceAttribute = new AlembicAttribute(id.toString() + "_resistance", 0, -1024, 1024);
         this.absorptionAttribute = new AlembicAttribute(id.toString() + "_absorption", 0, 0, 1024);
+        this.translationString = "alembic.damage." + id.getPath();
+    }
+
+    public String getTranslationString() {
+        return translationString;
     }
 
     public void addTag(AlembicTag<?, ?, ?> tag) {
@@ -174,7 +182,7 @@ public class AlembicDamageType {
         this.id = id;
     }
 
-    public AlembicAttribute getShieldAttribute() {
+    public RangedAttribute getShieldAttribute() {
         return shieldAttribute;
     }
 
@@ -186,7 +194,7 @@ public class AlembicDamageType {
         return absorptionAttribute;
     }
 
-    public void setShieldAttribute(AlembicAttribute shieldAttribute) {
+    public void setShieldAttribute(RangedAttribute shieldAttribute) {
         this.shieldAttribute = shieldAttribute;
     }
 

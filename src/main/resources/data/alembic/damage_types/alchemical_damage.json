@@ -17,6 +17,17 @@
           "alembic:alchemical_damage": [ 1,1,1,1 ]
         }
       ]
+    },
+    {
+      "id": "AlembicPerLevelTag",
+      "properties": [
+        {
+          "perLevel": 1,
+          "max": 15,
+          "levelDifference": 2,
+          "type": "absorption"
+        }
+      ]
     }
   ]
 }

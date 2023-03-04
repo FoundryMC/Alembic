@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "alembic.refmap.json",
   "mixins": [
+    "BaseFireBlockMixin",
+    "MobEffectMixin"
   ],
   "client": [
   ],

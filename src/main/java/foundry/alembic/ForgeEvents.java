@@ -4,10 +4,15 @@ import com.mojang.datafixers.util.Pair;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.AlembicOverrideHolder;
 import foundry.alembic.override.OverrideJSONListener;
+import foundry.alembic.resistances.AlembicResistance;
+import foundry.alembic.resistances.AlembicResistanceHolder;
+import foundry.alembic.resistances.ResistanceJsonListener;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
+import foundry.alembic.types.tags.AlembicGlobalTagPropertyHolder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
@@ -22,6 +27,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,6 +35,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.Map;
 
 import static foundry.alembic.Alembic.MODID;
 
@@ -40,9 +47,34 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
+    public static void onLevelUp(PlayerXpEvent.LevelChange event){
+        if(event.getEntity().level.isClientSide) return;
+        AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.keySet().forEach(key -> {
+            float test = event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference();
+            if(event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference() == 0){
+                if(event.getEntity().getAttributes().hasAttribute(key)){
+                    CompoundTag tag = event.getEntity().getPersistentData();
+                    if(tag.contains(key.descriptionId)){
+                        if(tag.getInt(key.descriptionId) < AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).cap()){
+                            event.getEntity().sendSystemMessage(Component.literal("You have leveled up your " + key.descriptionId + " to " + event.getEntity().getAttribute(key).getValue()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
+                            event.getEntity().getAttribute(key).setBaseValue(event.getEntity().getAttribute(key).getBaseValue() + AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).bonusPerLevel());
+                            tag.putInt(key.descriptionId, tag.getInt(key.descriptionId) + 1);
+                        }
+                    } else {
+                        event.getEntity().getAttribute(key).setBaseValue(event.getEntity().getAttribute(key).getBaseValue() + AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).bonusPerLevel());
+                        event.getEntity().sendSystemMessage(Component.literal("You have leveled up your " + key.descriptionId + " to " + event.getEntity().getAttribute(key).getValue()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
+                        tag.putInt(key.descriptionId, 1);
+                    }
+                }
+            }
+        });
+    }
+
+    @SubscribeEvent
     public static void onJsonListener(AddReloadListenerEvent event){
         DamageTypeJSONListener.register(event);
         OverrideJSONListener.register(event);
+        ResistanceJsonListener.register(event);
     }
 
     @SubscribeEvent
@@ -99,7 +131,7 @@ public class ForgeEvents {
             List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(e.getSource().msgId);
             boolean override = !pairs.isEmpty();
             if(override){
-                handleTypedDamage(target, totalDamage, pairs);
+                handleTypedDamage(target, totalDamage, pairs, e.getSource());
                 //target.hurt(e.getSource(), totalDamage);
                 noRecurse = false;
                 e.setCanceled(true);
@@ -108,17 +140,17 @@ public class ForgeEvents {
         if (e.getSource().getDirectEntity() instanceof LivingEntity attacker) {
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
-            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(ForgeRegistries.ENTITY_TYPES.getKey(attacker.getType()).toString());
-            boolean entityOverride = !pairs.isEmpty();
+            AlembicResistance stats = AlembicResistanceHolder.get(attacker.getType());
+            boolean entityOverride = stats != null;
             if(entityOverride){
-                handleTypedDamage(target, totalDamage, pairs);
+                handleTypedDamage(target, totalDamage, stats, e.getSource());
             }
             for(AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()){
                 if(attacker.getAttribute(damageType.getAttribute()).getValue() > 0){
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
                     damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
-                    handleDamageInstance(target, damageType, damage);
+                    handleDamageInstance(target, damageType, damage, e.getSource());
                 }
             }
             int time = target.invulnerableTime;
@@ -132,11 +164,11 @@ public class ForgeEvents {
         e.setCanceled(true);
     }
 
-    private static void handleDamageInstance(LivingEntity target, AlembicDamageType damageType, float damage) {
+    private static void handleDamageInstance(LivingEntity target, AlembicDamageType damageType, float damage, DamageSource originalSource) {
         if(damage > 0) {
             float finalDamage = damage;
             DamageTypeRegistry.getDamageTypes().stream().filter(s -> s.equals(damageType)).findFirst().get().getTags().forEach(r -> {
-                r.run(target.level, target, finalDamage);
+                r.run(target.level, target, finalDamage, originalSource);
             });
             int invtime = target.invulnerableTime;
             target.invulnerableTime = 0;
@@ -148,7 +180,7 @@ public class ForgeEvents {
         }
     }
 
-    private static void handleTypedDamage(LivingEntity target, float totalDamage, List<Pair<AlembicDamageType, AlembicOverride>> types) {
+    private static void handleTypedDamage(LivingEntity target, float totalDamage, List<Pair<AlembicDamageType, AlembicOverride>> types, DamageSource originalSource) {
         for(Pair<AlembicDamageType, AlembicOverride> pair : types){
             AlembicDamageType damageType = pair.getFirst();
             AlembicOverride override = pair.getSecond();
@@ -158,23 +190,39 @@ public class ForgeEvents {
                 //totalDamage += damage;
                 continue;
             }
-            float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getShieldAttribute()).getValue() : 0;
-            damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
-            float absorptionValue = target.getAttributes().hasAttribute(damageType.getAbsorptionAttribute()) ? (float) target.getAttribute(damageType.getAbsorptionAttribute()).getValue() : 0;
-            if(absorptionValue > 0){
-                float absorption = Math.min(absorptionValue, damage);
-                absorptionValue -= absorption;
-                absorptionValue = Math.max(0, absorptionValue);
-                target.sendSystemMessage(Component.literal("Absorbed " + absorption + " damage!").withStyle(s -> s.withColor(damageType.getColor())));
-                damage -= absorption;
-                if(damageType.hasAbsorption()){
-                    target.getAttribute(damageType.getAbsorptionAttribute()).setBaseValue(absorptionValue);
-                }
-            }
-            handleDamageInstance(target, damageType, damage);
-            target.sendSystemMessage(Component.literal("Took " + damage + " damage!"));
+            damageCalc(target, damageType, damage, originalSource);
         }
         //return totalDamage;
+    }
+
+    private static void handleTypedDamage(LivingEntity target, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
+        stats.getDamage().forEach((alembicDamageType, multiplier) -> {
+            float damage = totalDamage * multiplier;
+            if(damage <= 0) {
+                Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
+                return;
+            }
+            damageCalc(target, alembicDamageType, damage, originalSource);
+        });
+        //return totalDamage;
+    }
+
+    private static void damageCalc(LivingEntity target, AlembicDamageType alembicDamageType, float damage, DamageSource originalSource) {
+        float attrValue = target.getAttributes().hasAttribute(alembicDamageType.getResistanceAttribute()) ? (float) target.getAttribute(alembicDamageType.getShieldAttribute()).getValue() : 0;
+        damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
+        float absorptionValue = target.getAttributes().hasAttribute(alembicDamageType.getAbsorptionAttribute()) ? (float) target.getAttribute(alembicDamageType.getAbsorptionAttribute()).getValue() : 0;
+        if(absorptionValue > 0){
+            float absorption = Math.min(absorptionValue, damage);
+            absorptionValue -= absorption;
+            absorptionValue = Math.max(0, absorptionValue);
+            target.sendSystemMessage(Component.literal("Absorbed " + absorption + " damage!").withStyle(s -> s.withColor(alembicDamageType.getColor())));
+            damage -= absorption;
+            if(alembicDamageType.hasAbsorption()){
+                target.getAttribute(alembicDamageType.getAbsorptionAttribute()).setBaseValue(absorptionValue);
+            }
+        }
+        handleDamageInstance(target, alembicDamageType, damage, originalSource);
+        target.sendSystemMessage(Component.literal("Took " + damage + " ").append(Component.translatable(alembicDamageType.getTranslationString())).append("!"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

@@ -86,6 +86,11 @@ public class AlembicOverrideHolder {
                     list.add(new Pair<>(entry.getFirst(), entry.getSecond()));
                 }
             }
+            if(entry.getSecond().getModdedSource() != null){
+                if(entry.getSecond().getModdedSource().equals(source)){
+                    list.add(new Pair<>(entry.getFirst(), entry.getSecond()));
+                }
+            }
         }
         return list;
     }

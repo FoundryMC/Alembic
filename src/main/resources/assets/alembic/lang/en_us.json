@@ -1,0 +1,8 @@
+{
+  "alembic.damage.alchemical_damage": "Alchemical Damage",
+  "alembic.damage.arcane_damage": "Arcane Damage",
+  "alembic.damage.fire_damage": "Fire Damage",
+  "alembic.damage.physical_damage": "Physical Damage",
+  "alembic.damage.true_damage": "True Damage",
+  "alembic.damage.funny_damage": "Funny Damage"
+}

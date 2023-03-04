@@ -11,12 +11,21 @@ public class AlembicOverride {
     private String id;
     private int priority;
     private ResourceLocation entityType;
+    private String moddedSource;
 
     public AlembicOverride(String id, int priority, Override override, float percentage) {
         this.id = id;
         this.priority = priority;
         this.override = override;
         this.percentage = percentage;
+    }
+
+    public String getModdedSource() {
+        return moddedSource;
+    }
+
+    public void setModdedSource(String moddedSource) {
+        this.moddedSource = moddedSource;
     }
 
     public void setEntityType(ResourceLocation entityType) {
@@ -65,7 +74,8 @@ public class AlembicOverride {
         DRIED_OUT("dryout"),
         FREEZE("freeze"),
         PIERCED("fallingStalactite","stalagmite"),
-        ATTACK("mob", "player");
+        ATTACK("mob", "player"),
+        MODDED();
 
         private final List<String> sources;
 

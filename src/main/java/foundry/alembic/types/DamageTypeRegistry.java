@@ -24,7 +24,9 @@ public class DamageTypeRegistry {
     public static void init() {
         for (AlembicDamageType damageType : damageTypes) {
             DAMAGE_ATTRIBUTES.register(damageType.getId().getPath(), damageType::getAttribute);
-            DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_shield", damageType::getShieldAttribute);
+            if(!ForgeRegistries.ATTRIBUTES.containsValue(damageType.getShieldAttribute())) {
+                DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_shield", damageType::getShieldAttribute);
+            }
             DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_resistance", damageType::getResistanceAttribute);
             DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_absorption", damageType::getAbsorptionAttribute);
         }

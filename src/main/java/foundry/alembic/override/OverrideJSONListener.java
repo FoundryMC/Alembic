@@ -47,6 +47,12 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
                     float percentage = ov.get(source).getAsFloat();
                     String finalSource = source;
                     if(!Arrays.stream(AlembicOverride.Override.values()).anyMatch(s -> s.toString().equals(finalSource.toUpperCase(Locale.ROOT)))){
+                        if(!source.contains(":")){
+                            source = "MODDED";
+                            AlembicOverride override = new AlembicOverride(id, priority, AlembicOverride.Override.valueOf(source.toUpperCase(Locale.ROOT)), percentage);
+                            override.setModdedSource(finalSource);
+                            AlembicOverrideHolder.smartAddOverride(damageType, override);
+                        }
                         source = "ENTITY_TYPE";
                         AlembicOverride.Override overrideType = AlembicOverride.Override.valueOf(source.toUpperCase(Locale.ROOT));
                         AlembicOverride override = new AlembicOverride(id, priority, overrideType, percentage);

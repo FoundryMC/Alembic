@@ -10,6 +10,7 @@ import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicTagRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -59,7 +60,7 @@ public class Alembic {
             LOGGER.info("Registered Damage Type: " + s);
             if(s.equals("physical_damage")){
                 AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
-                damageType.setShieldAttribute((AlembicAttribute) Attributes.ARMOR);
+                damageType.setShieldAttribute((RangedAttribute) Attributes.ARMOR);
                 DamageTypeRegistry.registerDamageType(damageType);
             } else {
                 AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
@@ -70,10 +71,9 @@ public class Alembic {
 
     public static void setupDamageTypes(){
         AlembicAPI.addDefaultDamageType("fire_damage");
-        AlembicAPI.addDefaultDamageType("magic_damage");
+        AlembicAPI.addDefaultDamageType("arcane_damage");
         AlembicAPI.addDefaultDamageType("alchemical_damage");
         AlembicAPI.addDefaultDamageType("true_damage");
         AlembicAPI.addDefaultDamageType("physical_damage");
-        AlembicAPI.addDefaultDamageType("funny_damage");
     }
 }

@@ -10,9 +10,26 @@
   "particles": true,
   "color": "#12b88e",
   "tags": [
-    {"id":  "AlembicParticleTag", "properties":  [
-      {
-        "alembic:fire_damage": [1,1,1,1]
-      }]}
+    {
+      "id": "AlembicParticleTag",
+      "properties": [
+        {
+          "alembic:fire_damage": [1, 1, 1, 1]
+        }
+      ]
+    },
+    {
+      "id": "AlembicExtendFireTag",
+      "properties": [
+        {
+          "multiplier": 0.25,
+          "ignoredSources": [
+            "inFire",
+            "onFire",
+            "lava"
+          ]
+        }
+      ]
+    }
   ]
 }
