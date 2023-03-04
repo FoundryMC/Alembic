@@ -3,7 +3,7 @@
   "priority": 1,
   "sourceOverrides": {
     "alchemical_damage": [{"ALCHEMICAL": 1.0}],
-    "true_damage": [{"OUT_OF_WORLD": 0.75}],
+    "true_damage": [{"OUT_OF_WORLD": 0.75}, {"FREEZE":  0.25}],
     "fire_damage": [{"FIRE": 3.0}, {"FREEZE": 0.25}, {"SOUL_FIRE":  0.5}],
     "arcane_damage": [{"DROWN": 1.0},{"MAGIC": 1.0},{"SOUL_FIRE":  0.5}],
     "physical_damage": [{"ATTACK": 1.0}]
