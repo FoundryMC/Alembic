@@ -2,7 +2,9 @@ package foundry.alembic;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
+import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 import com.mojang.logging.LogUtils;
+import foundry.alembic.client.AlembicOverlayRegistry;
 import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
@@ -32,6 +34,7 @@ public class Alembic {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     public Alembic() {
+        MixinExtrasBootstrap.init();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AlembicTagRegistry.init();
         setupDamageTypes();
@@ -50,6 +53,7 @@ public class Alembic {
         AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
         DamageTypeRegistry.init();
         AlembicParticleRegistry.init();
+        AlembicOverlayRegistry.init();
     }
 
     public static ResourceLocation location(String name) {
