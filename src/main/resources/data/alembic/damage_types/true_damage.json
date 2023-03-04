@@ -10,9 +10,13 @@
   "particles": false,
   "color": "#ffffff",
   "tags": [
-    {"id":  "AlembicParticleTag", "properties":  [
-      {
-        "alembic:true_damage": [1,1,1,1]
-      }]}
+    {
+      "id": "AlembicParticleTag",
+      "properties": [
+        {
+          "alembic:true_damage": [1, 1, 1, 1]
+        }
+      ]
+    }
   ]
 }

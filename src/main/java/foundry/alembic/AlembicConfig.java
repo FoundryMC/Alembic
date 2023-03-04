@@ -6,6 +6,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// TODO: figure out how to add existing damage types to the config without regenerating the whole thingggggggggggggggggggggg
 public class AlembicConfig {
     public static ForgeConfigSpec.ConfigValue<List<String>> list;
 
@@ -20,7 +22,7 @@ public class AlembicConfig {
         return AlembicConfig.list.get();
     }
 
-    public void addDamageType(String name){
+    public static void addDamageType(String name){
         AlembicConfig.list.get().add(name);
     }
 }
