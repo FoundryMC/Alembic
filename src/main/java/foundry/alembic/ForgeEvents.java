@@ -20,7 +20,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.Items;
@@ -57,28 +60,22 @@ public class ForgeEvents {
         Player player = event.getEntity();
         if(player.level.isClientSide) return;
         for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(event.getEntity())) {
-            if (player.getAttributes().hasAttribute(tag.getAffectedType())) {
+            RangedAttribute attribute = tag.getAffectedType();
+            if (player.getAttributes().hasAttribute(attribute)) {
+                AttributeInstance playerAttribute = player.getAttribute(attribute);
+                playerAttribute.setBaseValue(playerAttribute.getBaseValue()+tag.getBonusPerLevel());
+                player.sendSystemMessage(Component.literal("You have leveled up your %s to %s".formatted(attribute.descriptionId, playerAttribute.getValue())).withStyle(style -> style.withColor(ChatFormatting.GOLD)));
 
-            }
-        }
-        AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.keySet().forEach(key -> {
-            if(event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference() == 0){
-                if(event.getEntity().getAttributes().hasAttribute(key)){
-                    CompoundTag tag = event.getEntity().getPersistentData();
-                    if(tag.contains(key.descriptionId)){
-                        if(tag.getInt(key.descriptionId) < AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).cap()){
-                            event.getEntity().sendSystemMessage(Component.literal("You have leveled up your " + key.descriptionId + " to " + event.getEntity().getAttribute(key).getValue()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
-                            event.getEntity().getAttribute(key).setBaseValue(event.getEntity().getAttribute(key).getBaseValue() + AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).bonusPerLevel());
-                            tag.putInt(key.descriptionId, tag.getInt(key.descriptionId) + 1);
-                        }
-                    } else {
-                        event.getEntity().getAttribute(key).setBaseValue(event.getEntity().getAttribute(key).getBaseValue() + AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).bonusPerLevel());
-                        event.getEntity().sendSystemMessage(Component.literal("You have leveled up your " + key.descriptionId + " to " + event.getEntity().getAttribute(key).getValue()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
-                        tag.putInt(key.descriptionId, 1);
+                CompoundTag nbt = player.getPersistentData();
+                if (nbt.contains(attribute.descriptionId)) {
+                    if (nbt.getInt(attribute.descriptionId) < tag.getCap()) {
+                        nbt.putInt(attribute.descriptionId, nbt.getInt(attribute.descriptionId)+1);
                     }
+                } else {
+                    nbt.putInt(attribute.descriptionId, 1);
                 }
             }
-        });
+        }
     }
 
     @SubscribeEvent

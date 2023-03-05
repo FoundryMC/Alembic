@@ -23,6 +23,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mod(Alembic.MODID)
@@ -60,13 +61,14 @@ public class Alembic {
     private static void setupConfig(){
         for (String s : AlembicConfig.list.get()) {
             LOGGER.info("Registered Damage Type: " + s);
+            ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){
-                AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
                 damageType.setShieldAttribute((RangedAttribute) Attributes.ARMOR);
-                DamageTypeRegistry.registerDamageType(damageType);
+                DamageTypeRegistry.registerDamageType(id, damageType);
             } else {
-                AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
-                DamageTypeRegistry.registerDamageType(damageType);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
+                DamageTypeRegistry.registerDamageType(id, damageType);
             }
         }
     }

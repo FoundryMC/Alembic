@@ -10,7 +10,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,7 +25,8 @@ public class AlembicDamageType {
                     Codec.BOOL.fieldOf("resistance").forGetter(AlembicDamageType::hasResistance),
                     Codec.BOOL.fieldOf("absorption").forGetter(AlembicDamageType::hasAbsorption),
                     Codec.BOOL.fieldOf("particles").forGetter(AlembicDamageType::enableParticles),
-                    CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor)
+                    CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor),
+                    AlembicTag.DISPATCH_CODEC.listOf().fieldOf("tags").forGetter(AlembicDamageType::getTags)
             ).apply(instance, AlembicDamageType::new)
     );
 
@@ -42,8 +42,8 @@ public class AlembicDamageType {
     private AlembicAttribute attribute;
     private DamageSource damageSource;
     private int color;
-    private List<AlembicTag> tags = new ArrayList<>();
-    private AlembicAttribute shieldAttribute;
+    private List<AlembicTag> tags;
+    private RangedAttribute shieldAttribute;
     private AlembicAttribute resistanceAttribute;
     private MobEffect resistanceEffect;
     private AlembicAttribute absorptionAttribute;
@@ -51,7 +51,7 @@ public class AlembicDamageType {
 
     private String translationString;
 
-    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, int color, boolean enableParticles) {
+    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean enableParticles, int color, List<AlembicTag> tags) {
         this.priority = priority;
         this.id = id;
         this.base = base;
@@ -200,7 +200,7 @@ public class AlembicDamageType {
         this.id = id;
     }
 
-    public AlembicAttribute getShieldAttribute() {
+    public RangedAttribute getShieldAttribute() {
         return shieldAttribute;
     }
 

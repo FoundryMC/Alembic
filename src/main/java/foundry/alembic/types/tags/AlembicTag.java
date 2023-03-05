@@ -2,7 +2,6 @@ package foundry.alembic.types.tags;
 
 import com.mojang.serialization.Codec;
 import foundry.alembic.types.AlembicDamageType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface AlembicTag {
-    Codec<AlembicTag> CODEC = ResourceLocation.CODEC.dis
+    Codec<AlembicTag> DISPATCH_CODEC = AlembicTagRegistry.TAG_MAP_CODEC.dispatch("tag_id", AlembicTag::getType, AlembicTagType::getCodec);
 
     void run(ComposedData data);
     void run(Level level, LivingEntity entity, float damage, DamageSource originalSource);
@@ -23,9 +22,8 @@ public interface AlembicTag {
      * For handling anything that should be added to a tag after the damage type has been registered
      * @param damageType Registered damage type. Safe to reference
      */
-    void handlePostParse(AlembicDamageType damageType);
-
-    //    void handleData(JsonArray data, List<AlembicTag> tags, String tagId, ResourceLocation damageType);
+    default void handlePostParse(AlembicDamageType damageType) {
+    }
 
     class ComposedData {
         private final Map<ComposedDataType<?>, Object> data = new HashMap<>();
