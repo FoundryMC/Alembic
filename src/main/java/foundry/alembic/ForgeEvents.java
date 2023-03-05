@@ -1,6 +1,8 @@
 package foundry.alembic;
 
 import com.mojang.datafixers.util.Pair;
+import foundry.alembic.networking.AlembicPacketHandler;
+import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.AlembicOverrideHolder;
 import foundry.alembic.override.OverrideJSONListener;
@@ -19,6 +21,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -32,10 +35,12 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
 
@@ -137,19 +142,28 @@ public class ForgeEvents {
                 e.setCanceled(true);
             }
         }
-        if (e.getSource().getDirectEntity() instanceof LivingEntity attacker) {
-            LivingEntity target = e.getEntity();
+        if (e.getSource().getDirectEntity() instanceof LivingEntity || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile) {
+            LivingEntity attacker = null;
+            if(e.getSource().getDirectEntity() instanceof LivingEntity){
+                attacker = (LivingEntity) e.getSource().getDirectEntity();
+            } else if(e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile){
+                attacker = (LivingEntity) ((AbstractHurtingProjectile) e.getSource().getDirectEntity()).getOwner();
+            }
+            LivingEntity target = attacker;
             float totalDamage = e.getAmount();
             AlembicResistance stats = AlembicResistanceHolder.get(attacker.getType());
             boolean entityOverride = stats != null;
+            float damageOffset = 0;
             if(entityOverride){
-                handleTypedDamage(target, totalDamage, stats, e.getSource());
+                damageOffset = handleTypedDamage(target, totalDamage, stats, e.getSource());
             }
+            totalDamage -= damageOffset;
             for(AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()){
                 if(attacker.getAttribute(damageType.getAttribute()).getValue() > 0){
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
                     damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
+
                     handleDamageInstance(target, damageType, damage, e.getSource());
                 }
             }
@@ -157,6 +171,8 @@ public class ForgeEvents {
             target.invulnerableTime = 0;
             if (totalDamage > 0.001) {
                 target.hurt(src(attacker), totalDamage);
+                if(target instanceof Player pl)
+                    pl.sendSystemMessage(Component.literal("You took "+totalDamage));
             }
             target.invulnerableTime = time;
         }
@@ -175,6 +191,12 @@ public class ForgeEvents {
             float health = target.getHealth();
             target.getCombatTracker().recordDamage(DamageSource.GENERIC, health, damage);
             target.setHealth(health - damage);
+            AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() ->
+                    new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level.dimension())),
+                    new ClientboundAlembicDamagePacket(target.getId(), damageType.getId().toString(), damage, damageType.getColor()));
+            if(target instanceof Player pl)
+                pl.sendSystemMessage(Component.literal("You took "+damage+" ")
+                        .withStyle(s -> s.withColor(damageType.getColor())).append(Component.translatable(damageType.getTranslationString())).withStyle(s -> s.withColor(damageType.getColor())));
             target.gameEvent(GameEvent.ENTITY_DAMAGE);
             target.invulnerableTime = invtime;
         }
@@ -195,20 +217,23 @@ public class ForgeEvents {
         //return totalDamage;
     }
 
-    private static void handleTypedDamage(LivingEntity target, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
+    private static float handleTypedDamage(LivingEntity target, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
+        AtomicReference<Float> total = new AtomicReference<>(0f);
         stats.getDamage().forEach((alembicDamageType, multiplier) -> {
+            if(stats.getIgnoredSources().contains(originalSource.msgId)) return;
             float damage = totalDamage * multiplier;
             if(damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
                 return;
             }
+            total.set(total.get() + damage);
             damageCalc(target, alembicDamageType, damage, originalSource);
         });
-        //return totalDamage;
+        return total.get();
     }
 
     private static void damageCalc(LivingEntity target, AlembicDamageType alembicDamageType, float damage, DamageSource originalSource) {
-        float attrValue = target.getAttributes().hasAttribute(alembicDamageType.getResistanceAttribute()) ? (float) target.getAttribute(alembicDamageType.getShieldAttribute()).getValue() : 0;
+        float attrValue = target.getAttributes().hasAttribute(alembicDamageType.getResistanceAttribute()) ? (float) target.getAttribute(alembicDamageType.getResistanceAttribute()).getValue() : 0;
         damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
         float absorptionValue = target.getAttributes().hasAttribute(alembicDamageType.getAbsorptionAttribute()) ? (float) target.getAttribute(alembicDamageType.getAbsorptionAttribute()).getValue() : 0;
         if(absorptionValue > 0){
@@ -222,7 +247,6 @@ public class ForgeEvents {
             }
         }
         handleDamageInstance(target, alembicDamageType, damage, originalSource);
-        target.sendSystemMessage(Component.literal("Took " + damage + " ").append(Component.translatable(alembicDamageType.getTranslationString())).append("!"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

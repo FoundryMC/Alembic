@@ -17,10 +17,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();
@@ -53,7 +50,10 @@ public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
             parseDamageTypeObject(resistances, resMap);
             JsonObject damage = json.get("damage").getAsJsonObject();
             parseDamageTypeObject(damage, damages);
-            AlembicResistanceHolder.smartAddResistance(new AlembicResistance(entityType, priority, ResourceLocation.tryParse(id), resMap, damages));
+            JsonArray ignoredSources = json.get("ignoredSources").getAsJsonArray();
+            List<String> ignored = new ArrayList<>();
+            ignoredSources.forEach(jsonElement1 -> ignored.add(jsonElement1.getAsString()));
+            AlembicResistanceHolder.smartAddResistance(new AlembicResistance(entityType, priority, ResourceLocation.tryParse(id), resMap, damages, ignored));
         });
         Alembic.LOGGER.debug("Loaded " + AlembicResistanceHolder.getResistanceMap().size() + " entity stats");
     }

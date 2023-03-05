@@ -8,7 +8,7 @@
   "absorption": true,
   "resistance": true,
   "particles": false,
-  "color": "#A100F1",
+  "color": "#F10000",
   "tags": [
     {
       "id": "AlembicParticleTag",

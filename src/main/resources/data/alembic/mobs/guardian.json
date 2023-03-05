@@ -1,0 +1,17 @@
+{
+  "id": "alembic:guardian",
+  "priority": 1,
+  "type": "minecraft:guardian",
+  "resistances": {
+    "alchemical_damage": 1.20,
+    "physical_damage": 1.0,
+    "fire_damage": 1.0,
+    "arcane_damage": 1.30,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "arcane_damage": 0.20,
+    "physical_damage": 0.80
+  },
+  "ignoredSources": []
+}

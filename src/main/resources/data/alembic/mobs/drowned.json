@@ -1,9 +1,9 @@
 {
-  "id": "alembic:zombie",
+  "id": "alembic:drowned",
   "priority": 1,
-  "type": "minecraft:zombie",
+  "type": "minecraft:drowned",
   "resistances": {
-    "alchemical_damage": 1.15,
+    "alchemical_damage": 1.18,
     "physical_damage": 1.0,
     "fire_damage": 0.88,
     "arcane_damage": 1.0,

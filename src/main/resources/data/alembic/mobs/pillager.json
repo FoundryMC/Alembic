@@ -1,0 +1,17 @@
+{
+  "id": "alembic:pillager",
+  "priority": 1,
+  "type": "minecraft:pillager",
+  "resistances": {
+    "alchemical_damage": 0.85,
+    "physical_damage": 1.0,
+    "fire_damage": 1.13,
+    "arcane_damage": 1.15,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "arcane_damage": 0.20,
+    "physical_damage": 0.80
+  },
+  "ignoredSources": []
+}

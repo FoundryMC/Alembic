@@ -1,12 +1,12 @@
 {
-  "id": "alembic:zombie",
+  "id": "alembic:spider",
   "priority": 1,
-  "type": "minecraft:zombie",
+  "type": "minecraft:spider",
   "resistances": {
-    "alchemical_damage": 1.15,
+    "alchemical_damage": 1.20,
     "physical_damage": 1.0,
-    "fire_damage": 0.88,
-    "arcane_damage": 1.0,
+    "fire_damage": 0.85,
+    "arcane_damage": 1.15,
     "true_damage": 0.0
   },
   "damage": {

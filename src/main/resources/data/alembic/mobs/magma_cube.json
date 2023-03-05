@@ -1,11 +1,11 @@
 {
-  "id": "alembic:zombie",
+  "id": "alembic:magma_cube",
   "priority": 1,
-  "type": "minecraft:zombie",
+  "type": "minecraft:magma_cube",
   "resistances": {
-    "alchemical_damage": 1.15,
+    "alchemical_damage": 1.12,
     "physical_damage": 1.0,
-    "fire_damage": 0.88,
+    "fire_damage": 1.60,
     "arcane_damage": 1.0,
     "true_damage": 0.0
   },

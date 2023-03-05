@@ -11,7 +11,7 @@ import java.util.List;
 public class AlembicAPI {
     private static List<String> damageTypes = new ArrayList<>();
 
-    public static DamageSource SOUL_FIRE = new DamageSource("SOUL_FIRE");
+    public static DamageSource SOUL_FIRE = new DamageSource("soulFire");
     public static DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
 
     public static DamageSource indirectAlchemical(Entity pSource, @Nullable Entity pIndirectEntity) {
