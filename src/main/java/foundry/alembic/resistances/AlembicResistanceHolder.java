@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AlembicResistanceHolder {
-    private static List<AlembicResistance> RESISTANCE_MAP = new ArrayList<>();
+    private static final List<AlembicResistance> RESISTANCE_MAP = new ArrayList<>();
 
     public static List<AlembicResistance> getResistanceMap() {
         return RESISTANCE_MAP;

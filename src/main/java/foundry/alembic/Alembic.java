@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 import com.mojang.logging.LogUtils;
 import foundry.alembic.client.AlembicOverlayRegistry;
 import foundry.alembic.particle.AlembicParticleRegistry;
-import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicTagRegistry;
@@ -25,14 +24,11 @@ import org.slf4j.Logger;
 
 import java.util.List;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(Alembic.MODID)
 public class Alembic {
-
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "alembic";
-    // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+
     public Alembic() {
         MixinExtrasBootstrap.init();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -47,7 +43,6 @@ public class Alembic {
         spec.setConfig(file);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, spec);
         setupConfig();
-        MinecraftForge.EVENT_BUS.register(this);
         DamageTypeRegistry.DAMAGE_ATTRIBUTES.register(modEventBus);
         DamageTypeRegistry.DEFENSIVE_ATTRIBUTES.register(modEventBus);
         AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
@@ -59,7 +54,8 @@ public class Alembic {
     public static ResourceLocation location(String name) {
         return new ResourceLocation(MODID, name);
     }
-    public static void setupConfig(){
+
+    private static void setupConfig(){
         for (String s : AlembicConfig.list.get()) {
             LOGGER.info("Registered Damage Type: " + s);
             if(s.equals("physical_damage")){
@@ -73,7 +69,7 @@ public class Alembic {
         }
     }
 
-    public static void setupDamageTypes(){
+    private static void setupDamageTypes() {
         AlembicAPI.addDefaultDamageType("fire_damage");
         AlembicAPI.addDefaultDamageType("arcane_damage");
         AlembicAPI.addDefaultDamageType("alchemical_damage");

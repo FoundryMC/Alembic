@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AlembicOverrideHolder {
-    private static List<Pair<AlembicDamageType, AlembicOverride>> OVERRIDES = new ArrayList<>();
+    private static final List<Pair<AlembicDamageType, AlembicOverride>> OVERRIDES = new ArrayList<>();
 
     public static List<Pair<AlembicDamageType, AlembicOverride>> getOverrides() {
         return OVERRIDES;

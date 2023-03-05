@@ -12,17 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DamageTypeRegistry {
-    private static final List<AlembicDamageType> damageTypes = new ArrayList<>();
-    public static final DeferredRegister<Attribute> DAMAGE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, "alembic");
-    public static final DeferredRegister<Attribute> DEFENSIVE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, "alembic");
-    public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
+    private static final List<AlembicDamageType> DAMAGE_TYPES = new ArrayList<>();
+    public static final DeferredRegister<Attribute> DAMAGE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
+    public static final DeferredRegister<Attribute> DEFENSIVE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
+    public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Alembic.MODID);
 
     public static void registerDamageType(AlembicDamageType damageType) {
-        damageTypes.add(damageType);
+        DAMAGE_TYPES.add(damageType);
     }
 
     public static void init() {
-        for (AlembicDamageType damageType : damageTypes) {
+        for (AlembicDamageType damageType : DAMAGE_TYPES) {
             DAMAGE_ATTRIBUTES.register(damageType.getId().getPath(), damageType::getAttribute);
             if(!ForgeRegistries.ATTRIBUTES.containsValue(damageType.getShieldAttribute())) {
                 DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_shield", damageType::getShieldAttribute);
@@ -33,31 +33,31 @@ public class DamageTypeRegistry {
     }
 
     public static List<AlembicDamageType> getDamageTypes() {
-        return damageTypes;
+        return DAMAGE_TYPES;
     }
 
     public static AlembicDamageType getDamageType(ResourceLocation id) {
-        return damageTypes.stream().filter(damageType -> damageType.getId().equals(id)).findFirst().orElse(null);
+        return DAMAGE_TYPES.stream().filter(damageType -> damageType.getId().equals(id)).findFirst().orElse(null);
     }
 
     public static void removeDamageType(ResourceLocation id) {
-        damageTypes.removeIf(damageType -> damageType.getId().equals(id));
+        DAMAGE_TYPES.removeIf(damageType -> damageType.getId().equals(id));
     }
 
     public static AlembicDamageType getDamageType(DamageSource damageSource) {
-        return damageTypes.stream().filter(damageType -> damageType.getDamageSource().equals(damageSource)).findFirst().orElse(null);
+        return DAMAGE_TYPES.stream().filter(damageType -> damageType.getDamageSource().equals(damageSource)).findFirst().orElse(null);
     }
 
     public static AlembicDamageType getDamageType(Attribute attribute) {
-        return damageTypes.stream().filter(damageType -> damageType.getAttribute().equals(attribute)).findFirst().orElse(null);
+        return DAMAGE_TYPES.stream().filter(damageType -> damageType.getAttribute().equals(attribute)).findFirst().orElse(null);
     }
 
     public static AlembicDamageType getDamageType(String id) {
-        return damageTypes.stream().filter(damageType -> damageType.getId().toString().equals(id)).findFirst().orElse(null);
+        return DAMAGE_TYPES.stream().filter(damageType -> damageType.getId().toString().equals(id)).findFirst().orElse(null);
     }
 
     public static boolean doesDamageTypeExist(ResourceLocation id) {
-        return damageTypes.stream().anyMatch(damageType -> damageType.getId().equals(id));
+        return DAMAGE_TYPES.stream().anyMatch(damageType -> damageType.getId().equals(id));
     }
 
 }

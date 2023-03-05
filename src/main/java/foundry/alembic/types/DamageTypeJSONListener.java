@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.math.Vector3f;
 import foundry.alembic.Alembic;
 import foundry.alembic.types.tags.AlembicTag;
-import foundry.alembic.types.tags.AlembicTagDataHolder;
 import foundry.alembic.types.tags.AlembicTagRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -18,7 +16,6 @@ import net.minecraftforge.event.AddReloadListenerEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
     public static final Gson GSON = new Gson();
@@ -46,7 +43,7 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
             boolean hasResistance = json.get("resistance").getAsBoolean();
             boolean hasAbsorption = json.get("absorption").getAsBoolean();
             boolean enableParticles = json.get("particles").getAsBoolean();
-            List<AlembicTag<?,?,?>> tags = new ArrayList<>();
+            List<AlembicTag> tags = new ArrayList<>();
             json.get("tags").getAsJsonArray().forEach(jsonElement1 -> {
                 JsonObject tag = jsonElement1.getAsJsonObject();
                 String tagId = tag.get("id").getAsString();

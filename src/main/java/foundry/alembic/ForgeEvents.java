@@ -11,6 +11,7 @@ import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicGlobalTagPropertyHolder;
+import foundry.alembic.types.tags.AlembicPerLevelTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -42,15 +43,20 @@ import static foundry.alembic.Alembic.MODID;
 @Mod.EventBusSubscriber(modid=MODID, bus=Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
     @SubscribeEvent
-    public static void onServerStarting(ServerStartingEvent event) {
+    static void onServerStarting(ServerStartingEvent event) {
         // do something when the server starts
     }
 
     @SubscribeEvent
-    public static void onLevelUp(PlayerXpEvent.LevelChange event){
-        if(event.getEntity().level.isClientSide) return;
+    static void onLevelUp(PlayerXpEvent.LevelChange event){
+        Player player = event.getEntity();
+        if(player.level.isClientSide) return;
+        for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(event.getEntity())) {
+            if (player.getAttributes().hasAttribute(tag.getAffectedType())) {
+
+            }
+        }
         AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.keySet().forEach(key -> {
-            float test = event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference();
             if(event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference() == 0){
                 if(event.getEntity().getAttributes().hasAttribute(key)){
                     CompoundTag tag = event.getEntity().getPersistentData();
@@ -71,14 +77,14 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onJsonListener(AddReloadListenerEvent event){
+    static void onJsonListener(AddReloadListenerEvent event){
         DamageTypeJSONListener.register(event);
         OverrideJSONListener.register(event);
         ResistanceJsonListener.register(event);
     }
 
     @SubscribeEvent
-    public static void onItemUse(PlayerInteractEvent.RightClickItem event){
+    static void onItemUse(PlayerInteractEvent.RightClickItem event){
         if(event.getEntity().level.isClientSide) return;
         if(event.getItemStack().getItem() == Items.STICK){
             for(AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()){
@@ -89,7 +95,7 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onLivingJoin(EntityJoinLevelEvent event){
+    static void onLivingJoin(EntityJoinLevelEvent event){
         if(event.getEntity().level.isClientSide) return;
         if(event.getEntity() instanceof LivingEntity le){
             for(AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()){
@@ -114,13 +120,13 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onLivingSpawn(final LivingSpawnEvent event){
+    static void onLivingSpawn(final LivingSpawnEvent event){
     }
 
     private static boolean noRecurse = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void hurt(final LivingHurtEvent e){
+    static void hurt(final LivingHurtEvent e){
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
@@ -226,7 +232,7 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void attack(final LivingAttackEvent e) {
+    static void attack(final LivingAttackEvent e) {
     }
 
     private static DamageSource src(LivingEntity entity) {

@@ -1,5 +1,8 @@
 package foundry.alembic.types;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.CodecUtil;
 import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +15,21 @@ import java.util.List;
 
 
 public class AlembicDamageType {
+    public static final Codec<AlembicDamageType> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("priority").forGetter(AlembicDamageType::getPriority),
+                    ResourceLocation.CODEC.fieldOf("id").forGetter(AlembicDamageType::getId),
+                    Codec.DOUBLE.fieldOf("default").forGetter(AlembicDamageType::getBase),
+                    Codec.DOUBLE.fieldOf("min").forGetter(AlembicDamageType::getMin),
+                    Codec.DOUBLE.fieldOf("max").forGetter(AlembicDamageType::getMax),
+                    Codec.BOOL.fieldOf("shielding").forGetter(AlembicDamageType::hasShielding),
+                    Codec.BOOL.fieldOf("resistance").forGetter(AlembicDamageType::hasResistance),
+                    Codec.BOOL.fieldOf("absorption").forGetter(AlembicDamageType::hasAbsorption),
+                    Codec.BOOL.fieldOf("particles").forGetter(AlembicDamageType::enableParticles),
+                    CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor)
+            ).apply(instance, AlembicDamageType::new)
+    );
+
     private int priority;
     private ResourceLocation id;
     private double base;
@@ -24,8 +42,8 @@ public class AlembicDamageType {
     private AlembicAttribute attribute;
     private DamageSource damageSource;
     private int color;
-    private List<AlembicTag<?, ?, ?>> tags = new ArrayList<>();
-    private RangedAttribute shieldAttribute;
+    private List<AlembicTag> tags = new ArrayList<>();
+    private AlembicAttribute shieldAttribute;
     private AlembicAttribute resistanceAttribute;
     private MobEffect resistanceEffect;
     private AlembicAttribute absorptionAttribute;
@@ -46,9 +64,9 @@ public class AlembicDamageType {
         this.damageSource = new DamageSource(id.toString());
         this.color = color;
         this.enableParticles = enableParticles;
-        this.shieldAttribute = new AlembicAttribute(id.toString() + "_shield", 0, 0, 1024);
-        this.resistanceAttribute = new AlembicAttribute(id.toString() + "_resistance", 0, -1024, 1024);
-        this.absorptionAttribute = new AlembicAttribute(id.toString() + "_absorption", 0, 0, 1024);
+        this.shieldAttribute = new AlembicAttribute(id + "_shield", 0, 0, 1024);
+        this.resistanceAttribute = new AlembicAttribute(id + "_resistance", 0, -1024, 1024);
+        this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
         this.translationString = "alembic.damage." + id.getPath();
     }
 
@@ -56,11 +74,11 @@ public class AlembicDamageType {
         return translationString;
     }
 
-    public void addTag(AlembicTag<?, ?, ?> tag) {
+    public void addTag(AlembicTag tag) {
         this.tags.add(tag);
     }
 
-    public List<AlembicTag<?, ?, ?>> getTags() {
+    public List<AlembicTag> getTags() {
         return this.tags;
     }
 
@@ -124,7 +142,7 @@ public class AlembicDamageType {
 
     public String tagString() {
         StringBuilder tagString = new StringBuilder();
-        for (AlembicTag<?, ?, ?> tag : tags) {
+        for (AlembicTag tag : tags) {
             tagString.append(tag.toString()).append(", ");
         }
         return tagString.toString();
@@ -182,7 +200,7 @@ public class AlembicDamageType {
         this.id = id;
     }
 
-    public RangedAttribute getShieldAttribute() {
+    public AlembicAttribute getShieldAttribute() {
         return shieldAttribute;
     }
 

@@ -9,20 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AlembicAPI {
-    private static List<String> damageTypes = new ArrayList<>();
+    private static final List<String> DAMAGE_TYPES = new ArrayList<>();
 
-    public static DamageSource SOUL_FIRE = new DamageSource("SOUL_FIRE");
-    public static DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
+    public static final DamageSource SOUL_FIRE = new DamageSource("SOUL_FIRE");
+    public static final DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
 
     public static DamageSource indirectAlchemical(Entity pSource, @Nullable Entity pIndirectEntity) {
         return (new IndirectEntityDamageSource("indirectAlchemical", pSource, pIndirectEntity)).bypassArmor().setMagic();
     }
 
     public static void addDefaultDamageType(String damageType) {
-        damageTypes.add(damageType);
+        DAMAGE_TYPES.add(damageType);
     }
 
     public static List<String> getDefaultDamageTypes() {
-        return damageTypes;
+        return DAMAGE_TYPES;
     }
 }
