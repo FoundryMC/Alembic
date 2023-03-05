@@ -5,7 +5,7 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 public class AlembicAttribute extends RangedAttribute {
 
     public AlembicAttribute(String descriptionId, double defaultValue, double min, double max) {
-        super(descriptionId, min, max, defaultValue);
+        super(descriptionId, defaultValue, min, max);
     }
 
     public void setBaseValue(double value){
