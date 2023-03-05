@@ -6,12 +6,16 @@
   "refmap": "alembic.refmap.json",
   "mixins": [
     "BaseFireBlockMixin",
-    "MobEffectMixin"
+    "EvokerFangsMixin",
+    "GuardianAttackGoalMixin",
+    "MobEffectMixin",
+    "ThrownPotionMixin"
   ],
   "client": [
     "client.GuiMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "plugin": "foundry.alembic.asm.AlembicMixinConfigPlugin"
 }

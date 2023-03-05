@@ -35,12 +35,10 @@ public class Alembic {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     public Alembic() {
-        MixinExtrasBootstrap.init();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AlembicTagRegistry.init();
         setupDamageTypes();
         ForgeConfigSpec spec = AlembicConfig.makeConfig(new ForgeConfigSpec.Builder());
-
         final CommentedFileConfig file = CommentedFileConfig.builder(FMLPaths.CONFIGDIR.get().resolve("alembic-common.toml"))
                 .sync().autosave().writingMode(WritingMode.REPLACE).build();
         file.load();
