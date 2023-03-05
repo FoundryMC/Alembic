@@ -13,6 +13,10 @@ public class AlembicAPI {
 
     public static DamageSource SOUL_FIRE = new DamageSource("soulFire");
     public static DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
+    public static DamageSource EVOKER_FANGS = new DamageSource("evokerFangs");
+    public static DamageSource GUARDIAN_BEAM = new DamageSource("guardianBeam");
+    public static DamageSource ALLERGY = new DamageSource("allergy");
+
 
     public static DamageSource indirectAlchemical(Entity pSource, @Nullable Entity pIndirectEntity) {
         return (new IndirectEntityDamageSource("indirectAlchemical", pSource, pIndirectEntity)).bypassArmor().setMagic();
