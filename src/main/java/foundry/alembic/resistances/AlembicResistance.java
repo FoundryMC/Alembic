@@ -4,6 +4,7 @@ import foundry.alembic.types.AlembicDamageType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
+import java.util.List;
 import java.util.Map;
 
 public class AlembicResistance {
@@ -13,16 +14,23 @@ public class AlembicResistance {
     private Map<AlembicDamageType, Float> resistances;
     private Map<AlembicDamageType, Float> damage;
 
-    public AlembicResistance(EntityType<?> entityType, int priority, ResourceLocation id, Map<AlembicDamageType, Float> resistances, Map<AlembicDamageType, Float> damageTypes) {
+    private List<String> ignoredSources;
+
+    public AlembicResistance(EntityType<?> entityType, int priority, ResourceLocation id, Map<AlembicDamageType, Float> resistances, Map<AlembicDamageType, Float> damageTypes, List<String> ignoredSources) {
         this.entityType = entityType;
         this.priority = priority;
         this.id = id;
         this.resistances = resistances;
         this.damage = damageTypes;
+        this.ignoredSources = ignoredSources;
     }
 
     public EntityType<?> getEntityType() {
         return entityType;
+    }
+
+    public List<String> getIgnoredSources() {
+        return ignoredSources;
     }
 
     public int getPriority() {

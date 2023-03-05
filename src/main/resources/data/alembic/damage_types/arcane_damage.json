@@ -8,14 +8,15 @@
   "absorption": true,
   "resistance": true,
   "particles": false,
-  "color": "#A100F1",
+  "color": "#9760FB",
   "tags": [
     {
       "id": "AlembicParticleTag",
       "properties": [
         {
           "alembic:arcane_damage": [1,1,1,1]
-        }]
+        }
+      ]
     },
     {
       "id": "AlembicPerLevelTag",

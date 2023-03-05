@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 import com.mojang.logging.LogUtils;
 import foundry.alembic.client.AlembicOverlayRegistry;
+import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
@@ -49,6 +50,7 @@ public class Alembic {
         DamageTypeRegistry.init();
         AlembicParticleRegistry.init();
         AlembicOverlayRegistry.init();
+        AlembicPacketHandler.init();
     }
 
     public static ResourceLocation location(String name) {

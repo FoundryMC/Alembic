@@ -8,10 +8,10 @@
   "absorption": true,
   "resistance": true,
   "particles": false,
-  "color": "#ffffff",
+  "color": "#FFFFFF",
   "tags": [
     {
-      "id": "AlembicParticleTag",
+      "id": "AlembicNoParticleTag",
       "properties": [
         {
           "alembic:true_damage": [1, 1, 1, 1]

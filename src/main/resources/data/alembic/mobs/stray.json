@@ -1,0 +1,18 @@
+{
+  "id": "alembic:stray",
+  "priority": 1,
+  "type": "minecraft:stray",
+  "resistances": {
+    "alchemical_damage": 1.12,
+    "physical_damage": 1.0,
+    "fire_damage": 0.90,
+    "arcane_damage": 1.08,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "physical_damage": 1.0
+  },
+  "ignoredSources": [
+    "freeze"
+  ]
+}
