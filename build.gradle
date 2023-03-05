@@ -73,32 +73,41 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'alembic', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'alembic', '--all', '--output', file('src/test/generated/resources/'), '--existing', file('src/main/resources/')
+
+//            args '--mod', 'testmod'
 
             mods {
                 alembic {
                     source sourceSets.main
                 }
+//                testmod {
+//                    source sourceSets.test
+//                }
             }
         }
 
-        testData {
-            parent data
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'testmod', '--all', '--output', file('src/test/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                alembic {
-                    source sourceSets.main
-                }
-                testmod {
-                    source sourceSets.test
-                }
-            }
-        }
+//        testData {
+//            parent runs.data
+//            workingDirectory project.file('run')
+//            ideaModule "${project.name}.test"
+//
+//            environment 'MOD_CLASSES', 'dummy'
+//
+//            main "cpw.mods.bootstraplauncher.BootstrapLauncher"
+//
+//            args '--mod', 'testmod'
+//
+//
+//            mods {
+//                alembic {
+//                    source sourceSets.main
+//                }
+//                testmod {
+//                    source sourceSets.test
+//                }
+//            }
+//        }
     }
 }
 
