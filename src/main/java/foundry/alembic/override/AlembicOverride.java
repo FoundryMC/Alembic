@@ -1,110 +1,71 @@
 package foundry.alembic.override;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.DataResult;
+import foundry.alembic.CodecUtil;
+import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
+import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.DamageTypeRegistry;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.damagesource.DamageSource;
 
-import javax.annotation.Nonnull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AlembicOverride {
-//    public static final Codec<AlembicOverride> CODEC = RecordCodecBuilder.create(instance ->
-//            instance.group(
-//                    Override.CODEC.fieldOf("")
-//            )
-//    );
+    public static final Codec<AlembicOverride> CODEC = Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).comapFlatMap(
+            map -> {
+                float total = 0;
+                Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
+                for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
+                    if (!DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
+                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                    }
+                    retMap.put(DamageTypeRegistry.getDamageType(entry.getKey()), entry.getValue());
+                    total += entry.getValue();
+                }
+                if (total != 1.0f) {
+                    return DataResult.error("Total value is %s! All values must sum up to 1.0".formatted(total > 1.0f ? "too high" : "too low"));
+                }
+                return DataResult.success(new AlembicOverride(retMap));
+            },
+            alembicOverride -> {
+                Map<ResourceLocation, Float> retMap = new HashMap<>();
+                for (Object2FloatMap.Entry<AlembicDamageType> entry : alembicOverride.damages.object2FloatEntrySet()) {
+                    retMap.put(entry.getKey().getId(), entry.getFloatValue());
+                }
+                return retMap;
+            }
+    );
 
-    private Override override;
-    private float percentage;
-    private String id;
+    private final Object2FloatMap<AlembicDamageType> damages;
     private int priority;
-    private ResourceLocation entityType;
-    private String moddedSource;
+    private ResourceLocation id;
 
-    public AlembicOverride(String id, int priority, Override override, float percentage) {
-        this.id = id;
-        this.priority = priority;
-        this.override = override;
-        this.percentage = percentage;
+    public AlembicOverride(Object2FloatMap<AlembicDamageType> damages) {
+        this.damages = damages;
     }
 
-    public String getModdedSource() {
-        return moddedSource;
+    public List<Pair<AlembicDamageType, Float>> getDamages() {
+        return damages.object2FloatEntrySet().stream().map(entry -> Pair.of(entry.getKey(), entry.getFloatValue())).toList();
     }
 
-    public void setModdedSource(String moddedSource) {
-        this.moddedSource = moddedSource;
-    }
-
-    public void setEntityType(ResourceLocation entityType) {
-        this.entityType = entityType;
-    }
-
-    public ResourceLocation getEntityType() {
-        return entityType;
-    }
-
-    public float getPercentage() {
-        return percentage;
-    }
-
-
-    public Override getOverride() {
-        return override;
-    }
-
-
-    public String getId() {
+    public ResourceLocation getId() {
         return id;
+    }
+
+    void setId(ResourceLocation id) {
+        this.id = id;
+    }
+
+    void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public int getPriority() {
         return priority;
-    }
-
-    public enum Override implements StringRepresentable {
-        ENTITY_TYPE("ENTITY_TYPE"),
-        DROWN("DROWN", DamageSource.DROWN),
-        FALL("FALL", DamageSource.FALL),
-        PRICKED("PRICKED", DamageSource.CACTUS, DamageSource.SWEET_BERRY_BUSH),
-        FIRE("FIRE", DamageSource.IN_FIRE, DamageSource.ON_FIRE, DamageSource.HOT_FLOOR),
-        LAVA("LAVA", DamageSource.LAVA),
-        SUFFOCATION("SUFFOCATION", DamageSource.IN_WALL),
-        CRAM("CRAM", DamageSource.CRAMMING),
-        STARVE("STARVE", DamageSource.STARVE),
-        IMPACT("IMPACT", DamageSource.FLY_INTO_WALL),
-        OUT_OF_WORLD("OUT_OF_WORLD", DamageSource.OUT_OF_WORLD),
-        GENERIC("GENERIC", DamageSource.GENERIC),
-        MAGIC("MAGIC", DamageSource.MAGIC),
-        WITHER("WITHER", DamageSource.WITHER),
-        CRUSHED("CRUSHED", DamageSource.ANVIL, DamageSource.FALLING_BLOCK),
-        DRAGON_BREATH("DRAGON_BREATH", DamageSource.DRAGON_BREATH),
-        DRIED_OUT("DRY_OUT", DamageSource.DRY_OUT),
-        FREEZE("FREEZE", DamageSource.FREEZE),
-        PIERCED("PIERCED", DamageSource.FALLING_STALACTITE, DamageSource.STALAGMITE),
-        ATTACK("ATTACK", new DamageSource("mob"), new DamageSource("player")),
-        MODDED("MODDED");
-
-        public static final Codec<Override> CODEC = new EnumCodec<>(values(), Override::valueOf);
-
-        private final String safeName;
-        private final List<DamageSource> sources;
-
-        Override(String safeName, DamageSource... sources) {
-            this.safeName = safeName;
-            this.sources = List.of(sources);
-        }
-
-        public List<DamageSource> getSources() {
-            return sources;
-        }
-
-        @Nonnull
-        @java.lang.Override
-        public String getSerializedName() {
-            return safeName;
-        }
     }
 }
