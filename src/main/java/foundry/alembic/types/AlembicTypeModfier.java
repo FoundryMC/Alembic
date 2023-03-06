@@ -12,7 +12,7 @@ public enum AlembicTypeModfier implements StringRepresentable {
     SHIELDING("shielding", AlembicDamageType::getShieldAttribute),
     ABSORPTION("absorption", AlembicDamageType::getAbsorptionAttribute);
 
-    public static final Codec<AlembicTypeModfier> CODEC = new StringRepresentable.EnumCodec<>(AlembicTypeModfier.values(), AlembicTypeModfier::valueOf);
+    public static final Codec<AlembicTypeModfier> CODEC = StringRepresentable.fromEnum(AlembicTypeModfier::values);
 
     private final String safeName;
     private final Function<AlembicDamageType, RangedAttribute> attributeFunction;
