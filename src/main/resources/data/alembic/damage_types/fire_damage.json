@@ -16,7 +16,7 @@
       "id": "AlembicParticleTag",
       "properties": [
         {
-          "alembic:fire_damage": [1, 1, 1, 1]
+          "minecraft:flame": [1, 1, 1, 1]
         }
       ]
     },
