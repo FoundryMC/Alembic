@@ -22,7 +22,7 @@ public enum AlembicTypeModfier implements StringRepresentable {
         this.attributeFunction = attributeFunction;
     }
 
-    public RangedAttribute getAttribute(AlembicDamageType damageType) {
+    public RangedAttribute getAffectedAttribute(AlembicDamageType damageType) {
         return attributeFunction.apply(damageType);
     }
 

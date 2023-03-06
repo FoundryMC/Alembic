@@ -49,7 +49,7 @@ public class AlembicPerLevelTag implements AlembicTag {
 
     @Override
     public void handlePostParse(AlembicDamageType damageType) {
-        this.affectedType = attrType.getAttribute(damageType);
+        this.affectedType = attrType.getAffectedAttribute(damageType);
         AlembicGlobalTagPropertyHolder.add(this);
     }
 
