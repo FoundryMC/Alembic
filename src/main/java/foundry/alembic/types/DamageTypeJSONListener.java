@@ -34,6 +34,10 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             DataResult<AlembicDamageType> result =  AlembicDamageType.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+            if (result.error().isPresent()) {
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
+                continue;
+            }
             AlembicDamageType type = result.getOrThrow(false, Alembic.LOGGER::error);
             type.setId(entry.getKey());
             if (DamageTypeRegistry.doesDamageTypeExist(type.getId())) {

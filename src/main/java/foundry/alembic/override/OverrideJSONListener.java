@@ -40,21 +40,24 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
         AlembicOverrideHolder.clearOverrides();
         for (Map.Entry<ResourceLocation, JsonElement> dataEntry : pObject.entrySet()) {
             DataResult<OverrideStorage> dataResult = STORAGE_CODEC.parse(JsonOps.INSTANCE, dataEntry.getValue());
-            if (dataResult.result().isPresent()) {
-                OverrideStorage storage = dataResult.result().get();
-                for (Map.Entry<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
-                    AlembicOverride override = parsedEntry.getValue();
+            if (dataResult.error().isPresent()) {
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(dataEntry.getKey(), dataResult.error().get().message()));
+                continue;
+            }
 
-                    override.setId(dataEntry.getKey());
-                    override.setPriority(storage.priority);
+            OverrideStorage storage = dataResult.result().get();
+            for (Map.Entry<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
+                AlembicOverride override = parsedEntry.getValue();
 
-                    if (parsedEntry.getKey().left().isPresent()) {
-                        for (AlembicDamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
-                            AlembicOverrideHolder.smartAddOverride(id, override);
-                        }
-                    } else {
-                        AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override);
+                override.setId(dataEntry.getKey());
+                override.setPriority(storage.priority);
+
+                if (parsedEntry.getKey().left().isPresent()) {
+                    for (AlembicDamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
+                        AlembicOverrideHolder.smartAddOverride(id, override);
                     }
+                } else {
+                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override);
                 }
             }
         }

@@ -38,7 +38,11 @@ public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
         AlembicResistanceHolder.clear();
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             DataResult<AlembicResistance> result = AlembicResistance.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
-            AlembicResistance obj = result.getOrThrow(false, Alembic.LOGGER::error);
+            if (result.error().isPresent()) {
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
+                continue;
+            }
+            AlembicResistance obj = result.result().get();
             obj.setId(entry.getKey());
             AlembicResistanceHolder.smartAddResistance(obj);
         }
