@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.damagesource.DamageSource;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -13,11 +14,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class AlembicDamageSourceIdentifier implements StringRepresentable {
+public final class AlembicDamageSourceIdentifier implements StringRepresentable, Comparable<AlembicDamageSourceIdentifier> {
+    private static final Interner<AlembicDamageSourceIdentifier> INTERNED = Interners.newWeakInterner();
+
     public static final Codec<AlembicDamageSourceIdentifier> CODEC = Codec.STRING.xmap(AlembicDamageSourceIdentifier::create, AlembicDamageSourceIdentifier::getSerializedName);
     public static final Codec<Either<DefaultWrappedSources, AlembicDamageSourceIdentifier>> EITHER_CODEC = Codec.either(DefaultWrappedSources.CODEC, CODEC);
-
-    private static final Interner<AlembicDamageSourceIdentifier> INTERNED = Interners.newWeakInterner();
 
     private final String damageSourceId;
 
@@ -46,6 +47,11 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable 
         return damageSourceId;
     }
 
+    @Override
+    public int compareTo(@NotNull AlembicDamageSourceIdentifier o) {
+        return damageSourceId.compareTo(o.damageSourceId);
+    }
+
     public enum DefaultWrappedSources implements StringRepresentable {
         DROWN("DROWN", DamageSource.DROWN),
         FALL("FALL", DamageSource.FALL),
@@ -68,7 +74,7 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable 
         ATTACK("ATTACK", new DamageSource("mob"), new DamageSource("player")),
         MODDED("MODDED");
 
-        public static final Codec<DefaultWrappedSources> CODEC = new EnumCodec<>(values(), DefaultWrappedSources::valueOf);
+        public static final Codec<DefaultWrappedSources> CODEC = StringRepresentable.fromEnum(DefaultWrappedSources::values);
 
         private final String safeName;
         private final Set<AlembicDamageSourceIdentifier> identifiers;
