@@ -33,7 +33,7 @@ public class CodecUtil {
     );
 
     public static final Codec<ResourceLocation> ALEMBIC_RL_CODEC = Codec.STRING.comapFlatMap(
-            s -> ResourceLocation.read(s.contains(":") ? s : Alembic.MODID + s),
+            s -> ResourceLocation.read(s.contains(":") ? s : Alembic.MODID + ":" + s),
             ResourceLocation::toString
     );
 }
