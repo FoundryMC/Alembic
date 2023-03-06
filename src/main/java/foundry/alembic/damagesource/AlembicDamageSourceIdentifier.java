@@ -11,81 +11,39 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public abstract class AlembicDamageSourceIdentifier implements StringRepresentable {
-    public static final Codec<AlembicDamageSourceIdentifier> CODEC = Codec.either(
-            DefaultWrappedSources.CODEC.xmap(DefaultWrappedSources::getIdentifier, identifier -> DefaultWrappedSources.valueOf(identifier.getSerializedName())),
-            Codec.STRING.xmap(AlembicDamageSourceIdentifier::create, identifier -> identifier.sourceStr)
-    ).xmap(
-            either -> either.left().isPresent() ? either.left().get() : either.right().get(),
-            identifier -> identifier instanceof SetDamageSourceIdentifier setId ? Either.left(setId) : Either.right((WrappedDamageSourceIdentifier) identifier)
-    );
+public final class AlembicDamageSourceIdentifier implements StringRepresentable {
+    public static final Codec<AlembicDamageSourceIdentifier> CODEC = Codec.STRING.xmap(AlembicDamageSourceIdentifier::create, AlembicDamageSourceIdentifier::getSerializedName);
+    public static final Codec<Either<DefaultWrappedSources, AlembicDamageSourceIdentifier>> EITHER_CODEC = Codec.either(DefaultWrappedSources.CODEC, CODEC);
 
     private static final Interner<AlembicDamageSourceIdentifier> INTERNED = Interners.newWeakInterner();
 
-    private AlembicDamageSourceIdentifier() {}
+    private final String damageSourceId;
 
-    public abstract boolean matches(DamageSource damageSource);
+    private AlembicDamageSourceIdentifier(String wrappedName) {
+        this.damageSourceId = wrappedName;
+    }
+
+    public boolean matches(DamageSource damageSource) {
+        return damageSourceId.equals(damageSource.msgId);
+    }
     public boolean matches(AlembicDamageSourceIdentifier damageSource) {
         return this == damageSource;
     }
 
-    public static SetDamageSourceIdentifier createSet(String setName, String... sourceIds) {
-        return (SetDamageSourceIdentifier)INTERNED.intern(new SetDamageSourceIdentifier(setName, sourceIds));
+    public static AlembicDamageSourceIdentifier create(String damageSourceId) {
+        return INTERNED.intern(new AlembicDamageSourceIdentifier(damageSourceId));
     }
 
-    public static WrappedDamageSourceIdentifier create(String sourceId) {
-        return (WrappedDamageSourceIdentifier)INTERNED.intern(new WrappedDamageSourceIdentifier(sourceId));
+    @Override
+    public int hashCode() {
+        return Objects.hash(damageSourceId);
     }
 
-    public static final class SetDamageSourceIdentifier extends AlembicDamageSourceIdentifier {
-
-        private final Set<String> sourceSet;
-        private final String wrappedName;
-
-        private SetDamageSourceIdentifier(String wrappedName, String... sources) {
-            this.sourceSet = Set.of(sources);
-            this.wrappedName = wrappedName;
-        }
-
-        @Override
-        public boolean matches(DamageSource damageSource) {
-            return sourceSet.contains(damageSource.msgId);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(sourceSet);
-        }
-
-        @Override
-        public String getSerializedName() {
-            return wrappedName;
-        }
-    }
-
-    public static final class WrappedDamageSourceIdentifier extends AlembicDamageSourceIdentifier {
-
-        private final String sourceStr;
-
-        private WrappedDamageSourceIdentifier(String sourceStr) {
-            this.sourceStr = sourceStr;
-        }
-
-        @Override
-        public boolean matches(DamageSource damageSource) {
-            return this.sourceStr.equals(damageSource.msgId);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(sourceStr);
-        }
-
-        @Override
-        public String getSerializedName() {
-            return sourceStr;
-        }
+    @Override
+    public String getSerializedName() {
+        return damageSourceId;
     }
 
     public enum DefaultWrappedSources implements StringRepresentable {
@@ -113,30 +71,21 @@ public abstract class AlembicDamageSourceIdentifier implements StringRepresentab
         public static final Codec<DefaultWrappedSources> CODEC = new EnumCodec<>(values(), DefaultWrappedSources::valueOf);
 
         private final String safeName;
-        private final SetDamageSourceIdentifier identifier;
+        private final Set<AlembicDamageSourceIdentifier> identifiers;
 
         DefaultWrappedSources(String safeName, DamageSource... sources) {
             this.safeName = safeName;
-            this.identifier = AlembicDamageSourceIdentifier.createSet(safeName, Arrays.stream(sources).map(source -> source.msgId).toArray(String[]::new));
+            this.identifiers = Arrays.stream(sources).map(source -> AlembicDamageSourceIdentifier.create(source.msgId)).collect(Collectors.toSet());
         }
 
-        public SetDamageSourceIdentifier getIdentifier() {
-            return identifier;
+        public Set<AlembicDamageSourceIdentifier> getIdentifiers() {
+            return identifiers;
         }
 
         @Nonnull
         @java.lang.Override
         public String getSerializedName() {
             return safeName;
-        }
-
-        public static boolean exists(String name) {
-            try {
-                valueOf(name);
-                return true;
-            } catch (Exception ignored) {
-                return false;
-            }
         }
     }
 }
