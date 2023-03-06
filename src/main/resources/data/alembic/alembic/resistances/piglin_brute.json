@@ -1,0 +1,16 @@
+{
+  "priority": 1,
+  "type": "minecraft:piglin_brute",
+  "resistances": {
+    "alchemical_damage": 0.80,
+    "physical_damage": 1.0,
+    "fire_damage": 1.2,
+    "arcane_damage": 1.11,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "physical_damage": 0.75,
+    "fire_damage": 0.25
+  },
+  "ignored_sources": []
+}
