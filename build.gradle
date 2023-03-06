@@ -125,7 +125,7 @@ sourceSets {
         java.srcDir("src/test/java")
         resources {
             srcDir("src/test/resources")
-            srcDir("src/test/generated/resources")
+            srcDir("src/test/generated")
         }
     }
 }
@@ -167,6 +167,12 @@ jar {
                 "Implementation-Vendor"   : "amo, Farcr",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
+    }
+}
+
+tasks.withType(Copy) {
+    filesMatching("META-INF/mods.toml") {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
 
