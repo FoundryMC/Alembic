@@ -22,7 +22,7 @@ import java.util.Map;
 public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
     public static final Gson GSON = new Gson();
     public DamageTypeJSONListener() {
-        super(GSON, "damage_types");
+        super(GSON, "alembic/damage_types");
     }
 
     public static void register(AddReloadListenerEvent event){

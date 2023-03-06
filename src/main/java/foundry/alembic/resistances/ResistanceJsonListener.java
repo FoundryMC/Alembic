@@ -25,7 +25,7 @@ import java.util.*;
 public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();
     public ResistanceJsonListener() {
-        super(GSON, "mobs");
+        super(GSON, "alembic/resistances");
     }
 
     public static void register(AddReloadListenerEvent event){
