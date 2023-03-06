@@ -142,9 +142,8 @@ public class ForgeEvents {
             noRecurse = false;
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
-            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(e.getSource().msgId);
-            boolean override = !pairs.isEmpty();
-            if (override) {
+            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(e.getSource());
+            if (!pairs.isEmpty()) {
                 handleTypedDamage(target, null, totalDamage, pairs, e.getSource());
                 //target.hurt(e.getSource(), totalDamage);
                 noRecurse = false;
