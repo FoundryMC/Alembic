@@ -44,7 +44,7 @@ public class AlembicDamageType {
     private int color;
     private List<AlembicTag> tags;
     private RangedAttribute shieldAttribute;
-    private AlembicAttribute resistanceAttribute;
+    private RangedAttribute resistanceAttribute;
     private MobEffect resistanceEffect;
     private AlembicAttribute absorptionAttribute;
     private MobEffect absorptionEffect;
@@ -184,7 +184,7 @@ public class AlembicDamageType {
         return shieldAttribute;
     }
 
-    public AlembicAttribute getResistanceAttribute() {
+    public RangedAttribute getResistanceAttribute() {
         return resistanceAttribute;
     }
 
@@ -196,7 +196,7 @@ public class AlembicDamageType {
         this.shieldAttribute = shieldAttribute;
     }
 
-    public void setResistanceAttribute(AlembicAttribute resistanceAttribute) {
+    public void setResistanceAttribute(RangedAttribute resistanceAttribute) {
         this.resistanceAttribute = resistanceAttribute;
     }
 

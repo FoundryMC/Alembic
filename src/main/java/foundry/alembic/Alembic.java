@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import foundry.alembic.client.AlembicOverlayRegistry;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
+import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicTagRegistry;
@@ -61,9 +62,9 @@ public class Alembic {
             LOGGER.info("Registered Damage Type: " + s);
             ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){
-                AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
-                damageType.setResistanceAttribute((AlembicAttribute) Attributes.ARMOR);
-                DamageTypeRegistry.registerDamageType(damageType);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
+                damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
+                DamageTypeRegistry.registerDamageType(id, damageType);
             } else {
                 AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
                 DamageTypeRegistry.registerDamageType(id, damageType);
