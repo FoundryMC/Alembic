@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class AlembicExtendFireTag implements AlembicTag {
@@ -43,5 +44,10 @@ public class AlembicExtendFireTag implements AlembicTag {
     @Override
     public AlembicTagType<?> getType() {
         return AlembicTagType.EXTEND_FIRE;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " Multiplier: %s, Ignored sources: %s".formatted(multiplier, Arrays.toString(ignoredSources.toArray()));
     }
 }

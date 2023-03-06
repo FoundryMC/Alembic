@@ -38,6 +38,6 @@ public class AlembicParticleTag implements AlembicTag {
 
     @Override
     public String toString() {
-        return "AlembicParticleTag";
+        return "AlembicParticleTag, Particle options: " + particleOptions.getType().getClass().getSimpleName();
     }
 }

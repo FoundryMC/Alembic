@@ -68,4 +68,9 @@ public class AlembicPerLevelTag implements AlembicTag {
     public float getCap() {
         return cap;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "Bonus per level: %s, Level difference: %s, Max value: %s, Affected attribute: %s".formatted(bonusPerLevel, levelDifference, cap, affectedType.descriptionId);
+    }
 }
