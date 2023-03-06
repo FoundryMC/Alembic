@@ -17,7 +17,6 @@ public class AlembicDamageType {
     public static final Codec<AlembicDamageType> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("priority").forGetter(AlembicDamageType::getPriority),
-                    ResourceLocation.CODEC.fieldOf("id").forGetter(AlembicDamageType::getId),
                     Codec.DOUBLE.fieldOf("default").forGetter(AlembicDamageType::getBase),
                     Codec.DOUBLE.fieldOf("min").forGetter(AlembicDamageType::getMin),
                     Codec.DOUBLE.fieldOf("max").forGetter(AlembicDamageType::getMax),
@@ -51,9 +50,8 @@ public class AlembicDamageType {
 
     private String translationString;
 
-    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean enableParticles, int color, List<AlembicTag> tags) {
+    public AlembicDamageType(int priority, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean enableParticles, int color, List<AlembicTag> tags) {
         this.priority = priority;
-        this.id = id;
         this.base = base;
         this.min = min;
         this.max = max;

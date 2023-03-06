@@ -35,6 +35,7 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             DataResult<AlembicDamageType> result =  AlembicDamageType.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             AlembicDamageType type = result.getOrThrow(false, Alembic.LOGGER::error);
+            type.setId(entry.getKey());
             if (DamageTypeRegistry.doesDamageTypeExist(type.getId())) {
                 if (type.getPriority() < DamageTypeRegistry.getDamageType(type.getId()).getPriority()) {
                     Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(type.getId()));
