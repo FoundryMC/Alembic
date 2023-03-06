@@ -24,18 +24,18 @@ public class DamageTypeRegistry {
     }
 
     public static void init() {
-        for (AlembicDamageType damageType : DAMAGE_TYPES.values()) {
-            DAMAGE_ATTRIBUTES.register(damageType.getId().getPath(), damageType::getAttribute);
-            if(!ForgeRegistries.ATTRIBUTES.containsValue(damageType.getShieldAttribute())) {
-                DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_shield", damageType::getShieldAttribute);
+        for (Map.Entry<ResourceLocation, AlembicDamageType> entry : DAMAGE_TYPES.entrySet()) {
+            DAMAGE_ATTRIBUTES.register(entry.getKey().getPath(), entry.getValue()::getAttribute);
+            if(!ForgeRegistries.ATTRIBUTES.containsValue(entry.getValue().getShieldAttribute())) {
+                DEFENSIVE_ATTRIBUTES.register(entry.getKey().getPath() + "_shield", entry.getValue()::getShieldAttribute);
             }
-            DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_resistance", damageType::getResistanceAttribute);
-            DEFENSIVE_ATTRIBUTES.register(damageType.getId().getPath() + "_absorption", damageType::getAbsorptionAttribute);
+            DEFENSIVE_ATTRIBUTES.register(entry.getKey().getPath() + "_resistance", entry.getValue()::getResistanceAttribute);
+            DEFENSIVE_ATTRIBUTES.register(entry.getKey().getPath() + "_absorption", entry.getValue()::getAbsorptionAttribute);
         }
     }
 
     public static void replaceWithData(AlembicDamageType damageType) {
-        DAMAGE_TYPES.put(damageType.getId(), damageType);
+        DAMAGE_TYPES.put(damageType.getId(), DAMAGE_TYPES.get(damageType.getId()).copyValues(damageType));
     }
 
     public static List<AlembicDamageType> getDamageTypes() {
