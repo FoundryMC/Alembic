@@ -1,8 +1,13 @@
 package foundry.alembic;
 
+import foundry.alembic.event.AlembicDamageEvent;
+import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.DamageTypeRegistry;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -28,5 +33,25 @@ public class AlembicAPI {
 
     public static List<String> getDefaultDamageTypes() {
         return DAMAGE_TYPES;
+    }
+
+    public static AlembicDamageType getDamageType(String damageType) {
+        return DamageTypeRegistry.getDamageType(damageType);
+    }
+
+    public static AlembicDamageType getDamageType(DamageSource damageSource) {
+        return DamageTypeRegistry.getDamageType(damageSource);
+    }
+
+    public static float activatePreEvent(LivingEntity target, LivingEntity attacker, AlembicDamageType damageType, float damage, float resistance) {
+        AlembicDamageEvent.Pre event = new AlembicDamageEvent.Pre(target, attacker, damageType, damage, resistance);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getDamage();
+    }
+
+    public static float activatePostEvent(LivingEntity target, LivingEntity attacker, AlembicDamageType damageType, float damage, float resistance) {
+        AlembicDamageEvent.Post event = new AlembicDamageEvent.Post(target, attacker, damageType, damage, resistance);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getDamage();
     }
 }

@@ -1,43 +1,42 @@
 {
-  "priority": 1,
-  "min": 0.0,
-  "max": 1024.0,
-  "default": 0.0,
-  "shielding": false,
-  "absorption": true,
-  "resistance": false,
-  "particles": true,
-  "enchantReduction": true,
-  "enchantSource": "mob",
-  "color": "#F14700",
-  "tags": [
-    {
-      "tag_id": "alembic:particle_tag",
-      "particle_options": {
-        "type": "alembic:fire_damage"
-      }
-    },
-    {
-      "tag_id": "alembic:extend_fire_tag",
-      "multiplier": 0.25,
-      "ignored_sources": [
-        "inFire",
-        "onFire",
-        "lava"
-      ]
-    }
-  ],
-  "potion": {
-    "attribute": "resistance",
-    "value": 0.1,
-    "vanillaOverride": true,
-    "immunities": [
-      "onFire",
-      "inFire",
-      "lava",
-      "soulFire",
-      "hotFloor"
+    "priority": 1,
+    "min": 0.0,
+    "max": 1024.0,
+    "default": 0.0,
+    "shielding": false,
+    "absorption": true,
+    "resistance": false,
+    "particles": true,
+    "enchantReduction": true,
+    "enchantSource": "mob",
+    "color": "#F14700",
+    "tags": [{
+            "tag_id": "alembic:particle_tag",
+            "particle_options": {
+                "type": "alembic:fire_damage"
+            }
+        },
+        {
+            "tag_id": "alembic:extend_fire_tag",
+            "multiplier": 0.25,
+            "ignored_sources": [
+                "inFire",
+                "onFire",
+                "lava"
+            ]
+        }
     ],
-    "maxLevel": 2
-  }
+    "potion": {
+        "attribute": "resistance",
+        "value": 0.1,
+        "vanillaOverride": true,
+        "immunities": [
+            "onFire",
+            "inFire",
+            "lava",
+            "soulFire",
+            "hotFloor"
+        ],
+        "maxLevel": 2
+    }
 }

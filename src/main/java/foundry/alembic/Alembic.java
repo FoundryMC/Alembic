@@ -61,9 +61,9 @@ public class Alembic {
             LOGGER.info("Registered Damage Type: " + s);
             ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
-                damageType.setShieldAttribute((RangedAttribute) Attributes.ARMOR);
-                DamageTypeRegistry.registerDamageType(id, damageType);
+                AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
+                damageType.setResistanceAttribute((AlembicAttribute) Attributes.ARMOR);
+                DamageTypeRegistry.registerDamageType(damageType);
             } else {
                 AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
                 DamageTypeRegistry.registerDamageType(id, damageType);
