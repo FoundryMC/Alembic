@@ -142,9 +142,9 @@ public class ForgeEvents {
             noRecurse = false;
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
-            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(e.getSource());
-            if (!pairs.isEmpty()) {
-                handleTypedDamage(target, null, totalDamage, pairs, e.getSource());
+            AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(e.getSource());
+            if (override != null) {
+                handleTypedDamage(target, null, totalDamage, override, e.getSource());
                 //target.hurt(e.getSource(), totalDamage);
                 noRecurse = false;
                 e.setCanceled(true);
@@ -221,11 +221,11 @@ public class ForgeEvents {
         }
     }
 
-    private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, List<Pair<AlembicDamageType, AlembicOverride>> types, DamageSource originalSource) {
-        for (Pair<AlembicDamageType, AlembicOverride> pair : types) {
+    private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicOverride override, DamageSource originalSource) {
+        for (Pair<AlembicDamageType, Float> pair : override.getDamages()) {
             AlembicDamageType damageType = pair.getFirst();
-            AlembicOverride override = pair.getSecond();
-            float damage = totalDamage * override.getPercentage();
+            float percentage = pair.getSecond();
+            float damage = totalDamage * percentage;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
                 //totalDamage += damage;
