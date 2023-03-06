@@ -23,7 +23,7 @@ public class AlembicDamageType {
                     Codec.BOOL.fieldOf("shielding").forGetter(AlembicDamageType::hasShielding),
                     Codec.BOOL.fieldOf("resistance").forGetter(AlembicDamageType::hasResistance),
                     Codec.BOOL.fieldOf("absorption").forGetter(AlembicDamageType::hasAbsorption),
-                    Codec.BOOL.fieldOf("particles").forGetter(AlembicDamageType::enableParticles),
+                    Codec.BOOL.fieldOf("particles").forGetter(AlembicDamageType::hasParticles),
                     CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor),
                     AlembicTag.DISPATCH_CODEC.listOf().fieldOf("tags").forGetter(AlembicDamageType::getTags)
             ).apply(instance, AlembicDamageType::new)
@@ -37,7 +37,7 @@ public class AlembicDamageType {
     private boolean hasShielding;
     private boolean hasResistance;
     private boolean hasAbsorption;
-    private boolean enableParticles;
+    private boolean hasParticles;
     private AlembicAttribute attribute;
     private DamageSource damageSource;
     private int color;
@@ -50,7 +50,7 @@ public class AlembicDamageType {
 
     private String translationString;
 
-    public AlembicDamageType(int priority, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean enableParticles, int color, List<AlembicTag> tags) {
+    public AlembicDamageType(int priority, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags) {
         this.priority = priority;
         this.base = base;
         this.min = min;
@@ -61,7 +61,7 @@ public class AlembicDamageType {
         this.attribute = new AlembicAttribute(id.toString(), base, min, max);
         this.damageSource = new DamageSource(id.toString());
         this.color = color;
-        this.enableParticles = enableParticles;
+        this.hasParticles = hasParticles;
         this.shieldAttribute = new AlembicAttribute(id + "_shield", 0, 0, 1024);
         this.resistanceAttribute = new AlembicAttribute(id + "_resistance", 0, -1024, 1024);
         this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
@@ -150,51 +150,11 @@ public class AlembicDamageType {
         return color;
     }
 
-    public boolean enableParticles() {
-        return enableParticles;
+    public boolean hasParticles() {
+        return hasParticles;
     }
 
-    public void setHasShielding(boolean hasShielding) {
-        this.hasShielding = hasShielding;
-    }
-
-    public void setHasResistance(boolean hasResistance) {
-        this.hasResistance = hasResistance;
-    }
-
-    public void setHasAbsorption(boolean hasAbsorption) {
-        this.hasAbsorption = hasAbsorption;
-    }
-
-    public void setEnableParticles(boolean enableParticles) {
-        this.enableParticles = enableParticles;
-    }
-
-    public void setBase(double base) {
-        this.base = base;
-    }
-
-    public void setMin(double min) {
-        this.min = min;
-    }
-
-    public void setMax(double max) {
-        this.max = max;
-    }
-
-    public void setColor(int color) {
-        this.color = color;
-    }
-
-    public void setAttribute(AlembicAttribute attribute) {
-        this.attribute = attribute;
-    }
-
-    public void setDamageSource(DamageSource damageSource) {
-        this.damageSource = damageSource;
-    }
-
-    public void setId(ResourceLocation id) {
+    void setId(ResourceLocation id) {
         this.id = id;
     }
 
