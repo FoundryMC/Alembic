@@ -225,8 +225,8 @@ public class AlembicPotionDataHolder {
 
     public void performPotionModifications() {
         for (AlembicModifiablePotion ref : this.potionRefs) {
-            MobEffectInstance instance = new MobEffectInstance(ForgeRegistries.MOB_EFFECTS.getValue());
-            ref.effects = ImmutableList.<MobEffectInstance>builder().add(instance).build();
+//            MobEffectInstance instance = new MobEffectInstance(ForgeRegistries.MOB_EFFECTS.getValue());
+//            ref.effects = ImmutableList.<MobEffectInstance>builder().add(instance).build();
         }
     }
 }
