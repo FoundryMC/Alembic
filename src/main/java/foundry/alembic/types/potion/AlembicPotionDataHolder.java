@@ -1,15 +1,17 @@
 package foundry.alembic.types.potion;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
+import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class AlembicPotionDataHolder {
     public static final List<AlembicPotionDataHolder> POTION_DATA_HOLDERS = new ArrayList<>();
@@ -27,7 +29,8 @@ public class AlembicPotionDataHolder {
                     Codec.INT.optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
                     ItemStack.CODEC.optionalFieldOf("reagent").forGetter(AlembicPotionDataHolder::getReagentOptional)
             ).apply(instance, AlembicPotionDataHolder::new)
-            );
+    );
+
     private String attribute;
     private String modifier;
     private float value;
@@ -45,6 +48,9 @@ public class AlembicPotionDataHolder {
 
     private UUID uuid;
 
+    private Set<MobEffect> mobEffectRefs;
+    private Set<AlembicModifiablePotion> potionRefs;
+
     public AlembicPotionDataHolder(){
         this.attribute = "all";
         this.value = 0;
@@ -60,6 +66,7 @@ public class AlembicPotionDataHolder {
         POTION_DATA_HOLDERS.add(this);
         this.damageType = Alembic.location("physical_damage");
         uuid = UUID.randomUUID();
+        potionRefs = Set.of();
     }
 
     public AlembicPotionDataHolder(String attribute, float value, String modifier, Optional<Boolean> vanillaOverride, Optional<List<String>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
@@ -210,5 +217,16 @@ public class AlembicPotionDataHolder {
 
     public Optional<ItemStack> getReagentOptional(){
         return reagent;
+    }
+
+    public void trackPotion(AlembicModifiablePotion potion) {
+        this.potionRefs.add(potion);
+    }
+
+    public void performPotionModifications() {
+        for (AlembicModifiablePotion ref : this.potionRefs) {
+            MobEffectInstance instance = new MobEffectInstance(ForgeRegistries.MOB_EFFECTS.getValue());
+            ref.effects = ImmutableList.<MobEffectInstance>builder().add(instance).build();
+        }
     }
 }
