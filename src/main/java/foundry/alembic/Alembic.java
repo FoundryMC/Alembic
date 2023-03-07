@@ -10,7 +10,10 @@ import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
+import foundry.alembic.types.potion.AlembicPotionDataHolder;
+import foundry.alembic.types.potion.AlembicPotionRegistry;
 import foundry.alembic.types.tags.AlembicTagRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -51,6 +54,7 @@ public class Alembic {
         AlembicParticleRegistry.init();
         AlembicOverlayRegistry.init();
         AlembicPacketHandler.init();
+        AlembicPotionRegistry.init();
     }
 
     public static ResourceLocation location(String name) {
@@ -62,12 +66,21 @@ public class Alembic {
             LOGGER.info("Registered Damage Type: " + s);
             ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), null);
                 damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
                 DamageTypeRegistry.registerDamageType(id, damageType);
             } else {
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), null);
                 DamageTypeRegistry.registerDamageType(id, damageType);
+            }
+        }
+        for (String s : AlembicConfig.potionEffects.get()) {
+            AlembicPotionDataHolder data = new AlembicPotionDataHolder();
+            try{
+                AlembicPotionRegistry.registerPotionData(s, data);
+                LOGGER.info("Registered Potion Effect: " + s);
+            } catch (Exception e){
+                LOGGER.error("Failed to register Potion Effect: " + s);
             }
         }
     }

@@ -35,6 +35,10 @@ public class AlembicAPI {
         return DAMAGE_TYPES;
     }
 
+    public static List<String> getDefaultPotionEffects() {
+        return List.of("fire_damage", "arcane_damage", "alchemical_damage");
+    }
+
     public static AlembicDamageType getDamageType(String damageType) {
         return DamageTypeRegistry.getDamageType(damageType);
     }

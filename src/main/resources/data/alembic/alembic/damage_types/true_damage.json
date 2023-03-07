@@ -7,6 +7,8 @@
   "absorption": true,
   "resistance": true,
   "particles": false,
+  "enchant_reduction": false,
+  "enchant_source": "mob",
   "color": "#FFFFFF",
   "tags": [
     {
