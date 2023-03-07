@@ -33,7 +33,6 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
                 continue;
             }
             AlembicDamageType type = result.getOrThrow(false, Alembic.LOGGER::error);
-            type.setupPotionData();
             type.handlePostParse(entry.getKey());
 
 
