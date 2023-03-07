@@ -50,6 +50,7 @@ public class Alembic {
         DamageTypeRegistry.DAMAGE_ATTRIBUTES.register(modEventBus);
         DamageTypeRegistry.DEFENSIVE_ATTRIBUTES.register(modEventBus);
         AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
+        AlembicPotionRegistry.MOB_EFFECTS.register(modEventBus);
         DamageTypeRegistry.init();
         AlembicParticleRegistry.init();
         AlembicOverlayRegistry.init();
