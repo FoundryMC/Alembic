@@ -14,7 +14,19 @@
     {
       "tag_id": "alembic:particle_tag",
       "particle_options": {
-        "type": "alembic:arcane_damage"
+        "type": "alembic:arcane_spark"
+      }
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:arcane_spark_dim"
+      }
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:arcane_spark_bright"
       }
     },
     {
@@ -32,7 +44,7 @@
     "base_duration": 600,
     "amplification_per_level": 1,
     "max_amplifier": 2,
-    "color": "#208AB1",
+    "color": "#9760FB",
     "reagent": "minecraft:lapis_lazuli"
   }
 }

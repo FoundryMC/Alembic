@@ -1,5 +1,11 @@
 {
   "textures": [
-    "alembic:alchemical_damage"
+    "alembic:alchemical_reaction_0",
+    "alembic:alchemical_reaction_1",
+    "alembic:alchemical_reaction_2",
+    "alembic:alchemical_reaction_3",
+    "alembic:alchemical_reaction_4",
+    "alembic:alchemical_reaction_5",
+    "alembic:alchemical_reaction_6"
   ]
 }
