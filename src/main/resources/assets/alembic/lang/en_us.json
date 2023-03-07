@@ -4,5 +4,10 @@
   "alembic.damage.fire_damage": "Fire Damage",
   "alembic.damage.physical_damage": "Physical Damage",
   "alembic.damage.true_damage": "True Damage",
-  "alembic.damage.funny_damage": "Funny Damage"
+  "effect.alembic.alchemical_damage_resistance": "Alchemical Resistance",
+  "effect.alembic.arcane_damage_resistance": "Arcane Resistance",
+  "effect.alembic.fire_damage_resistance": "Fire Resistance",
+  "effect.alembic.alchemical_damage_absorption": "Alchemical Absorption",
+  "effect.alembic.arcane_damage_absorption": "Arcane Absorption",
+  "effect.alembic.fire_damage_absorption": "Fire Absorption"
 }

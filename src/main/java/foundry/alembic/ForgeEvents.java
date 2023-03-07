@@ -1,6 +1,8 @@
 package foundry.alembic;
 
 import com.mojang.datafixers.util.Pair;
+import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
+import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
@@ -15,6 +17,7 @@ import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.tags.AlembicPerLevelTag;
+import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,7 +25,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -40,16 +42,11 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.EventBus;
 import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
@@ -199,7 +196,15 @@ public class ForgeEvents {
         if (damage > 0) {
             float finalDamage = damage;
             damageType.getTags().forEach(r -> {
-                r.run(target.level, target, finalDamage, originalSource);
+                AlembicTag.ComposedData data = AlembicTag.ComposedData.createEmpty()
+                                .add(AlembicTag.ComposedDataType.LEVEL, target.level)
+                                        .add(AlembicTag.ComposedDataType.TARGET_ENTITY, target)
+                                        .add(AlembicTag.ComposedDataType.FINAL_DAMAGE, finalDamage)
+                                                .add(AlembicTag.ComposedDataType.ORIGINAL_SOURCE, originalSource);
+                AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
+                MinecraftForge.EVENT_BUS.post(event);
+                data = event.getData();
+                r.run(data);
             });
             int invtime = target.invulnerableTime;
             target.invulnerableTime = 0;
@@ -239,7 +244,7 @@ public class ForgeEvents {
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
         AtomicReference<Float> total = new AtomicReference<>(0f);
         stats.getDamage().forEach((alembicDamageType, multiplier) -> {
-            if (stats.getIgnoredSources().contains(originalSource.msgId)) return;
+            if (stats.getIgnoredSources().stream().map(AlembicDamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
             float damage = totalDamage * multiplier;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());

@@ -16,6 +16,10 @@ import java.util.List;
 public class AlembicAPI {
     private static final List<String> DAMAGE_TYPES = new ArrayList<>();
 
+    private static final List<String> POTION_EFFECTS = new ArrayList<>();
+
+    private static final List<String> PARTICLES = new ArrayList<>();
+
     public static final DamageSource SOUL_FIRE = new DamageSource("soulFire");
     public static final DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
     public static final DamageSource EVOKER_FANGS = new DamageSource("evokerFangs");
@@ -36,7 +40,19 @@ public class AlembicAPI {
     }
 
     public static List<String> getDefaultPotionEffects() {
-        return List.of("fire_damage", "arcane_damage", "alchemical_damage");
+        return POTION_EFFECTS;
+    }
+
+    public static List<String> getDefaultParticles() {
+        return PARTICLES;
+    }
+
+    public static void addDefaultPotionEffect(String potionEffect) {
+        POTION_EFFECTS.add(potionEffect);
+    }
+
+    public static void addDefaultParticle(String particle) {
+        PARTICLES.add(particle);
     }
 
     public static AlembicDamageType getDamageType(String damageType) {

@@ -38,11 +38,6 @@ public class AlembicPerLevelTag implements AlembicTag {
     }
 
     @Override
-    public void run(Level level, LivingEntity entity, float damage, DamageSource originalSource) {
-
-    }
-
-    @Override
     public AlembicTagType<?> getType() {
         return AlembicTagType.LEVEL_UP;
     }

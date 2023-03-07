@@ -28,16 +28,11 @@ public class AlembicExtendFireTag implements AlembicTag {
     }
     @Override
     public void run(ComposedData data) {
-
-    }
-
-    @Override
-    public void run(Level level, LivingEntity entity, float damage, DamageSource originalSource) {
+        LivingEntity entity = data.get(ComposedDataType.TARGET_ENTITY);
+        float damage = data.get(ComposedDataType.FINAL_DAMAGE);
+        DamageSource originalSource = data.get(ComposedDataType.ORIGINAL_SOURCE);
         if(entity.isOnFire() && !ignoredSources.contains(originalSource.msgId)){
             entity.setSecondsOnFire((entity.getRemainingFireTicks()/20) + (int)Math.ceil((damage*multiplier)));
-            if(entity instanceof Player pl){
-                pl.displayClientMessage(Component.literal("You are on fire for %s seconds!".formatted(entity.getRemainingFireTicks() / 20.0)), true); // TODO: use translation
-            }
         }
     }
 

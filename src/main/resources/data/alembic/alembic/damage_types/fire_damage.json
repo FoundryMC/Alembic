@@ -5,7 +5,7 @@
     "default": 0.0,
     "shielding": false,
     "absorption": true,
-    "resistance": false,
+    "resistance": true,
     "particles": true,
     "enchant_reduction": true,
     "enchant_source": "mob",
@@ -13,7 +13,7 @@
     "tags": [{
             "tag_id": "alembic:particle_tag",
             "particle_options": {
-                "type": "alembic:fire_damage"
+                "type": "alembic:fire_flame"
             }
         },
         {
@@ -22,7 +22,8 @@
             "ignored_sources": [
                 "inFire",
                 "onFire",
-                "lava"
+                "lava",
+                "soulFire"
             ]
         }
     ],

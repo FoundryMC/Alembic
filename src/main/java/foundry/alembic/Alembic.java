@@ -90,5 +90,15 @@ public class Alembic {
         AlembicAPI.addDefaultDamageType("alchemical_damage");
         AlembicAPI.addDefaultDamageType("true_damage");
         AlembicAPI.addDefaultDamageType("physical_damage");
+
+        AlembicAPI.addDefaultPotionEffect("fire_damage");
+        AlembicAPI.addDefaultPotionEffect("arcane_damage");
+        AlembicAPI.addDefaultPotionEffect("alchemical_damage");
+
+        AlembicAPI.addDefaultParticle("alchemical_reaction");
+        AlembicAPI.addDefaultParticle("arcane_spark");
+        AlembicAPI.addDefaultParticle("arcane_spark_dim");
+        AlembicAPI.addDefaultParticle("arcane_spark_bright");
+        AlembicAPI.addDefaultParticle("fire_flame");
     }
 }

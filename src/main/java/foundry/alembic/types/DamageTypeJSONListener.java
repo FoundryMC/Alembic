@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.types.potion.AlembicPotionDataHolder;
+import foundry.alembic.types.potion.AlembicPotionRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -43,6 +45,11 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
                     Alembic.LOGGER.debug("Damage type %s already exists with a lower priority. Overwriting.".formatted(type.getId()));
                     DamageTypeRegistry.replaceWithData(type);
                 }
+            }
+
+            if(AlembicPotionRegistry.doesPotionDataExist(type.getId())){
+                Alembic.LOGGER.debug("Potion data for %s already exists. Overwriting.".formatted(type.getId()));
+                AlembicPotionRegistry.replaceWithData(type.getId(), type.getPotionDataHolder());
             }
         }
     }

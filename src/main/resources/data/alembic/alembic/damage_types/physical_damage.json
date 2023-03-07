@@ -14,7 +14,7 @@
     {
       "tag_id": "alembic:particle_tag",
       "particle_options": {
-        "type": "alembic:physical_damage"
+        "type": "minecraft:damage_indicator"
       }
     }
   ]
