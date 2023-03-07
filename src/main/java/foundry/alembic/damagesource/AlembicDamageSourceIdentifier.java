@@ -43,6 +43,14 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable,
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AlembicDamageSourceIdentifier that = (AlembicDamageSourceIdentifier) o;
+        return Objects.equals(damageSourceId, that.damageSourceId);
+    }
+
+    @Override
     public String getSerializedName() {
         return damageSourceId;
     }
