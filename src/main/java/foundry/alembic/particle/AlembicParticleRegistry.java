@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AlembicParticleRegistry {
-    public static Map<ResourceLocation, RegistryObject<ParticleType<SimpleParticleType>>> PARTICLES = new HashMap<>();
-    public static DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Alembic.MODID);
+    public static final Map<ResourceLocation, RegistryObject<ParticleType<SimpleParticleType>>> PARTICLES = new HashMap<>();
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Alembic.MODID);
 
     public static void init(){
         for(String type : AlembicConfig.list.get()){

@@ -1,0 +1,36 @@
+{
+  "priority": 1,
+  "min": 0.0,
+  "max": 1024.0,
+  "default": 0.0,
+  "shielding": true,
+  "absorption": true,
+  "resistance": true,
+  "particles": false,
+  "color": "#9760FB",
+  "tags": [
+    {
+      "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:arcane_damage"
+      }
+    },
+    {
+      "tag_id": "alembic:per_level_tag",
+      "bonus_per_level": 1,
+      "max": 10,
+      "level_difference": 5,
+      "attribute_type": "resistance"
+    }
+  ],
+  "potion": {
+    "attribute": "resistance",
+    "value": 0.1,
+    "baseDuration": 600,
+    "durationPerLevel": 600,
+    "amplifierPerLevel": 1,
+    "maxAmplifier": 2,
+    "color": "#208AB1",
+    "reagent": "minecraft:lapis_lazuli"
+  }
+}

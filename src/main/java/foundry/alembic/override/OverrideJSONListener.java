@@ -1,27 +1,33 @@
 package foundry.alembic.override;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
-import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.DamageTypeRegistry;
+import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
+    private static final Codec<OverrideStorage> STORAGE_CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("priority").forGetter(OverrideStorage::priority),
+                    Codec.unboundedMap(AlembicDamageSourceIdentifier.EITHER_CODEC, AlembicOverride.CODEC).fieldOf("source_overrides").forGetter(OverrideStorage::map)
+            ).apply(instance, OverrideStorage::new)
+    );
+
     private static final Gson GSON = new Gson();
     public OverrideJSONListener() {
-        super(GSON, "overrides");
+        super(GSON, "alembic/overrides");
     }
 
     public static void register(AddReloadListenerEvent event){
@@ -32,39 +38,30 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         AlembicOverrideHolder.clearOverrides();
-        pObject.forEach((rl, jsonElement) -> {
-            Alembic.LOGGER.debug("Loading override: " + rl);
-            JsonObject json = jsonElement.getAsJsonObject();
-            String id = json.get("id").getAsString();
-            int priority = json.get("priority").getAsInt();
-            JsonObject overrides = json.get("sourceOverrides").getAsJsonObject();
-            overrides.keySet().forEach(key -> {
-                AlembicDamageType damageType = DamageTypeRegistry.getDamageType(Alembic.location(key));
-                JsonArray overrideValues = overrides.get(key).getAsJsonArray();
-                for (int i = 0; i < overrideValues.size(); i++) {
-                    JsonObject ov = overrideValues.get(i).getAsJsonObject();
-                    String source = ov.keySet().toArray()[0].toString();
-                    float percentage = ov.get(source).getAsFloat();
-                    String finalSource = source;
-                    if(!Arrays.stream(AlembicOverride.Override.values()).anyMatch(s -> s.toString().equals(finalSource.toUpperCase(Locale.ROOT)))){
-                        if(!source.contains(":")){
-                            source = "MODDED";
-                            AlembicOverride override = new AlembicOverride(id, priority, AlembicOverride.Override.valueOf(source.toUpperCase(Locale.ROOT)), percentage);
-                            override.setModdedSource(finalSource);
-                            AlembicOverrideHolder.smartAddOverride(damageType, override);
-                        }
-                        source = "ENTITY_TYPE";
-                        AlembicOverride.Override overrideType = AlembicOverride.Override.valueOf(source.toUpperCase(Locale.ROOT));
-                        AlembicOverride override = new AlembicOverride(id, priority, overrideType, percentage);
-                        override.setEntityType(ResourceLocation.tryParse(finalSource));
-                        AlembicOverrideHolder.smartAddOverride(damageType, override);
-                    } else {
-                        AlembicOverride.Override overrideType = AlembicOverride.Override.valueOf(source.toUpperCase(Locale.ROOT));
-                        AlembicOverride override = new AlembicOverride(id, priority, overrideType, percentage);
-                        AlembicOverrideHolder.smartAddOverride(damageType, override);
+        for (Map.Entry<ResourceLocation, JsonElement> dataEntry : pObject.entrySet()) {
+            DataResult<OverrideStorage> dataResult = STORAGE_CODEC.parse(JsonOps.INSTANCE, dataEntry.getValue());
+            if (dataResult.error().isPresent()) {
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(dataEntry.getKey(), dataResult.error().get().message()));
+                continue;
+            }
+
+            OverrideStorage storage = dataResult.result().get();
+            for (Map.Entry<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
+                AlembicOverride override = parsedEntry.getValue();
+
+                override.setId(dataEntry.getKey());
+                override.setPriority(storage.priority);
+
+                if (parsedEntry.getKey().left().isPresent()) {
+                    for (AlembicDamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
+                        AlembicOverrideHolder.smartAddOverride(id, override);
                     }
+                } else {
+                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override);
                 }
-            });
-        });
+            }
+        }
     }
+
+    record OverrideStorage(int priority, Map<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> map) {}
 }

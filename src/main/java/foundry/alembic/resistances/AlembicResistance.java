@@ -1,25 +1,85 @@
 package foundry.alembic.resistances;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.CodecUtil;
+import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.DamageTypeRegistry;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class AlembicResistance {
+    public static final Codec<AlembicResistance> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Registry.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicResistance::getEntityType),
+                    Codec.INT.fieldOf("priority").forGetter(AlembicResistance::getPriority),
+                    Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
+                            map -> {
+                                Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
+                                for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
+                                    if (!DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
+                                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                                    }
+                                    retMap.put(DamageTypeRegistry.getDamageType(entry.getKey()), entry.getValue());
+                                }
+                                return DataResult.success(retMap);
+                            },
+                            resistance -> {
+                                Object2FloatMap<ResourceLocation> retMap = new Object2FloatOpenHashMap<>();
+                                for (Map.Entry<AlembicDamageType, Float> entry : resistance.object2FloatEntrySet()) {
+                                    retMap.put(entry.getKey().getId(), entry.getValue());
+                                }
+                                return DataResult.success(retMap);
+                            }
+                    ).fieldOf("resistances").forGetter(AlembicResistance::getResistances),
+                    Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
+                            map -> {
+                                Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
+                                for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
+                                    if (!DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
+                                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                                    }
+                                    retMap.put(DamageTypeRegistry.getDamageType(entry.getKey()), entry.getValue());
+                                }
+                                return DataResult.success(retMap);
+                            },
+                            damage -> {
+                                Object2FloatMap<ResourceLocation> retMap = new Object2FloatOpenHashMap<>();
+                                for (Map.Entry<AlembicDamageType, Float> entry : damage.object2FloatEntrySet()) {
+                                    retMap.put(entry.getKey().getId(), entry.getValue());
+                                }
+                                return DataResult.success(retMap);
+                            }
+                    ).fieldOf("damage").forGetter(AlembicResistance::getDamage),
+                    AlembicDamageSourceIdentifier.CODEC.listOf().xmap(
+                            strings -> Util.<Set<AlembicDamageSourceIdentifier>>make(new TreeSet<>(), set -> set.addAll(strings)),
+                            strings -> strings.stream().toList()
+                    ).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSources)
+            ).apply(instance, AlembicResistance::new)
+    );
+
     private EntityType<?> entityType;
     private int priority;
     private ResourceLocation id;
-    private Map<AlembicDamageType, Float> resistances;
-    private Map<AlembicDamageType, Float> damage;
+    private Object2FloatMap<AlembicDamageType> resistances;
+    private Object2FloatMap<AlembicDamageType> damage;
 
-    private List<String> ignoredSources;
+    private Set<AlembicDamageSourceIdentifier> ignoredSources;
 
-    public AlembicResistance(EntityType<?> entityType, int priority, ResourceLocation id, Map<AlembicDamageType, Float> resistances, Map<AlembicDamageType, Float> damageTypes, List<String> ignoredSources) {
+    public AlembicResistance(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<AlembicDamageSourceIdentifier> ignoredSources) {
         this.entityType = entityType;
         this.priority = priority;
-        this.id = id;
         this.resistances = resistances;
         this.damage = damageTypes;
         this.ignoredSources = ignoredSources;
@@ -29,7 +89,7 @@ public class AlembicResistance {
         return entityType;
     }
 
-    public List<String> getIgnoredSources() {
+    public Set<AlembicDamageSourceIdentifier> getIgnoredSources() {
         return ignoredSources;
     }
 
@@ -37,15 +97,19 @@ public class AlembicResistance {
         return priority;
     }
 
+    void setId(ResourceLocation id) {
+        this.id = id;
+    }
+
     public ResourceLocation getId() {
         return id;
     }
 
-    public Map<AlembicDamageType, Float> getResistances() {
+    public Object2FloatMap<AlembicDamageType> getResistances() {
         return resistances;
     }
 
-    public Map<AlembicDamageType, Float> getDamage() {
+    public Object2FloatMap<AlembicDamageType> getDamage() {
         return damage;
     }
 

@@ -14,6 +14,7 @@ import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicGlobalTagPropertyHolder;
+import foundry.alembic.types.tags.AlembicPerLevelTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -21,7 +22,10 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.Items;
@@ -53,36 +57,35 @@ import static foundry.alembic.Alembic.MODID;
 @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
     @SubscribeEvent
-    public static void onServerStarting(ServerStartingEvent event) {
+    static void onServerStarting(ServerStartingEvent event) {
         // do something when the server starts
     }
 
     @SubscribeEvent
-    public static void onLevelUp(PlayerXpEvent.LevelChange event) {
-        if (event.getEntity().level.isClientSide) return;
-        AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.keySet().forEach(key -> {
-            float test = event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference();
-            if (event.getEntity().experienceLevel % AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).levelDifference() == 0) {
-                if (event.getEntity().getAttributes().hasAttribute(key)) {
-                    CompoundTag tag = event.getEntity().getPersistentData();
-                    if (tag.contains(key.descriptionId)) {
-                        if (tag.getInt(key.descriptionId) < AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).cap()) {
-                            event.getEntity().sendSystemMessage(Component.literal("You have leveled up your " + key.descriptionId + " to " + event.getEntity().getAttribute(key).getValue()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
-                            event.getEntity().getAttribute(key).setBaseValue(event.getEntity().getAttribute(key).getBaseValue() + AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).bonusPerLevel());
-                            tag.putInt(key.descriptionId, tag.getInt(key.descriptionId) + 1);
-                        }
-                    } else {
-                        event.getEntity().getAttribute(key).setBaseValue(event.getEntity().getAttribute(key).getBaseValue() + AlembicGlobalTagPropertyHolder.LEVELUP_ATTRIBUTES.get(key).bonusPerLevel());
-                        event.getEntity().sendSystemMessage(Component.literal("You have leveled up your " + key.descriptionId + " to " + event.getEntity().getAttribute(key).getValue()).withStyle(s -> s.withColor(ChatFormatting.GOLD)));
-                        tag.putInt(key.descriptionId, 1);
+    static void onLevelUp(PlayerXpEvent.LevelChange event){
+        Player player = event.getEntity();
+        if(player.level.isClientSide) return;
+        for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(event.getEntity())) {
+            RangedAttribute attribute = tag.getAffectedType();
+            if (player.getAttributes().hasAttribute(attribute)) {
+                AttributeInstance playerAttribute = player.getAttribute(attribute);
+                playerAttribute.setBaseValue(playerAttribute.getBaseValue()+tag.getBonusPerLevel());
+                player.sendSystemMessage(Component.literal("You have leveled up your %s to %s".formatted(attribute.descriptionId, playerAttribute.getValue())).withStyle(style -> style.withColor(ChatFormatting.GOLD)));
+
+                CompoundTag nbt = player.getPersistentData();
+                if (nbt.contains(attribute.descriptionId)) {
+                    if (nbt.getInt(attribute.descriptionId) < tag.getCap()) {
+                        nbt.putInt(attribute.descriptionId, nbt.getInt(attribute.descriptionId)+1);
                     }
+                } else {
+                    nbt.putInt(attribute.descriptionId, 1);
                 }
             }
-        });
+        }
     }
 
     @SubscribeEvent
-    public static void onJsonListener(AddReloadListenerEvent event) {
+    static void onJsonListener(AddReloadListenerEvent event){
         DamageTypeJSONListener.register(event);
         OverrideJSONListener.register(event);
         ResistanceJsonListener.register(event);
@@ -125,13 +128,13 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onLivingSpawn(final LivingSpawnEvent event) {
+    public static void onLivingSpawn(final LivingSpawnEvent event){
     }
 
     private static boolean noRecurse = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void hurt(final LivingHurtEvent e) {
+    static void hurt(final LivingHurtEvent e){
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
@@ -139,10 +142,9 @@ public class ForgeEvents {
             noRecurse = false;
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
-            List<Pair<AlembicDamageType, AlembicOverride>> pairs = AlembicOverrideHolder.getOverridesForSource(e.getSource().msgId);
-            boolean override = !pairs.isEmpty();
-            if (override) {
-                handleTypedDamage(target, null, totalDamage, pairs, e.getSource());
+            AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(e.getSource());
+            if (override != null) {
+                handleTypedDamage(target, null, totalDamage, override, e.getSource());
                 //target.hurt(e.getSource(), totalDamage);
                 noRecurse = false;
                 e.setCanceled(true);
@@ -219,11 +221,11 @@ public class ForgeEvents {
         }
     }
 
-    private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, List<Pair<AlembicDamageType, AlembicOverride>> types, DamageSource originalSource) {
-        for (Pair<AlembicDamageType, AlembicOverride> pair : types) {
+    private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicOverride override, DamageSource originalSource) {
+        for (Pair<AlembicDamageType, Float> pair : override.getDamages()) {
             AlembicDamageType damageType = pair.getFirst();
-            AlembicOverride override = pair.getSecond();
-            float damage = totalDamage * override.getPercentage();
+            float percentage = pair.getSecond();
+            float damage = totalDamage * percentage;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
                 //totalDamage += damage;
@@ -283,7 +285,7 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void attack(final LivingAttackEvent e) {
+    static void attack(final LivingAttackEvent e) {
     }
 
     private static DamageSource src(LivingEntity entity) {

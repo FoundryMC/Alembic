@@ -7,8 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class AlembicParticleType extends TextureSheetParticle{
+public class AlembicParticleType extends TextureSheetParticle {
     AlembicParticleType(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
         super(pLevel, pX, pY, pZ, 0.0D, 0.0D, 0.0D);
         this.friction = 0.7F;
@@ -41,7 +40,6 @@ public class AlembicParticleType extends TextureSheetParticle{
         return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class DamageIndicatorProvider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprite;
 
@@ -57,7 +55,6 @@ public class AlembicParticleType extends TextureSheetParticle{
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class MagicProvider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprite;
 
@@ -72,7 +69,6 @@ public class AlembicParticleType extends TextureSheetParticle{
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprite;
 

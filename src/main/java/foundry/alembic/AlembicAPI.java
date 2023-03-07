@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AlembicAPI {
-    private static List<String> damageTypes = new ArrayList<>();
+    private static final List<String> DAMAGE_TYPES = new ArrayList<>();
 
     public static DamageSource SOUL_FIRE = new DamageSource("soulFire");
     public static DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
@@ -28,11 +28,11 @@ public class AlembicAPI {
     }
 
     public static void addDefaultDamageType(String damageType) {
-        damageTypes.add(damageType);
+        DAMAGE_TYPES.add(damageType);
     }
 
     public static List<String> getDefaultDamageTypes() {
-        return damageTypes;
+        return DAMAGE_TYPES;
     }
 
     public static AlembicDamageType getDamageType(String damageType) {

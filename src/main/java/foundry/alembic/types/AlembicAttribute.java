@@ -1,12 +1,11 @@
 package foundry.alembic.types;
 
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class AlembicAttribute extends RangedAttribute {
 
-    public AlembicAttribute(String p_22310_, double p_22311_, double p_22312_, double p_22313_) {
-        super(p_22310_, p_22311_, p_22312_, p_22313_);
+    public AlembicAttribute(String descriptionId, double defaultValue, double min, double max) {
+        super(descriptionId, defaultValue, min, max);
     }
 
     public void setBaseValue(double value){

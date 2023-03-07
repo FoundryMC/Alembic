@@ -1,0 +1,31 @@
+{
+  "priority": 1,
+  "source_overrides": {
+    "ALCHEMICAL": {"alchemical_damage": 1.0},
+    "WITHER": {"alchemical_damage": 0.50, "arcane_damage": 0.50},
+    "sting": {"alchemical_damage": 0.20, "physical_damage": 0.80},
+    "allergy": {"alchemical_damage": 1.0},
+    "OUT_OF_WORLD": {"true_damage": 1.0},
+    "lightningBolt": {"true_damage": 1.0},
+    "FREEZE": {"true_damage": 1.0},
+    "witherSkull":{"true_damage": 0.10, "arcane_damage": 0.60, "physical_damage": 0.30},
+    "FIRE": {"fire_damage": 1.0},
+    "soulFire": {"fire_damage":  0.50, "arcane_damage":  0.5},
+    "explosion.player": {"fire_damage": 0.50, "physical_damage": 0.50},
+    "explosion": {"fire_damage": 0.50, "physical_damage": 0.50},
+    "fireworks": {"fire_damage": 0.50, "physical_damage": 0.50},
+    "fireball": {"fire_damage": 0.70, "physical_damage": 0.30},
+    "DROWN": {"arcane_damage": 1.0},
+    "MAGIC": {"arcane_damage": 1.0},
+    "trident": {"arcane_damage": 0.20, "physical_damage": 0.80},
+    "sonic_boom": {"arcane_damage": 0.50, "physical_damage": 0.50},
+    "thorns": {"arcane_damage": 0.50, "physical_damage": 0.50},
+    "evokerFangs": {"arcane_damage": 0.20, "physical_damage": 0.80},
+    "guardianBeam": {"arcane_damage": 1.0},
+    "ATTACK": {"physical_damage": 1.0},
+    "mob": {"physical_damage": 1.0},
+    "player": {"physical_damage": 1.0},
+    "arrow": {"physical_damage": 1.0},
+    "thrown": {"physical_damage": 1.0}
+  }
+}

@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ModEvents {
 
     @SubscribeEvent
-    public static void onAttributeModification(final EntityAttributeModificationEvent event) {
+    static void onAttributeModification(final EntityAttributeModificationEvent event) {
         for (EntityType<? extends LivingEntity> type : event.getTypes()) {
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
                 event.add(type, damageType.getAttribute(), damageType.getBase());
@@ -28,7 +28,7 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+    static void onRegisterParticles(RegisterParticleProvidersEvent event) {
         AlembicParticleRegistry.PARTICLES.forEach((id, particle) -> {
             event.register(particle.get(), AlembicParticleType.DamageIndicatorProvider::new);
         });

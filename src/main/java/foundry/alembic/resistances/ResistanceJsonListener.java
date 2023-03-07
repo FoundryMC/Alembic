@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.AlembicOverrideHolder;
@@ -17,12 +19,13 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
+import javax.json.Json;
 import java.util.*;
 
 public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();
     public ResistanceJsonListener() {
-        super(GSON, "mobs");
+        super(GSON, "alembic/resistances");
     }
 
     public static void register(AddReloadListenerEvent event){
@@ -31,41 +34,18 @@ public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        AlembicResistanceHolder.getResistanceMap().clear();
-        pObject.forEach((rl, jsonElement) -> {
-            Alembic.LOGGER.debug("Loading entity stats: " + rl);
-            JsonObject json = jsonElement.getAsJsonObject();
-            String id = json.get("id").getAsString();
-            Alembic.LOGGER.debug("Loading entity stats: " + id);
-            int priority = json.get("priority").getAsInt();
-            EntityType<?> entityType = EntityType.byString(json.get("type").getAsString()).orElse(null);
-            if(entityType == null){
-                Alembic.LOGGER.error("Entity type not found: " + json.get("type").getAsString());
-                return;
+    protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+        AlembicResistanceHolder.clear();
+        for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
+            DataResult<AlembicResistance> result = AlembicResistance.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+            if (result.error().isPresent()) {
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
+                continue;
             }
-            JsonObject resistances = json.get("resistances").getAsJsonObject();
-            Map<AlembicDamageType, Float> resMap = new HashMap<>();
-            Map<AlembicDamageType, Float> damages = new HashMap<>();
-            parseDamageTypeObject(resistances, resMap);
-            JsonObject damage = json.get("damage").getAsJsonObject();
-            parseDamageTypeObject(damage, damages);
-            JsonArray ignoredSources = json.get("ignoredSources").getAsJsonArray();
-            List<String> ignored = new ArrayList<>();
-            ignoredSources.forEach(jsonElement1 -> ignored.add(jsonElement1.getAsString()));
-            AlembicResistanceHolder.smartAddResistance(new AlembicResistance(entityType, priority, ResourceLocation.tryParse(id), resMap, damages, ignored));
-        });
-        Alembic.LOGGER.debug("Loaded " + AlembicResistanceHolder.getResistanceMap().size() + " entity stats");
-    }
-
-    private void parseDamageTypeObject(JsonObject resistances, Map<AlembicDamageType, Float> resMap) {
-        resistances.keySet().forEach(key -> {
-            AlembicDamageType damageType = DamageTypeRegistry.getDamageType(Alembic.location(key));
-            if(damageType == null){
-                Alembic.LOGGER.error("Damage type not found: " + key);
-                return;
-            }
-            resMap.put(damageType, resistances.get(key).getAsFloat());
-        });
+            AlembicResistance obj = result.result().get();
+            obj.setId(entry.getKey());
+            AlembicResistanceHolder.smartAddResistance(obj);
+        }
+        Alembic.LOGGER.debug("Loaded " + AlembicResistanceHolder.getValuesView().size() + " entity stats");
     }
 }

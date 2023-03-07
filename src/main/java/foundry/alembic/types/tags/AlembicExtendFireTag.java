@@ -1,27 +1,33 @@
 package foundry.alembic.types.tags;
 
-import com.google.gson.JsonArray;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class AlembicExtendFireTag implements AlembicTag<Level, Entity, Float> {
-    float multiplier;
-    List<String> ignoredSources = new ArrayList<>();
+public class AlembicExtendFireTag implements AlembicTag {
+    public static final Codec<AlembicExtendFireTag> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.FLOAT.fieldOf("multiplier").forGetter(alembicExtendFireTag -> alembicExtendFireTag.multiplier),
+                    Codec.STRING.listOf().fieldOf("ignored_sources").forGetter(alembicExtendFireTag -> alembicExtendFireTag.ignoredSources)
+            ).apply(instance, AlembicExtendFireTag::new)
+    );
 
-    public AlembicExtendFireTag(AlembicTagDataHolder data){
-        this.multiplier = (float)data.data.get(0);
-        this.ignoredSources = (List<String>)data.data.get(1);
+    private final float multiplier;
+    private final List<String> ignoredSources;
+
+    public AlembicExtendFireTag(float multiplier, List<String> ignoredSources){
+        this.multiplier = multiplier;
+        this.ignoredSources = ignoredSources;
     }
     @Override
-    public void run(Level level, Entity entity, Float aFloat) {
+    public void run(ComposedData data) {
 
     }
 
@@ -30,22 +36,18 @@ public class AlembicExtendFireTag implements AlembicTag<Level, Entity, Float> {
         if(entity.isOnFire() && !ignoredSources.contains(originalSource.msgId)){
             entity.setSecondsOnFire((entity.getRemainingFireTicks()/20) + (int)Math.ceil((damage*multiplier)));
             if(entity instanceof Player pl){
-                pl.displayClientMessage(Component.literal("You are on fire for " + entity.getRemainingFireTicks()/20 + " seconds!"), true);
+                pl.displayClientMessage(Component.literal("You are on fire for %s seconds!".formatted(entity.getRemainingFireTicks() / 20.0)), true); // TODO: use translation
             }
         }
     }
 
     @Override
-    public void handleData(JsonArray tagValues, List<AlembicTag<?,?,?>> tags, String tagId, ResourceLocation damageType) {
-        for(int i = 0; i < tagValues.size(); i++){
-            List<String> ignoredSources = new ArrayList<>();
-            if(tagValues.get(i).getAsJsonObject().has("ignoredSources")){
-                for(int j = 0; j < tagValues.get(i).getAsJsonObject().get("ignoredSources").getAsJsonArray().size(); j++){
-                    ignoredSources.add(tagValues.get(i).getAsJsonObject().get("ignoredSources").getAsJsonArray().get(j).getAsString());
-                }
-            }
-            AlembicTagDataHolder data = new AlembicTagDataHolder(tagValues.get(i).getAsJsonObject().get("multiplier").getAsFloat(), ignoredSources);
-            tags.add(new AlembicExtendFireTag(data));
-        }
+    public AlembicTagType<?> getType() {
+        return AlembicTagType.EXTEND_FIRE;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " Multiplier: %s, Ignored sources: %s".formatted(multiplier, Arrays.toString(ignoredSources.toArray()));
     }
 }

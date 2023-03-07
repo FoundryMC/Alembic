@@ -1,35 +1,30 @@
 package foundry.alembic.resistances;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.EntityType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AlembicResistanceHolder {
-    private static List<AlembicResistance> RESISTANCE_MAP = new ArrayList<>();
+    private static final Map<EntityType<?>, AlembicResistance> RESISTANCE_MAP = new HashMap<>();
 
-    public static List<AlembicResistance> getResistanceMap() {
-        return RESISTANCE_MAP;
+    public static Collection<AlembicResistance> getValuesView() {
+        return RESISTANCE_MAP.values();
     }
 
     public static void add(AlembicResistance resistance){
-        RESISTANCE_MAP.add(resistance);
+        RESISTANCE_MAP.put(resistance.getEntityType(), resistance);
     }
 
     public static void remove(AlembicResistance resistance){
-        RESISTANCE_MAP.remove(resistance);
+        RESISTANCE_MAP.remove(resistance.getEntityType());
+    }
+
+    public static void clear() {
+        RESISTANCE_MAP.clear();
     }
 
     public static AlembicResistance get(EntityType<?> entityType){
-        for (AlembicResistance resistance : RESISTANCE_MAP){
-            if (resistance.getEntityType() == entityType){
-                return resistance;
-            }
-        }
-        return null;
+        return RESISTANCE_MAP.get(entityType);
     }
 
     public static void smartAddResistance(AlembicResistance resistance){
