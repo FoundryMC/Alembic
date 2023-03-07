@@ -2,6 +2,7 @@ package foundry.alembic.types.potion;
 
 import foundry.alembic.Alembic;
 import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.AlembicTypeModfier;
 import foundry.alembic.types.DamageTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
@@ -18,30 +19,29 @@ import static foundry.alembic.types.DamageTypeRegistry.DAMAGE_TYPES;
 
 
 public class AlembicPotionRegistry {
-
     public static final Map<ResourceLocation, AlembicPotionDataHolder> POTION_DATA = new HashMap<>();
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
 
     public static void init() {
-        for(Map.Entry<ResourceLocation, AlembicPotionDataHolder> entry : POTION_DATA.entrySet()){
+        for(Map.Entry<ResourceLocation, AlembicPotionDataHolder> entry : POTION_DATA.entrySet()) {
             AlembicPotionDataHolder data = entry.getValue();
             data.setDamageType(entry.getKey());
-            switch(data.getAttribute()){
-                case "shielding"->{
-                    String regId = entry.getKey().getPath() + "_shield";
+            switch(data.getAttribute()) {
+                case "shielding"-> {
+                    String regId = AlembicTypeModfier.SHIELDING.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
                 }
                 case "resistance" -> {
-                    String regId = entry.getKey().getPath() + "_resistance";
+                    String regId = AlembicTypeModfier.RESISTANCE.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
                 }
                 case "absorption" -> {
-                    String regId = entry.getKey().getPath() + "_absorption";
+                    String regId = AlembicTypeModfier.ABSORPTION.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
                 }
                 case "all" -> {
-                    for(String attribute : new String[]{"shielding", "resistance", "absorption"}){
-                        String regId = entry.getKey().getPath() + "_"+attribute;
+                    for(AlembicTypeModfier modfier : AlembicTypeModfier.values()){
+                        String regId = modfier.getId(entry.getKey().getPath());
                         setupMobEffect(data, regId);
                     }
                 }
@@ -60,7 +60,6 @@ public class AlembicPotionRegistry {
         POTION_DATA.put(Alembic.location(s), data);
     }
 
-    // TODO: for some reason this isnt actually registering even though there's no error or anything at all.
     private static void setupMobEffect(AlembicPotionDataHolder data, String regId) {
         MobEffect effect = new AlembicMobEffect(MobEffectCategory.BENEFICIAL, data.getColor());
         Attribute attribute = DamageTypeRegistry.getDamageType(data.getDamageType()).getAttribute();

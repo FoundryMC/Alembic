@@ -1,6 +1,7 @@
 package foundry.alembic.types;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
@@ -24,6 +25,14 @@ public enum AlembicTypeModfier implements StringRepresentable {
 
     public RangedAttribute getAffectedAttribute(AlembicDamageType damageType) {
         return attributeFunction.apply(damageType);
+    }
+
+    public String getId(AlembicDamageType damageType) {
+        return damageType.getId().getPath() + "_" + safeName;
+    }
+
+    public String getId(String someString) {
+        return someString + "_" + safeName;
     }
 
     @Nonnull

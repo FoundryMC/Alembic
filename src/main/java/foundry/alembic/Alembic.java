@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Mod(Alembic.MODID)
 public class Alembic {
@@ -50,6 +51,7 @@ public class Alembic {
         DamageTypeRegistry.DAMAGE_ATTRIBUTES.register(modEventBus);
         DamageTypeRegistry.DEFENSIVE_ATTRIBUTES.register(modEventBus);
         AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
+        AlembicPotionRegistry.MOB_EFFECTS.register(modEventBus);
         DamageTypeRegistry.init();
         AlembicParticleRegistry.init();
         AlembicOverlayRegistry.init();
@@ -66,11 +68,11 @@ public class Alembic {
             LOGGER.info("Registered Damage Type: " + s);
             ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), null);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
                 damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
                 DamageTypeRegistry.registerDamageType(id, damageType);
             } else {
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), null);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
                 DamageTypeRegistry.registerDamageType(id, damageType);
             }
         }

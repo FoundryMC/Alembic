@@ -113,8 +113,10 @@ minecraft {
 
 mixin {
     add sourceSets.main, "alembic.refmap.json"
-
     config "alembic.mixins.json"
+
+    debug.verbose = true
+    debug.export = true
 }
 
 sourceSets {
@@ -125,7 +127,7 @@ sourceSets {
         java.srcDir("src/test/java")
         resources {
             srcDir("src/test/resources")
-            srcDir("src/test/generated")
+            srcDir("src/test/generated/resources")
         }
     }
 }
@@ -148,6 +150,7 @@ dependencies {
         jarJar.ranged(it, "[1.3,)")
     }
     implementation(fg.deobf("curse.maven:tslatentitystatus-830420:4420972"))
+
     shade("com.github.LlamaLad7:MixinExtras:0.1.1")
     library("com.github.LlamaLad7:MixinExtras:0.1.1")
     annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.1")

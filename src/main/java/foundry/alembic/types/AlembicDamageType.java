@@ -61,7 +61,7 @@ public class AlembicDamageType {
     private boolean enchantReduction;
     private String enchantSource;
 
-    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags, @Nullable Optional<AlembicPotionDataHolder> potionDataHolder) {
+    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags, Optional<AlembicPotionDataHolder> potionDataHolder) {
         this.priority = priority;
         this.id = id;
         this.base = base;
@@ -77,7 +77,7 @@ public class AlembicDamageType {
         this.shieldAttribute = new AlembicAttribute(id + "_shield", 0, 0, 1024);
         this.resistanceAttribute = new AlembicAttribute(id + "_resistance", 0, -1024, 1024);
         this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
-        this.translationString = "alembic.damage." + id.getPath();
+        this.translationString = "alembic.damage." + id.getNamespace() + "." + id.getPath();
         this.tags = tags;
         this.potionDataHolder = potionDataHolder;
     }
@@ -98,10 +98,8 @@ public class AlembicDamageType {
         this.enchantSource = enchantSource;
     }
 
-    public void setupPotionData(){
-        potionDataHolder.ifPresent(p -> {
-            p.setDamageType(id);
-        });
+    private void setupPotionData(){
+        potionDataHolder.ifPresent(p -> p.setDamageType(id));
     }
 
     public boolean hasEnchantReduction() {
@@ -227,6 +225,7 @@ public class AlembicDamageType {
         this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
         this.translationString = "alembic.damage." + id.getNamespace() + "." + id.getPath();
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
+        setupPotionData();
     }
 
     public RangedAttribute getShieldAttribute() {
@@ -267,6 +266,9 @@ public class AlembicDamageType {
         this.color = copyFrom.color;
         this.hasParticles = copyFrom.hasParticles;
         this.tags = copyFrom.tags;
+        this.potionDataHolder = copyFrom.potionDataHolder;
+        this.enchantSource = copyFrom.enchantSource;
+        this.enchantReduction = copyFrom.enchantReduction;
         return this;
     }
 }

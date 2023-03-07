@@ -16,11 +16,11 @@ import java.util.List;
 public class AlembicAPI {
     private static final List<String> DAMAGE_TYPES = new ArrayList<>();
 
-    public static DamageSource SOUL_FIRE = new DamageSource("soulFire");
-    public static DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
-    public static DamageSource EVOKER_FANGS = new DamageSource("evokerFangs");
-    public static DamageSource GUARDIAN_BEAM = new DamageSource("guardianBeam");
-    public static DamageSource ALLERGY = new DamageSource("allergy");
+    public static final DamageSource SOUL_FIRE = new DamageSource("soulFire");
+    public static final DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
+    public static final DamageSource EVOKER_FANGS = new DamageSource("evokerFangs");
+    public static final DamageSource GUARDIAN_BEAM = new DamageSource("guardianBeam");
+    public static final DamageSource ALLERGY = new DamageSource("allergy");
 
 
     public static DamageSource indirectAlchemical(Entity pSource, @Nullable Entity pIndirectEntity) {
