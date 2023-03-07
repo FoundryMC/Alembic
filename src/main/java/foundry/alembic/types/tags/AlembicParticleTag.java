@@ -3,6 +3,7 @@ package foundry.alembic.types.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,12 +24,11 @@ public class AlembicParticleTag implements AlembicTag {
 
     @Override
     public void run(Level level, LivingEntity entity, float damage, DamageSource originalSource) {
+        float particleCount = damage < 1 ? 1 : damage;
         ((ServerLevel) level).sendParticles(particleOptions, entity.getX(), entity.getY() + entity.getBbHeight()/2f, entity.getZ(),
-                (int) Math.ceil(damage),
-                level.random.nextFloat()-0.5f,
-                level.random.nextFloat()-0.5f,
-                level.random.nextFloat()-0.5f,
-                0.15f);
+                (int) Math.ceil(particleCount * 2),
+                0,0,0,
+                0.35f);
     }
 
     @Override

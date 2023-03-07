@@ -1,6 +1,7 @@
 package foundry.alembic;
 
 import com.mojang.datafixers.util.Pair;
+import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
@@ -239,7 +240,7 @@ public class ForgeEvents {
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
         AtomicReference<Float> total = new AtomicReference<>(0f);
         stats.getDamage().forEach((alembicDamageType, multiplier) -> {
-            if (stats.getIgnoredSources().contains(originalSource.msgId)) return;
+            if (stats.getIgnoredSources().stream().map(AlembicDamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
             float damage = totalDamage * multiplier;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
