@@ -1,6 +1,7 @@
 package foundry.alembic.types.potion;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
 import net.minecraft.resources.ResourceLocation;
@@ -24,10 +25,18 @@ public class AlembicPotionDataHolder {
                     Codec.INT.optionalFieldOf("base_duration").forGetter(AlembicPotionDataHolder::getBaseDurationOptional),
                     Codec.INT.optionalFieldOf("amplification_per_level").forGetter(AlembicPotionDataHolder::getAmplifierPerLevelOptional),
                     Codec.INT.optionalFieldOf("max_amplifier").forGetter(AlembicPotionDataHolder::getMaxAmplifierOptional),
-                    Codec.INT.optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
+                    Codec.STRING.comapFlatMap(AlembicPotionDataHolder::getColorDataResult, AlembicPotionDataHolder::getColorString).optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
                     ItemStack.CODEC.optionalFieldOf("reagent").forGetter(AlembicPotionDataHolder::getReagentOptional)
             ).apply(instance, AlembicPotionDataHolder::new)
             );
+
+    private static DataResult<Integer> getColorDataResult(String color){
+        return DataResult.success(Integer.parseInt(color.replace("#",""), 16));
+    }
+
+    private static String getColorString(Integer color){
+        return String.format("#%06X", (0xFFFFFF & color));
+    }
     private String attribute;
     private String modifier;
     private float value;
@@ -57,9 +66,9 @@ public class AlembicPotionDataHolder {
         this.maxAmplifier = Optional.empty();
         this.color = Optional.empty();
         this.reagent = Optional.empty();
-        POTION_DATA_HOLDERS.add(this);
         this.damageType = Alembic.location("physical_damage");
         uuid = UUID.randomUUID();
+        POTION_DATA_HOLDERS.add(this);
     }
 
     public AlembicPotionDataHolder(String attribute, float value, String modifier, Optional<Boolean> vanillaOverride, Optional<List<String>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
@@ -210,5 +219,21 @@ public class AlembicPotionDataHolder {
 
     public Optional<ItemStack> getReagentOptional(){
         return reagent;
+    }
+
+    AlembicPotionDataHolder copyValues(AlembicPotionDataHolder from){
+        this.attribute = from.attribute;
+        this.value = from.value;
+        this.modifier = from.modifier;
+        this.vanillaOverride = from.vanillaOverride;
+        this.immunities = from.immunities;
+        this.maxLevel = from.maxLevel;
+        this.baseDuration = from.baseDuration;
+        this.amplifierPerLevel = from.amplifierPerLevel;
+        this.maxAmplifier = from.maxAmplifier;
+        this.color = from.color;
+        this.reagent = from.reagent;
+        this.damageType = from.damageType;
+        return this;
     }
 }
