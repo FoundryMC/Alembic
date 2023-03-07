@@ -8,7 +8,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +25,11 @@ public class DamageTypeRegistry {
     public static void init() {
         for (Map.Entry<ResourceLocation, AlembicDamageType> entry : DAMAGE_TYPES.entrySet()) {
             DAMAGE_ATTRIBUTES.register(entry.getKey().getPath(), entry.getValue()::getAttribute);
-            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModfier.SHIELDING.getId(entry.getValue()), entry.getValue()::getShieldAttribute);
+            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModifier.SHIELDING.getId(entry.getValue()), entry.getValue()::getShieldAttribute);
             if (!ForgeRegistries.ATTRIBUTES.containsValue(entry.getValue().getResistanceAttribute())) {
-                DEFENSIVE_ATTRIBUTES.register(AlembicTypeModfier.RESISTANCE.getId(entry.getValue()), entry.getValue()::getResistanceAttribute);
+                DEFENSIVE_ATTRIBUTES.register(AlembicTypeModifier.RESISTANCE.getId(entry.getValue()), entry.getValue()::getResistanceAttribute);
             }
-            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModfier.ABSORPTION.getId(entry.getValue()), entry.getValue()::getAbsorptionAttribute);
+            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModifier.ABSORPTION.getId(entry.getValue()), entry.getValue()::getAbsorptionAttribute);
         }
     }
 
