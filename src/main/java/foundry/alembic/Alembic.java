@@ -2,23 +2,19 @@ package foundry.alembic;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 import com.mojang.logging.LogUtils;
 import foundry.alembic.client.AlembicOverlayRegistry;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
-import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.potion.AlembicPotionDataHolder;
 import foundry.alembic.types.potion.AlembicPotionRegistry;
 import foundry.alembic.types.tags.AlembicTagRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -52,6 +48,7 @@ public class Alembic {
         DamageTypeRegistry.DEFENSIVE_ATTRIBUTES.register(modEventBus);
         AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
         AlembicPotionRegistry.MOB_EFFECTS.register(modEventBus);
+        AlembicPotionRegistry.POTIONS.register(modEventBus);
         DamageTypeRegistry.init();
         AlembicParticleRegistry.init();
         AlembicOverlayRegistry.init();
@@ -64,7 +61,7 @@ public class Alembic {
     }
 
     private static void setupConfig(){
-        for (String s : AlembicConfig.list.get()) {
+        for (String s : AlembicConfig.damageTypes.get()) {
             LOGGER.info("Registered Damage Type: " + s);
             ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){

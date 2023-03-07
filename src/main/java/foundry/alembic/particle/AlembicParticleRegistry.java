@@ -2,7 +2,6 @@ package foundry.alembic.particle;
 
 import foundry.alembic.Alembic;
 import foundry.alembic.AlembicConfig;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +17,7 @@ public class AlembicParticleRegistry {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Alembic.MODID);
 
     public static void init(){
-        for(String type : AlembicConfig.list.get()){
+        for(String type : AlembicConfig.damageTypes.get()){
             SimpleParticleType particle = new SimpleParticleType(true);
             RegistryObject<ParticleType<SimpleParticleType>> particleTypeRegistryObject = PARTICLE_TYPES.register(type, () -> particle);
             PARTICLES.put(Alembic.location(type), particleTypeRegistryObject);
