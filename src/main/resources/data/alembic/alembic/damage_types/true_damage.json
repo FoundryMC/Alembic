@@ -1,0 +1,16 @@
+{
+  "priority": 1,
+  "min": 0.0,
+  "max": 8.0,
+  "default": 0.0,
+  "shielding": true,
+  "absorption": true,
+  "resistance": true,
+  "particles": false,
+  "color": "#FFFFFF",
+  "tags": [
+    {
+      "tag_id": "alembic:no_particle_tag"
+    }
+  ]
+}

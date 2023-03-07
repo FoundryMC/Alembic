@@ -1,0 +1,16 @@
+{
+  "priority": 1,
+  "type": "minecraft:silverfish",
+  "resistances": {
+    "alchemical_damage": 1.06,
+    "physical_damage": 1.0,
+    "fire_damage": 0.70,
+    "arcane_damage": 1.0,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "alchemical_damage": 0.25,
+    "physical_damage": 0.75
+  },
+  "ignored_sources": []
+}

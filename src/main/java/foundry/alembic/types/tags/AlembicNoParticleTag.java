@@ -1,7 +1,9 @@
 package foundry.alembic.types.tags;
 
+import com.google.common.base.Suppliers;
 import com.google.gson.JsonArray;
 import com.mojang.math.Vector3f;
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -9,15 +11,19 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 
-public class AlembicNoParticleTag implements AlembicTag<Level, Entity, Integer> {
-    public AlembicNoParticleTag(AlembicTagDataHolder data) {
+public class AlembicNoParticleTag implements AlembicTag {
+    public static final Supplier<AlembicNoParticleTag> INSTANCE = Suppliers.memoize(AlembicNoParticleTag::new);
+    public static final Codec<AlembicNoParticleTag> CODEC = Codec.unit(INSTANCE);
+
+    public AlembicNoParticleTag() {
     }
 
 
     @Override
-    public void run(Level level, Entity entity, Integer integer) {
+    public void run(ComposedData data) {
 
     }
 
@@ -27,14 +33,12 @@ public class AlembicNoParticleTag implements AlembicTag<Level, Entity, Integer> 
     }
 
     @Override
-    public String toString() {
-        return "AlembicNoParticleTag";
+    public AlembicTagType<?> getType() {
+        return AlembicTagType.NO_PARTICLE;
     }
 
     @Override
-    public void handleData(JsonArray data, List<AlembicTag<?, ?, ?>> tags, String tagId, ResourceLocation damageType) {
-        for(int i = 0; i < data.size(); i++){
-            tags.add(new AlembicNoParticleTag(new AlembicTagDataHolder(data.get(i).getAsJsonObject())));
-        }
+    public String toString() {
+        return "AlembicNoParticleTag";
     }
 }

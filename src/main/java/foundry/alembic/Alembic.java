@@ -24,16 +24,14 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(Alembic.MODID)
 public class Alembic {
-
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "alembic";
-    // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+
     public Alembic() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AlembicTagRegistry.init();
@@ -46,7 +44,6 @@ public class Alembic {
         spec.setConfig(file);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, spec);
         setupConfig();
-        MinecraftForge.EVENT_BUS.register(this);
         DamageTypeRegistry.DAMAGE_ATTRIBUTES.register(modEventBus);
         DamageTypeRegistry.DEFENSIVE_ATTRIBUTES.register(modEventBus);
         AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
@@ -59,21 +56,23 @@ public class Alembic {
     public static ResourceLocation location(String name) {
         return new ResourceLocation(MODID, name);
     }
-    public static void setupConfig(){
+
+    private static void setupConfig(){
         for (String s : AlembicConfig.list.get()) {
             LOGGER.info("Registered Damage Type: " + s);
+            ResourceLocation id = Alembic.location(s);
             if(s.equals("physical_damage")){
-                AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
-                damageType.setResistanceAttribute((AlembicAttribute) Attributes.ARMOR);
-                DamageTypeRegistry.registerDamageType(damageType);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
+                damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
+                DamageTypeRegistry.registerDamageType(id, damageType);
             } else {
-                AlembicDamageType damageType = new AlembicDamageType(0, Alembic.location(s), 0,0,1,false,false,false, 0, false);
-                DamageTypeRegistry.registerDamageType(damageType);
+                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>());
+                DamageTypeRegistry.registerDamageType(id, damageType);
             }
         }
     }
 
-    public static void setupDamageTypes(){
+    private static void setupDamageTypes() {
         AlembicAPI.addDefaultDamageType("fire_damage");
         AlembicAPI.addDefaultDamageType("arcane_damage");
         AlembicAPI.addDefaultDamageType("alchemical_damage");

@@ -1,0 +1,20 @@
+{
+  "priority": 1,
+  "type": "minecraft:ghast",
+  "resistances": {
+    "alchemical_damage": 0.4,
+    "physical_damage": 1.0,
+    "fire_damage": 1.20,
+    "arcane_damage": 1.20,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "alchemical_damage": 0.80,
+    "physical_damage": 0.20
+  },
+  "ignored_sources": [
+    "onFire",
+    "inFire",
+    "soulFire"
+  ]
+}

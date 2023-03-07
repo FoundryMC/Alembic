@@ -1,0 +1,16 @@
+{
+  "priority": 1,
+  "type": "minecraft:elder_guardian",
+  "resistances": {
+    "alchemical_damage": 1.30,
+    "physical_damage": 1.0,
+    "fire_damage": 1.0,
+    "arcane_damage": 1.40,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "arcane_damage": 0.20,
+    "physical_damage": 0.80
+  },
+  "ignored_sources": []
+}
