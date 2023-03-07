@@ -7,8 +7,8 @@
     "absorption": true,
     "resistance": false,
     "particles": true,
-    "enchantReduction": true,
-    "enchantSource": "mob",
+    "enchant_reduction": true,
+    "enchant_source": "mob",
     "color": "#F14700",
     "tags": [{
             "tag_id": "alembic:particle_tag",
@@ -29,7 +29,8 @@
     "potion": {
         "attribute": "resistance",
         "value": 0.1,
-        "vanillaOverride": true,
+        "operation": "ADDITION",
+        "vanilla_override": true,
         "immunities": [
             "onFire",
             "inFire",
@@ -37,6 +38,6 @@
             "soulFire",
             "hotFloor"
         ],
-        "maxLevel": 2
+        "max_level": 2
     }
 }

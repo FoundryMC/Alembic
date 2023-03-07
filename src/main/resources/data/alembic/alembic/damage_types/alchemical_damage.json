@@ -8,6 +8,8 @@
   "resistance": true,
   "particles": true,
   "color": "#12B88E",
+  "enchant_reduction": true,
+  "enchant_source": "mob",
   "tags": [
     {
       "tag_id": "alembic:particle_tag",

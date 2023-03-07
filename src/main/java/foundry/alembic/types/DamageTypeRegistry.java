@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DamageTypeRegistry {
-    private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
+    public static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
     public static final DeferredRegister<Attribute> DAMAGE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
     public static final DeferredRegister<Attribute> DEFENSIVE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
     public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Alembic.MODID);

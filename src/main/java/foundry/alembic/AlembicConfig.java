@@ -10,11 +10,13 @@ import java.util.List;
 // TODO: figure out how to add existing damage types to the config without regenerating the whole thingggggggggggggggggggggg
 public class AlembicConfig {
     public static ForgeConfigSpec.ConfigValue<? extends List<String>> list;
+    public static ForgeConfigSpec.ConfigValue<? extends List<String>> potionEffects;
 
 
     public static ForgeConfigSpec makeConfig(ForgeConfigSpec.Builder builder) {
         builder.comment("General settings").push("general");
         list = builder.comment("List of config-initialized damage types").define("types", AlembicAPI.getDefaultDamageTypes());
+        potionEffects = builder.comment("List of config-initialized potion effects").define("potion_effects", AlembicAPI.getDefaultPotionEffects());
         return builder.build();
     }
 

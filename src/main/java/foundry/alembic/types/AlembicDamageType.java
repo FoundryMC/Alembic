@@ -3,6 +3,7 @@ package foundry.alembic.types;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.CodecUtil;
+import foundry.alembic.types.potion.AlembicPotionDataHolder;
 import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +11,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 
 public class AlembicDamageType {
@@ -25,7 +28,10 @@ public class AlembicDamageType {
                     Codec.BOOL.fieldOf("absorption").forGetter(AlembicDamageType::hasAbsorption),
                     Codec.BOOL.fieldOf("particles").forGetter(AlembicDamageType::hasParticles),
                     CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor),
-                    AlembicTag.DISPATCH_CODEC.listOf().fieldOf("tags").forGetter(AlembicDamageType::getTags)
+                    AlembicTag.DISPATCH_CODEC.listOf().fieldOf("tags").forGetter(AlembicDamageType::getTags),
+                    AlembicPotionDataHolder.CODEC.optionalFieldOf("potion").forGetter(AlembicDamageType::getPotionDataHolderOptional),
+                    Codec.BOOL.fieldOf("enchant_reduction").forGetter(AlembicDamageType::hasEnchantReduction),
+                    Codec.STRING.fieldOf("enchant_source").forGetter(AlembicDamageType::getEnchantSource)
             ).apply(instance, AlembicDamageType::new)
     );
 
@@ -50,7 +56,12 @@ public class AlembicDamageType {
 
     private String translationString;
 
-    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags) {
+    private Optional<AlembicPotionDataHolder> potionDataHolder;
+
+    private boolean enchantReduction;
+    private String enchantSource;
+
+    public AlembicDamageType(int priority, ResourceLocation id, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags, @Nullable Optional<AlembicPotionDataHolder> potionDataHolder) {
         this.priority = priority;
         this.id = id;
         this.base = base;
@@ -68,9 +79,10 @@ public class AlembicDamageType {
         this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
         this.translationString = "alembic.damage." + id.getPath();
         this.tags = tags;
+        this.potionDataHolder = potionDataHolder;
     }
 
-    private AlembicDamageType(int priority, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags) {
+    private AlembicDamageType(int priority, double base, double min, double max, boolean hasShielding, boolean hasResistance, boolean hasAbsorption, boolean hasParticles, int color, List<AlembicTag> tags, @Nullable Optional<AlembicPotionDataHolder> potionDataHolder, boolean enchantReduction, String enchantSource) {
         this.priority = priority;
         this.base = base;
         this.min = min;
@@ -81,6 +93,43 @@ public class AlembicDamageType {
         this.hasParticles = hasParticles;
         this.color = color;
         this.tags = tags;
+        this.potionDataHolder = potionDataHolder;
+        this.enchantReduction = enchantReduction;
+        this.enchantSource = enchantSource;
+    }
+
+    public void setupPotionData(){
+        potionDataHolder.ifPresent(p -> {
+            p.setDamageType(id);
+        });
+    }
+
+    public boolean hasEnchantReduction() {
+        return enchantReduction;
+    }
+
+    public String getEnchantSource() {
+        return enchantSource;
+    }
+
+    public void setEnchantReduction(boolean enchantReduction) {
+        this.enchantReduction = enchantReduction;
+    }
+
+    public void setEnchantSource(String enchantSource) {
+        this.enchantSource = enchantSource;
+    }
+
+    public void setPotionDataHolder(Optional<AlembicPotionDataHolder> potionDataHolder) {
+        this.potionDataHolder = potionDataHolder;
+    }
+
+    public AlembicPotionDataHolder getPotionDataHolder() {
+        return potionDataHolder.orElse(null);
+    }
+
+    public Optional<AlembicPotionDataHolder> getPotionDataHolderOptional() {
+        return potionDataHolder;
     }
 
     public String getTranslationString() {

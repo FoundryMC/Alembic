@@ -54,5 +54,7 @@ public interface AlembicTag {
 
         public static final ComposedDataType<Level> LEVEL = create(Level.class);
         public static final ComposedDataType<Entity> TARGET_ENTITY = create(Entity.class);
+        public static final ComposedDataType<Float> FLOAT = create(Float.class);
+        public static final ComposedDataType<DamageSource> ORIGINAL_SOURCE = create(DamageSource.class);
     }
 }
