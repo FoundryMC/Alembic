@@ -198,7 +198,7 @@ public class ForgeEvents {
     private static void handleDamageInstance(LivingEntity target, AlembicDamageType damageType, float damage, DamageSource originalSource) {
         if (damage > 0) {
             float finalDamage = damage;
-            DamageTypeRegistry.getDamageTypes().stream().filter(s -> s.equals(damageType)).findFirst().get().getTags().forEach(r -> {
+            damageType.getTags().forEach(r -> {
                 r.run(target.level, target, finalDamage, originalSource);
             });
             int invtime = target.invulnerableTime;
