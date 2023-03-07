@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class AlembicPotionDataHolder {
-    public static List<AlembicPotionDataHolder> POTION_DATA_HOLDERS = new ArrayList<>();
+    public static final List<AlembicPotionDataHolder> POTION_DATA_HOLDERS = new ArrayList<>();
     public static final Codec<AlembicPotionDataHolder> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.STRING.fieldOf("attribute").forGetter(AlembicPotionDataHolder::getAttribute),

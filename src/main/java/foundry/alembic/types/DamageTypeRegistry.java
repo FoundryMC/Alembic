@@ -26,11 +26,11 @@ public class DamageTypeRegistry {
     public static void init() {
         for (Map.Entry<ResourceLocation, AlembicDamageType> entry : DAMAGE_TYPES.entrySet()) {
             DAMAGE_ATTRIBUTES.register(entry.getKey().getPath(), entry.getValue()::getAttribute);
-            DEFENSIVE_ATTRIBUTES.register(entry.getKey().getPath() + "_shield", entry.getValue()::getShieldAttribute);
+            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModfier.SHIELDING.getId(entry.getValue()), entry.getValue()::getShieldAttribute);
             if (!ForgeRegistries.ATTRIBUTES.containsValue(entry.getValue().getResistanceAttribute())) {
-                DEFENSIVE_ATTRIBUTES.register(entry.getKey().getPath() + "_resistance", entry.getValue()::getResistanceAttribute);
+                DEFENSIVE_ATTRIBUTES.register(AlembicTypeModfier.RESISTANCE.getId(entry.getValue()), entry.getValue()::getResistanceAttribute);
             }
-            DEFENSIVE_ATTRIBUTES.register(entry.getKey().getPath() + "_absorption", entry.getValue()::getAbsorptionAttribute);
+            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModfier.ABSORPTION.getId(entry.getValue()), entry.getValue()::getAbsorptionAttribute);
         }
     }
 
