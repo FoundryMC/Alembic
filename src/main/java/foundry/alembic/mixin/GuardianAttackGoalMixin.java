@@ -1,5 +1,6 @@
 package foundry.alembic.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import foundry.alembic.AlembicAPI;
 import net.minecraft.world.damagesource.DamageSource;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class GuardianAttackGoalMixin {
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", ordinal = 0))
-    private boolean alembic$guardianBeamDamage(LivingEntity entity, DamageSource source, float amount) {
-        return entity.hurt(AlembicAPI.GUARDIAN_BEAM, amount);
+    private boolean alembic$guardianBeamDamage(LivingEntity entity, DamageSource source, float amount, Operation<Boolean> original) {
+        return entity.hurt(AlembicAPI.GUARDIAN_BEAM, amount); // TODO: pass a source with entity context
     }
 }

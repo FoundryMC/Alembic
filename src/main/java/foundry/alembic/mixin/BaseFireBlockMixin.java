@@ -1,5 +1,6 @@
 package foundry.alembic.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import foundry.alembic.AlembicAPI;
 import net.minecraft.core.BlockPos;
@@ -19,19 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BaseFireBlock.class)
 public class BaseFireBlockMixin {
 
-    @Unique
-    BlockState fireState = null;
-
-    @WrapOperation(method = "entityInside", at = @At("HEAD"))
-    private void onEntityInside(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity, CallbackInfo ci) {
-        fireState = pState;
-    }
-
     @WrapOperation(method = "entityInside", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
-    private boolean onEntityInside(Entity instance, DamageSource pSource, float pAmount) {
-        if(fireState.getBlock() == Blocks.SOUL_FIRE)
+    private boolean alembic$onEntityInside(Entity instance, DamageSource pSource, float pAmount, Operation<Boolean> original, BlockState pState) {
+        if(pState.is(Blocks.SOUL_FIRE))
             return instance.hurt(AlembicAPI.SOUL_FIRE, pAmount);
         else
-            return instance.hurt(pSource, pAmount);
+            return original.call(instance, pSource, pAmount);
     }
 }
