@@ -2,7 +2,6 @@ package foundry.alembic.types;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.Alembic;
 import foundry.alembic.CodecUtil;
 import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.network.chat.Component;
@@ -170,7 +169,7 @@ public class AlembicDamageType {
         return hasParticles;
     }
 
-    void setId(ResourceLocation id) {
+    void handlePostParse(ResourceLocation id) {
         this.id = id;
         this.attribute = new AlembicAttribute(id.toString(), base, min, max);
         this.damageSource = new DamageSource(id.toString());
@@ -178,6 +177,7 @@ public class AlembicDamageType {
         this.resistanceAttribute = new AlembicAttribute(id + "_resistance", 0, -1024, 1024);
         this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
         this.translationString = "alembic.damage." + id.getNamespace() + "." + id.getPath();
+        tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }
 
     public RangedAttribute getShieldAttribute() {

@@ -10,10 +10,7 @@
   "color": "#FFFFFF",
   "tags": [
     {
-      "tag_id": "alembic:no_particle_tag",
-      "particle_options": {
-        "type": "alembic:true_damage"
-      }
+      "tag_id": "alembic:no_particle_tag"
     }
   ]
 }
