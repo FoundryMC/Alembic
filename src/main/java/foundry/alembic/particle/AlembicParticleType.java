@@ -18,16 +18,12 @@ public class AlembicParticleType extends TextureSheetParticle {
         super(pLevel, pX, pY, pZ, 0.0D, 0.0D, 0.0D);
         this.friction = 0.7F;
         this.gravity = 0.5F;
-        this.xd *= (double)0.1F;
-        this.yd *= (double)0.1F;
-        this.zd *= (double)0.1F;
+        this.xd *= 0.1F;
+        this.yd *= 0.1F;
+        this.zd *= 0.1F;
         this.xd += pXSpeed * 0.4D;
         this.yd += pYSpeed * 0.4D;
         this.zd += pZSpeed * 0.4D;
-//        float f = (float)(Math.random() * (double)0.3F + (double)0.6F);
-//        this.rCol = f;
-//        this.gCol = f;
-//        this.bCol = f;
         this.lifetime = Math.max((int)(6.0D / (Math.random() * 0.8D + 0.6D)), 1);
         this.hasPhysics = false;
         this.spriteSet = pSprites;
@@ -58,9 +54,9 @@ public class AlembicParticleType extends TextureSheetParticle {
         @Nullable
         @Override
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            AlembicParticleType AlembicParticleType = new AlembicParticleType(pLevel, pX, pY, pZ, pXSpeed, pYSpeed + 1.0D, pZSpeed, this.sprite);
-            AlembicParticleType.setLifetime(20);
-            return AlembicParticleType;
+            AlembicParticleType alembicParticleType = new AlembicParticleType(pLevel, pX, pY, pZ, pXSpeed, pYSpeed + 1.0D, pZSpeed, this.sprite);
+            alembicParticleType.setLifetime(20);
+            return alembicParticleType;
         }
     }
 
@@ -72,9 +68,9 @@ public class AlembicParticleType extends TextureSheetParticle {
         }
 
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            AlembicParticleType AlembicParticleType = new AlembicParticleType(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, this.sprite);
-            AlembicParticleType.pickSprite(this.sprite);
-            return AlembicParticleType;
+            AlembicParticleType alembicParticleType = new AlembicParticleType(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, this.sprite);
+            alembicParticleType.pickSprite(this.sprite);
+            return alembicParticleType;
         }
     }
 
@@ -86,9 +82,9 @@ public class AlembicParticleType extends TextureSheetParticle {
         }
 
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            AlembicParticleType AlembicParticleType = new AlembicParticleType(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, this.sprite);
-            AlembicParticleType.pickSprite(this.sprite);
-            return AlembicParticleType;
+            AlembicParticleType alembicParticleType = new AlembicParticleType(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, this.sprite);
+            alembicParticleType.pickSprite(this.sprite);
+            return alembicParticleType;
         }
     }
 }

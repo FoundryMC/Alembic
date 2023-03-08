@@ -22,7 +22,6 @@ public class ModEvents {
                 event.add(type, damageType.getShieldAttribute(), 0);
                 event.add(type, damageType.getResistanceAttribute(), 1);
                 event.add(type, damageType.getAbsorptionAttribute(), 0);
-
             }
         }
     }

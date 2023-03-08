@@ -23,6 +23,14 @@
       "max": 15,
       "level_difference": 2,
       "attribute_type": "absorption"
+    },
+    {
+      "tag_id": "alembic:hunger_tag",
+      "attribute": "resistance",
+      "hunger_amount": 8,
+      "amount": -0.05,
+      "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+      "operation": "ADDITION"
     }
   ],
   "potion": {
