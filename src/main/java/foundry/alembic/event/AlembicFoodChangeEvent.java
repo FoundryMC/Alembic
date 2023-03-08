@@ -2,13 +2,13 @@ package foundry.alembic.event;
 
 import net.minecraftforge.eventbus.api.Event;
 
-public class AlembicFoodDecreaseEvent extends Event {
+public class AlembicFoodChangeEvent extends Event {
     int foodLevel;
     int lastFoodLevel;
     float saturationLevel;
     float exhaustionLevel;
 
-    public AlembicFoodDecreaseEvent(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+    public AlembicFoodChangeEvent(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
         this.foodLevel = foodLevel;
         this.lastFoodLevel = lastFoodLevel;
         this.saturationLevel = saturationLevel;
@@ -45,5 +45,17 @@ public class AlembicFoodDecreaseEvent extends Event {
 
     public void setExhaustionLevel(float exhaustionLevel) {
         this.exhaustionLevel = exhaustionLevel;
+    }
+
+    public static class Increase extends AlembicFoodChangeEvent {
+        public Increase(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+            super(foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel);
+        }
+    }
+
+    public static class Decrease extends AlembicFoodChangeEvent {
+        public Decrease(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+            super(foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel);
+        }
     }
 }
