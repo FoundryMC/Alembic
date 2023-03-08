@@ -8,6 +8,8 @@ public interface AlembicTagType<T extends AlembicTag> {
     AlembicTagType<AlembicExtendFireTag> EXTEND_FIRE = () -> AlembicExtendFireTag.CODEC;
     AlembicTagType<AlembicPerLevelTag> LEVEL_UP = () -> AlembicPerLevelTag.CODEC;
 
+    AlembicTagType<AlembicHungerTag> HUNGER = () -> AlembicHungerTag.CODEC;
+
     Codec<T> getCodec();
 
 }
