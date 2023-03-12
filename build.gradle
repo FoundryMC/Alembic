@@ -7,6 +7,8 @@ plugins {
     id 'maven-publish'
 }
 
+apply plugin: 'maven-publish'
+
 group = 'foundry'
 version = '1.0'
 
