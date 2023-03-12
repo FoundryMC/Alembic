@@ -3,11 +3,8 @@ package foundry.alembic.types.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.AlembicTypeModifier;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
+import foundry.alembic.types.AlembicTypeModfier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.minecraft.world.level.Level;
 
 public class AlembicPerLevelTag implements AlembicTag {
     public static final Codec<AlembicPerLevelTag> CODEC = RecordCodecBuilder.create(instance ->
@@ -45,7 +42,7 @@ public class AlembicPerLevelTag implements AlembicTag {
     @Override
     public void handlePostParse(AlembicDamageType damageType) {
         this.affectedType = attrType.getAffectedAttribute(damageType);
-        AlembicGlobalTagPropertyHolder.add(this);
+        AlembicGlobalTagPropertyHolder.addLevelupBonus(this);
     }
 
     public RangedAttribute getAffectedType() {

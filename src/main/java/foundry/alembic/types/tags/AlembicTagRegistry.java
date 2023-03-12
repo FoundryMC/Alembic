@@ -20,6 +20,7 @@ public class AlembicTagRegistry<T extends AlembicTag> {
         register(Alembic.location("particle_tag"), AlembicTagType.PARTICLE);
         register(Alembic.location("extend_fire_tag"), AlembicTagType.EXTEND_FIRE);
         register(Alembic.location("per_level_tag"), AlembicTagType.LEVEL_UP);
+        register(Alembic.location("hunger_tag"), AlembicTagType.HUNGER);
     }
 
     public static void register(ResourceLocation name, AlembicTagType<?> type) {

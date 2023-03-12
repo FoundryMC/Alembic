@@ -1,12 +1,18 @@
 package foundry.alembic;
 
+import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.Map;
 
 public class AlembicDamageHelper {
 
@@ -34,5 +40,21 @@ public class AlembicDamageHelper {
             damage = getDamageAfterResistance(target, MobEffects.DAMAGE_RESISTANCE, type, damage);
         }
         return damage;
+    }
+
+    public static boolean hasAlembicAttribute(Player player, RangedAttribute attribute){
+        if(player.getAttribute(attribute) != null){
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean checkAttributeFromString(Player player, String attributeID){
+        for(Map.Entry<Attribute, AttributeInstance> att : player.getAttributes().attributes.entrySet()){{
+            if(att.getKey().getDescriptionId().toString().equals(attributeID)){
+                return true;
+            }
+        }}
+        return false;
     }
 }

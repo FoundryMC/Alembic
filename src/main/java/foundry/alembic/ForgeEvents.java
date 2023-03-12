@@ -12,10 +12,12 @@ import foundry.alembic.override.OverrideJSONListener;
 import foundry.alembic.resistances.AlembicResistance;
 import foundry.alembic.resistances.AlembicResistanceHolder;
 import foundry.alembic.resistances.ResistanceJsonListener;
+import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tags.AlembicGlobalTagPropertyHolder;
+import foundry.alembic.types.tags.AlembicHungerTag;
 import foundry.alembic.types.tags.AlembicPerLevelTag;
 import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.ChatFormatting;
@@ -25,9 +27,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.Items;
@@ -35,6 +35,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -47,6 +48,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
@@ -296,4 +298,32 @@ public class ForgeEvents {
     private static DamageSource src(LivingEntity entity) {
         return entity instanceof Player p ? DamageSource.playerAttack(p) : DamageSource.mobAttack(entity);
     }
+
+    @SubscribeEvent
+    static void playerTick(TickEvent.PlayerTickEvent event){
+        if(event.player.level.isClientSide) return;
+        for(Map.Entry<AlembicDamageType, AlembicHungerTag> set : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()){
+            AlembicDamageType type = set.getKey();
+            AlembicHungerTag tag = set.getValue();
+            Player player = event.player;
+            //if(player.getFoodData().getFoodLevel() >= 20) return;
+            RangedAttribute att = type.getAttribute(tag.getAttribute());
+            if(AlembicDamageHelper.checkAttributeFromString(player, att.descriptionId)){
+                AttributeInstance attribute = player.getAttribute(att);
+                int hungerValue = player.getFoodData().getFoodLevel();
+                float scalar = ((20 - hungerValue) % tag.getHungerTrigger() == 0) ? tag.getScaleAmount() : 1 ;
+                AttributeModifier modifier = new AttributeModifier(tag.getUUID(), type.getId().getPath() + tag.getAttribute() + "_hunger_mod", scalar, tag.getOperation());
+                if(attribute == null) continue;
+                if(attribute.getModifier(tag.getUUID()) != null){
+                    attribute.removeModifier(tag.getUUID());
+                    attribute.addTransientModifier(modifier);
+                } else {
+                    attribute.addTransientModifier(modifier);
+                }
+                player.displayClientMessage(Component.literal("Resistance: " + attribute.getValue()), true);
+            }
+        }
+    }
+
+
 }
