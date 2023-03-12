@@ -21,7 +21,7 @@ public class CodecUtil {
                     return DataResult.error(e.getMessage());
                 }
             },
-            String::valueOf
+            "#%06X"::formatted
     );
 
     public static final Codec<Integer> COLOR_CODEC = Codec.either(

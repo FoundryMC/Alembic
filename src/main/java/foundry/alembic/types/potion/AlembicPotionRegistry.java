@@ -91,7 +91,7 @@ public class AlembicPotionRegistry {
 
     @Nullable
     private static MobEffect getMobEffect(AlembicPotionDataHolder data) {
-        MobEffect effect = new AlembicMobEffect(MobEffectCategory.BENEFICIAL, data.getColor());
+        MobEffect effect = new AlembicMobEffect(data);
         Attribute attribute = DamageTypeRegistry.getDamageType(data.getDamageType()).getAttribute();
         if(attribute == null){
             Alembic.LOGGER.error("Could not find attribute for damage type: " + data.getDamageType());
