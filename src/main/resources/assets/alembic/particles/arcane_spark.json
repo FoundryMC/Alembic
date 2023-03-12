@@ -2,7 +2,6 @@
   "textures": [
     "alembic:arcane_spark_0",
 	"alembic:arcane_spark_1",
-	"alembic:arcane_spark_2",
-	"alembic:arcane_spark_3"
+	"alembic:arcane_spark_2"
   ]
 }
