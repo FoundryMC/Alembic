@@ -101,30 +101,6 @@ public class ForgeEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onLivingJoin(EntityJoinLevelEvent event) {
-        if (event.getEntity().level.isClientSide) return;
-        if (event.getEntity() instanceof LivingEntity le) {
-            for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
-                le.getAttribute(damageType.getAttribute()).setBaseValue(damageType.getBase());
-                if (damageType.hasShielding()) {
-                    if (le.getAttributes().hasAttribute(damageType.getShieldAttribute())) {
-                        le.getAttribute(damageType.getShieldAttribute()).setBaseValue(0);
-                    }
-                }
-                if (damageType.hasResistance()) {
-                    if (le.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
-                        le.getAttribute(damageType.getResistanceAttribute()).setBaseValue(0);
-                    }
-                }
-                if (damageType.hasAbsorption()) {
-                    if (le.getAttributes().hasAttribute(damageType.getAbsorptionAttribute())) {
-                        le.getAttribute(damageType.getAbsorptionAttribute()).setBaseValue(0);
-                    }
-                }
-            }
-        }
-    }
 
     @SubscribeEvent
     public static void onLivingSpawn(final LivingSpawnEvent event){
@@ -150,11 +126,12 @@ public class ForgeEvents {
             }
         }
         if (e.getSource().getDirectEntity() instanceof LivingEntity || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile) {
-            LivingEntity attacker = null;
-            if (e.getSource().getDirectEntity() instanceof LivingEntity) {
-                attacker = (LivingEntity) e.getSource().getDirectEntity();
-            } else if (e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile) {
-                attacker = (LivingEntity) ((AbstractHurtingProjectile) e.getSource().getDirectEntity()).getOwner();
+            LivingEntity attacker;
+            if (e.getSource().getDirectEntity() instanceof LivingEntity living) {
+                attacker = living;
+            } else {
+                AbstractHurtingProjectile projectile = (AbstractHurtingProjectile) e.getSource().getDirectEntity();
+                attacker = (LivingEntity) projectile.getOwner();
             }
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();

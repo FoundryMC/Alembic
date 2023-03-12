@@ -34,7 +34,7 @@ public class DamageTypeRegistry {
     }
 
     public static void replaceWithData(AlembicDamageType damageType) {
-        DAMAGE_TYPES.put(damageType.getId(), DAMAGE_TYPES.get(damageType.getId()).copyValues(damageType));
+        DAMAGE_TYPES.get(damageType.getId()).copyValues(damageType);
     }
 
     public static List<AlembicDamageType> getDamageTypes() {

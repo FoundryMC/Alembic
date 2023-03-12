@@ -3,7 +3,7 @@ package foundry.alembic.types.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.AlembicTypeModfier;
+import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class AlembicPerLevelTag implements AlembicTag {

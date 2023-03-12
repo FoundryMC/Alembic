@@ -50,11 +50,11 @@ public class AlembicDamageHelper {
     }
 
     public static boolean checkAttributeFromString(Player player, String attributeID){
-        for(Map.Entry<Attribute, AttributeInstance> att : player.getAttributes().attributes.entrySet()){{
+        for(Map.Entry<Attribute, AttributeInstance> att : player.getAttributes().attributes.entrySet()){
             if(att.getKey().getDescriptionId().toString().equals(attributeID)){
                 return true;
             }
-        }}
+        }
         return false;
     }
 }
