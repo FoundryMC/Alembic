@@ -40,7 +40,7 @@ public class AlembicParticleType extends TextureSheetParticle {
     }
 
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static class DamageIndicatorProvider implements ParticleProvider<SimpleParticleType> {

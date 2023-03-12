@@ -2,7 +2,7 @@
   "priority": 1,
   "source_overrides": {
     "ALCHEMICAL": {"alchemical_damage": 1.0},
-    "WITHER": {"alchemical_damage": 0.50, "arcane_damage": 0.50},
+    "WITHER": {"alchemical_damage": 0.50, "true_damage": 0.50},
     "sting": {"alchemical_damage": 0.20, "physical_damage": 0.80},
     "allergy": {"alchemical_damage": 1.0},
     "OUT_OF_WORLD": {"true_damage": 1.0},

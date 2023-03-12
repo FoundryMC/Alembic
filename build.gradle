@@ -14,7 +14,9 @@ configurations {
     implementation.extendsFrom(shade)
     library
 }
-
+if (System.getenv('BUILD_NUMBER') != null) {
+    version += "." + System.getenv('BUILD_NUMBER')
+}
 java {
     archivesBaseName = 'alembic'
     toolchain.languageVersion = JavaLanguageVersion.of(17)
