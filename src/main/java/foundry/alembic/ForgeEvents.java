@@ -114,21 +114,21 @@ public class ForgeEvents {
         if (event.getEntity() instanceof LivingEntity le) {
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
                 le.getAttribute(damageType.getAttribute()).setBaseValue(damageType.getBase());
-                if (damageType.hasShielding()) {
-                    if (le.getAttributes().hasAttribute(damageType.getShieldAttribute())) {
-                        le.getAttribute(damageType.getShieldAttribute()).setBaseValue(0);
-                    }
-                }
-                if (damageType.hasResistance()) {
-                    if (le.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
-                        le.getAttribute(damageType.getResistanceAttribute()).setBaseValue(0);
-                    }
-                }
-                if (damageType.hasAbsorption()) {
-                    if (le.getAttributes().hasAttribute(damageType.getAbsorptionAttribute())) {
-                        le.getAttribute(damageType.getAbsorptionAttribute()).setBaseValue(0);
-                    }
-                }
+//                if (damageType.hasShielding()) {
+//                    if (le.getAttributes().hasAttribute(damageType.getShieldAttribute())) {
+//                        le.getAttribute(damageType.getShieldAttribute()).setBaseValue(0);
+//                    }
+//                }
+//                if (damageType.hasResistance()) {
+//                    if (le.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
+//                        le.getAttribute(damageType.getResistanceAttribute()).setBaseValue(1);
+//                    }
+//                }
+//                if (damageType.hasAbsorption()) {
+//                    if (le.getAttributes().hasAttribute(damageType.getAbsorptionAttribute())) {
+//                        le.getAttribute(damageType.getAbsorptionAttribute()).setBaseValue(0);
+//                    }
+//                }
             }
         }
     }
