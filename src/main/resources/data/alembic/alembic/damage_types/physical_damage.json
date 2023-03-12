@@ -15,7 +15,8 @@
       "tag_id": "alembic:particle_tag",
       "particle_options": {
         "type": "minecraft:damage_indicator"
-      }
+      },
+      "player_only": true
     }
   ]
 }

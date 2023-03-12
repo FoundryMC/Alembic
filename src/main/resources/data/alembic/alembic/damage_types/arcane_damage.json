@@ -15,19 +15,8 @@
       "tag_id": "alembic:particle_tag",
       "particle_options": {
         "type": "alembic:arcane_spark"
-      }
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "particle_options": {
-        "type": "alembic:arcane_spark_dim"
-      }
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "particle_options": {
-        "type": "alembic:arcane_spark_bright"
-      }
+      },
+      "player_only": false
     },
     {
       "tag_id": "alembic:per_level_tag",

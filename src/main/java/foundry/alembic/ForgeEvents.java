@@ -23,6 +23,7 @@ import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
@@ -49,6 +50,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
@@ -81,6 +83,11 @@ public class ForgeEvents {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    static void onRightClickTest(PlayerInteractEvent.RightClickItem event){
+        if(event.getEntity().level.isClientSide) return;
     }
 
     @SubscribeEvent

@@ -4,7 +4,10 @@ plugins {
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'org.spongepowered.mixin' version '0.7.+'
+    id 'maven-publish'
 }
+
+apply plugin: 'maven-publish'
 
 group = 'foundry'
 version = '1.0'
@@ -15,6 +18,9 @@ configurations {
     library
 }
 
+if (System.getenv('BUILD_NUMBER') != null) {
+    version += "." + System.getenv('BUILD_NUMBER')
+}
 java {
     archivesBaseName = 'alembic'
     toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -204,4 +210,20 @@ shadowJar{
     relocate 'com.llamalad7' , 'alembic.repack.com.llamalad7'
 
     finalizedBy 'reobfShadowJar'
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
+    }
 }

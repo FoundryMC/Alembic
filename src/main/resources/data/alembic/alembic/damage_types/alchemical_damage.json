@@ -15,7 +15,15 @@
       "tag_id": "alembic:particle_tag",
       "particle_options": {
         "type": "alembic:alchemical_reaction"
-      }
+      },
+      "player_only": false
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+        "particle_options": {
+            "type": "alembic:alchemical_damage"
+        },
+      "player_only": true
     },
     {
       "tag_id": "alembic:per_level_tag",
