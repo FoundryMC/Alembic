@@ -26,6 +26,7 @@ public interface AlembicTag {
 
     class ComposedData {
         private final Map<ComposedDataType<?>, Object> data = new HashMap<>();
+        private ComposedData() {}
         public static ComposedData createEmpty() {
             return new ComposedData();
         }
@@ -55,5 +56,6 @@ public interface AlembicTag {
         public static final ComposedDataType<LivingEntity> TARGET_ENTITY = create(LivingEntity.class);
         public static final ComposedDataType<Float> FINAL_DAMAGE = create(Float.class);
         public static final ComposedDataType<DamageSource> ORIGINAL_SOURCE = create(DamageSource.class);
+        public static final ComposedDataType<AlembicDamageType> DAMAGE_TYPE = create(AlembicDamageType.class);
     }
 }

@@ -2,7 +2,6 @@ package foundry.alembic.particle;
 
 import foundry.alembic.Alembic;
 import foundry.alembic.AlembicConfig;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;

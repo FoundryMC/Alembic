@@ -1,16 +1,19 @@
 package foundry.alembic.types.potion;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
+import foundry.alembic.CodecUtil;
+import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class AlembicPotionDataHolder {
     public static final List<AlembicPotionDataHolder> POTION_DATA_HOLDERS = new ArrayList<>();
@@ -25,18 +28,11 @@ public class AlembicPotionDataHolder {
                     Codec.INT.optionalFieldOf("base_duration").forGetter(AlembicPotionDataHolder::getBaseDurationOptional),
                     Codec.INT.optionalFieldOf("amplification_per_level").forGetter(AlembicPotionDataHolder::getAmplifierPerLevelOptional),
                     Codec.INT.optionalFieldOf("max_amplifier").forGetter(AlembicPotionDataHolder::getMaxAmplifierOptional),
-                    Codec.STRING.comapFlatMap(AlembicPotionDataHolder::getColorDataResult, AlembicPotionDataHolder::getColorString).optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
+                    CodecUtil.COLOR_CODEC.optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
                     ItemStack.CODEC.optionalFieldOf("reagent").forGetter(AlembicPotionDataHolder::getReagentOptional)
             ).apply(instance, AlembicPotionDataHolder::new)
             );
 
-    private static DataResult<Integer> getColorDataResult(String color){
-        return DataResult.success(Integer.parseInt(color.replace("#",""), 16));
-    }
-
-    private static String getColorString(Integer color){
-        return String.format("#%06X", (0xFFFFFF & color));
-    }
     private String attribute;
     private String modifier;
     private float value;

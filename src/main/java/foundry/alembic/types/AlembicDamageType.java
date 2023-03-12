@@ -99,7 +99,7 @@ public class AlembicDamageType {
     }
 
     private void setupPotionData(){
-        potionDataHolder.ifPresent(p -> p.setDamageType(id));
+        potionDataHolder.ifPresent(dataHolder -> dataHolder.setDamageType(getId()));
     }
 
     public boolean hasEnchantReduction() {

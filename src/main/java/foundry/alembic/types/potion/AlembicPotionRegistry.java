@@ -1,8 +1,7 @@
 package foundry.alembic.types.potion;
 
 import foundry.alembic.Alembic;
-import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.AlembicTypeModfier;
+import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.DamageTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
@@ -18,8 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static foundry.alembic.types.DamageTypeRegistry.DAMAGE_TYPES;
-
 
 public class AlembicPotionRegistry {
     public static final Map<ResourceLocation, AlembicPotionDataHolder> POTION_DATA = new HashMap<>();
@@ -33,19 +30,19 @@ public class AlembicPotionRegistry {
             data.setDamageType(entry.getKey());
             switch(data.getAttribute()) {
                 case "shielding"-> {
-                    String regId = AlembicTypeModfier.SHIELDING.getId(entry.getKey().getPath());
+                    String regId = AlembicTypeModifier.SHIELDING.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
                 }
                 case "resistance" -> {
-                    String regId = AlembicTypeModfier.RESISTANCE.getId(entry.getKey().getPath());
+                    String regId = AlembicTypeModifier.RESISTANCE.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
                 }
                 case "absorption" -> {
-                    String regId = AlembicTypeModfier.ABSORPTION.getId(entry.getKey().getPath());
+                    String regId = AlembicTypeModifier.ABSORPTION.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
                 }
                 case "all" -> {
-                    for(AlembicTypeModfier modfier : AlembicTypeModfier.values()){
+                    for(AlembicTypeModifier modfier : AlembicTypeModifier.values()){
                         String regId = modfier.getId(entry.getKey().getPath());
                         setupMobEffect(data, regId);
                     }
@@ -94,7 +91,7 @@ public class AlembicPotionRegistry {
 
     @Nullable
     private static MobEffect getMobEffect(AlembicPotionDataHolder data) {
-        MobEffect effect = new AlembicMobEffect(MobEffectCategory.BENEFICIAL, data.getColor());
+        MobEffect effect = new AlembicMobEffect(data);
         Attribute attribute = DamageTypeRegistry.getDamageType(data.getDamageType()).getAttribute();
         if(attribute == null){
             Alembic.LOGGER.error("Could not find attribute for damage type: " + data.getDamageType());

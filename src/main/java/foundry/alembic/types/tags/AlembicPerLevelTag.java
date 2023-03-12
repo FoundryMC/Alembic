@@ -3,7 +3,7 @@ package foundry.alembic.types.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.AlembicTypeModfier;
+import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class AlembicPerLevelTag implements AlembicTag {
@@ -12,17 +12,17 @@ public class AlembicPerLevelTag implements AlembicTag {
                     Codec.FLOAT.fieldOf("bonus_per_level").forGetter(alembicPerLevelTag -> alembicPerLevelTag.bonusPerLevel),
                     Codec.INT.fieldOf("level_difference").forGetter(alembicPerLevelTag -> alembicPerLevelTag.levelDifference),
                     Codec.FLOAT.fieldOf("max").forGetter(alembicPerLevelTag -> alembicPerLevelTag.cap),
-                    AlembicTypeModfier.CODEC.fieldOf("attribute_type").forGetter(alembicPerLevelTag -> alembicPerLevelTag.attrType)
+                    AlembicTypeModifier.CODEC.fieldOf("attribute_type").forGetter(alembicPerLevelTag -> alembicPerLevelTag.attrType)
             ).apply(instance, AlembicPerLevelTag::new)
     );
 
     private final float bonusPerLevel;
     private final int levelDifference;
     private final float cap;
-    private final AlembicTypeModfier attrType;
+    private final AlembicTypeModifier attrType;
     private RangedAttribute affectedType;
 
-    public AlembicPerLevelTag(float bonusPerLevel, int levelDifference, float cap, AlembicTypeModfier attrType) {
+    public AlembicPerLevelTag(float bonusPerLevel, int levelDifference, float cap, AlembicTypeModifier attrType) {
         this.bonusPerLevel = bonusPerLevel;
         this.levelDifference = levelDifference;
         this.cap = cap;
