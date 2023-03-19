@@ -5,12 +5,18 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "alembic.refmap.json",
   "mixins": [
+    "ArmorItemMixin",
     "BaseFireBlockMixin",
+    "DiggerItemMixin",
     "EvokerFangsMixin",
     "FoodDataMixin",
     "GuardianAttackGoalMixin",
+    "ItemStackMixin",
+    "MobEffectAccessor",
     "MobEffectMixin",
-    "ThrownPotionMixin"
+    "SwordItemMixin",
+    "ThrownPotionMixin",
+    "TridentItemMixin"
   ],
   "client": [
     "client.GuiMixin"

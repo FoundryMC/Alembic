@@ -1,6 +1,7 @@
 package foundry.alembic.types.potion;
 
 import foundry.alembic.Alembic;
+import foundry.alembic.mixin.MobEffectAccessor;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.DamageTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
@@ -67,8 +68,12 @@ public class AlembicPotionRegistry {
         if (effect == null) return;
         MOB_EFFECT_MAP.put(Alembic.location(regId), effect);
         MOB_EFFECTS.register(regId, () -> MOB_EFFECT_MAP.get(Alembic.location(regId)));
-        Potion potion = new Potion(new MobEffectInstance(effect, data.getBaseDuration(), data.getAmplifierPerLevel()));
+        Potion potion = new Potion(new MobEffectInstance(effect, 30, 0));
+        Potion potion_strong = new Potion(new MobEffectInstance(effect, 30, 1));
         POTIONS.register(regId, () -> potion);
+        POTIONS.register(regId + "_strong", () -> potion_strong);
+        ForgeRegistries.POTIONS.getValue(Alembic.location(regId)).getEffects().forEach(eff -> {
+        });
         for(int i = 0; i < data.getMaxLevel(); i++){
             Alembic.LOGGER.info("Registering potion: " + regId + "_" + i);
             Potion potion1 = new Potion(new MobEffectInstance(effect, data.getBaseDuration(), i));
@@ -87,6 +92,14 @@ public class AlembicPotionRegistry {
         MOB_EFFECT_MAP.put(ResourceLocation.tryParse(data.getDamageType().toString()+"_"+data.getAttribute()), effect);
         Alembic.LOGGER.info("Replacing potion: " + data.getAttribute() + " with: " + data.getDamageType());
         MobEffect eff = ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.tryParse(data.getDamageType().toString()+"_"+data.getAttribute()));
+        if(eff == null) return;
+        if(eff.getAttributeModifiers().entrySet().stream().anyMatch(entry -> entry.getValue().getId().equals(data.getUUID()))){
+            eff.getAttributeModifiers().entrySet().stream().filter(entry -> entry.getValue().getId().equals(data.getUUID())).forEach(entry -> {
+                eff.getAttributeModifiers().remove(entry.getKey(), entry.getValue());
+            });
+        }
+        eff.addAttributeModifier(DamageTypeRegistry.getDamageType(data.getDamageType()).getAttribute(), data.getUUID().toString(), data.getValue(), AttributeModifier.Operation.valueOf(data.getModifier()));
+        ((MobEffectAccessor)eff).setColor(data.getColor());
     }
 
     @Nullable

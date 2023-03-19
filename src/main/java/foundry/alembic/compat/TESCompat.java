@@ -17,7 +17,7 @@ public class TESCompat {
         if(state != null){
             Vec3 ePos = level.getEntity(entityID).position();
             Vector3f pos = new Vector3f((float)ePos.x, (float)ePos.y+1.5f, (float)ePos.z);
-            TextParticle particle = new TextParticle(state, pos, TESParticle.Animation.POP_OFF, damageAmount+"");
+            TextParticle particle = new TextParticle(state, pos, TESParticle.Animation.POP_OFF, Math.round(damageAmount*10)/10f+"");
             particle.setColour(color);
             TESAPI.addTESParticle(particle);
         }

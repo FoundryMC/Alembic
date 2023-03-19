@@ -4,6 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
+import foundry.alembic.items.ItemStatHolder;
+import foundry.alembic.items.ItemStatJSONListener;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
@@ -12,7 +14,6 @@ import foundry.alembic.override.OverrideJSONListener;
 import foundry.alembic.resistances.AlembicResistance;
 import foundry.alembic.resistances.AlembicResistanceHolder;
 import foundry.alembic.resistances.ResistanceJsonListener;
-import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
@@ -23,21 +24,21 @@ import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -48,9 +49,10 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
@@ -95,6 +97,7 @@ public class ForgeEvents {
         DamageTypeJSONListener.register(event);
         OverrideJSONListener.register(event);
         ResistanceJsonListener.register(event);
+        ItemStatJSONListener.register(event);
     }
 
     @SubscribeEvent
@@ -106,6 +109,29 @@ public class ForgeEvents {
                 event.getEntity().sendSystemMessage(Component.literal(event.getEntity().getAttribute(damageType.getAttribute()).getValue() + "").withStyle(s -> s.withColor(ChatFormatting.GOLD)));
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onItemAttributes(ItemAttributeModifierEvent event){
+        List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
+        if(holder == null) return;
+        holder.forEach(am -> {
+            if(event.getSlotType().name().equals(ItemStatJSONListener.getStat(event.getItemStack().getItem()).equipmentSlot())){
+                //event.addModifier(am.getFirst(), am.getSecond());
+                if(am.getFirst().equals(ForgeRegistries.ATTRIBUTES.getValue(Alembic.location("physical_damage")))){
+                    AtomicReference<Pair<Attribute, AttributeModifier>> toRemove = new AtomicReference<>();
+                    event.getOriginalModifiers().forEach((attribute, attributeModifier) -> {
+                        if(attribute.equals(Attributes.ATTACK_DAMAGE)){
+                            toRemove.set(Pair.of(attribute, attributeModifier));
+                        }
+                    });
+                    if(toRemove.get() != null) event.getOriginalModifiers().remove(toRemove.get().getFirst(), toRemove.get().getSecond());
+                    event.getOriginalModifiers().put(Attributes.ATTACK_DAMAGE, am.getSecond());
+                } else {
+                    event.getOriginalModifiers().put(am.getFirst(), am.getSecond());
+                }
+            }
+        });
     }
 
 
@@ -120,7 +146,7 @@ public class ForgeEvents {
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
-        if (e.getSource().getDirectEntity() == null) {
+        if (e.getSource().getDirectEntity() == null || e.getSource().getDirectEntity() instanceof AbstractArrow) {
             noRecurse = false;
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
@@ -180,12 +206,11 @@ public class ForgeEvents {
 
     private static void handleDamageInstance(LivingEntity target, AlembicDamageType damageType, float damage, DamageSource originalSource) {
         if (damage > 0) {
-            float finalDamage = damage;
             damageType.getTags().forEach(r -> {
                 AlembicTag.ComposedData data = AlembicTag.ComposedData.createEmpty()
                                 .add(AlembicTag.ComposedDataType.LEVEL, target.level)
                                         .add(AlembicTag.ComposedDataType.TARGET_ENTITY, target)
-                                        .add(AlembicTag.ComposedDataType.FINAL_DAMAGE, finalDamage)
+                                        .add(AlembicTag.ComposedDataType.FINAL_DAMAGE, damage)
                                                 .add(AlembicTag.ComposedDataType.ORIGINAL_SOURCE, originalSource);
                 AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
                 MinecraftForge.EVENT_BUS.post(event);
@@ -217,11 +242,13 @@ public class ForgeEvents {
             AlembicDamageType damageType = pair.getFirst();
             float percentage = pair.getSecond();
             float damage = totalDamage * percentage;
+            totalDamage -= damage;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
                 //totalDamage += damage;
                 continue;
             }
+            Alembic.LOGGER.info("Damage override for {} is {}! Total damage is {}", damageType.getId().toString(), damage, totalDamage);
             damageCalc(target, attacker, damageType, damage, originalSource);
         }
         //return totalDamage;
@@ -250,6 +277,7 @@ public class ForgeEvents {
         damage = preDamage.getDamage();
         attrValue = preDamage.getResistance();
         if (damage <= 0 || preDamage.isCanceled()) return;
+        target.hurtArmor(originalSource, damage);
         damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
         damage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, alembicDamageType, damage);
         boolean enchantReduce = true;

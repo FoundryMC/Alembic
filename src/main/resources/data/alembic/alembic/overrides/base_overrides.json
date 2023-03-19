@@ -17,7 +17,7 @@
     "fireball": {"fire_damage": 0.70, "physical_damage": 0.30},
     "DROWN": {"arcane_damage": 1.0},
     "MAGIC": {"arcane_damage": 1.0},
-    "trident": {"arcane_damage": 0.20, "physical_damage": 0.80},
+    "trident": {"arcane_damage": 0.25, "physical_damage": 0.75},
     "sonic_boom": {"arcane_damage": 0.50, "physical_damage": 0.50},
     "thorns": {"arcane_damage": 0.50, "physical_damage": 0.50},
     "evokerFangs": {"arcane_damage": 0.20, "physical_damage": 0.80},
