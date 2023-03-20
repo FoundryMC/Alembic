@@ -14,12 +14,11 @@ configurations {
     library
 }
 
+group = 'foundry'
+version = '1.0'
 if (System.getenv('BUILD_NUMBER') != null) {
     version += "." + System.getenv('BUILD_NUMBER')
-} else {
-
 }
-group = 'foundry'
 java {
     archivesBaseName = 'alembic'
     toolchain.languageVersion = JavaLanguageVersion.of(17)

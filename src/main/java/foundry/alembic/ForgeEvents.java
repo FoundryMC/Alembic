@@ -398,7 +398,7 @@ public class ForgeEvents {
         target.hurtArmor(originalSource, damage);
         damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
         damage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, alembicDamageType, damage);
-        boolean enchantReduce = true;
+        boolean enchantReduce = alembicDamageType.hasEnchantReduction();
         if(enchantReduce){
             int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), DamageSource.mobAttack(attacker));
             if (k > 0) {

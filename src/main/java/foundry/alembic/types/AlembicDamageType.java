@@ -75,7 +75,7 @@ public class AlembicDamageType {
         this.color = color;
         this.hasParticles = hasParticles;
         this.shieldAttribute = new AlembicAttribute(id + "_shielding", 0, 0, 1024);
-        this.resistanceAttribute = new AlembicAttribute(id + "_resistance", 1, -1024, 1024);
+        this.resistanceAttribute = new AlembicAttribute(id + "_resistance", 0, -1024, 1024);
         this.absorptionAttribute = new AlembicAttribute(id + "_absorption", 0, 0, 1024);
         this.translationString = "alembic.damage." + id.getNamespace() + "." + id.getPath();
         this.tags = tags;

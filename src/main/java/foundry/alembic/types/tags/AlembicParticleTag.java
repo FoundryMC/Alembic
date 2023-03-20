@@ -10,6 +10,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,17 +83,16 @@ public class AlembicParticleTag implements AlembicTag {
             } else if (filter.hasDamageSource()) {
                 if (source.msgId.equals(filter.getDamageSource().get())) {
                     spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
-                } else {
-                    spawnParticle(level, particleOptions, entity, particleCount, speed.get());
                 }
             } else {
-                spawnParticle(level, particleOptions, entity, particleCount, personalSpeed);
+                spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
             }
         }));
         return entityFilter.isPresent();
     }
 
     private void spawnParticle(ServerLevel level, ParticleOptions particleOptions, LivingEntity entity, float particleCount, float pSpeed) {
+        ForgeRegistries.PARTICLE_TYPES.getKey(particleOptions.getType());
         level.sendParticles(particleOptions, entity.getX(), entity.getY() + entity.getBbHeight() / 2f, entity.getZ(),
                 (int) Math.ceil(particleCount * 2),
                 0, 0, 0,

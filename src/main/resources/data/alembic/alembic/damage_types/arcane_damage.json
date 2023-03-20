@@ -23,7 +23,7 @@
           "player_only": false,
           "damage_source": "soulFire",
           "particle_options": {
-            "type": "alembic:soul_fire_flame"
+            "type": "minecraft:soul_fire_flame"
           },
           "particle_speed": 0.05
         },
