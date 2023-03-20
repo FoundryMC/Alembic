@@ -33,7 +33,7 @@
             "particle_options": {
                 "type": "alembic:sculk_hit"
             },
-            "particle_speed": 0.15
+            "particle_speed": 0.25
         },
 		{
 			"player_only": false,
@@ -41,7 +41,7 @@
             "particle_options": {
                 "type": "alembic:sculk_hit"
             },
-            "particle_speed": 0.15
+            "particle_speed": 0.25
         },
 		{
 			"player_only": false,
@@ -49,7 +49,7 @@
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
-            "particle_speed": 0.05
+            "particle_speed": 0.2
         },
 		{
 			"player_only": false,
@@ -57,7 +57,7 @@
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
-            "particle_speed": 0.05
+            "particle_speed": 0.2
         },
 		{
 			"player_only": false,
@@ -65,7 +65,7 @@
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
-            "particle_speed": 0.05
+            "particle_speed": 0.2
         },
 		{
           "player_only": false,

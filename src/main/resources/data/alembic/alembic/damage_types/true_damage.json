@@ -31,7 +31,7 @@
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
-            "particle_speed": 0.05
+            "particle_speed": 0.2
         },
 		{
             "damage_source": "witherSkull"
@@ -39,7 +39,7 @@
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
-            "particle_speed": 0.05
+            "particle_speed": 0.2
         },
 		{
             "damage_source": "WITHER"
@@ -47,7 +47,7 @@
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
-            "particle_speed": 0.05
+            "particle_speed": 0.2
         }
       ]
     }
