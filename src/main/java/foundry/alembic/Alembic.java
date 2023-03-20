@@ -105,5 +105,7 @@ public class Alembic {
         AlembicAPI.addDefaultParticle("soul_fire_flame");
         AlembicAPI.addDefaultParticle("true_damage");
         AlembicAPI.addDefaultParticle("physical_damage");
+        AlembicAPI.addDefaultParticle("wither_decay");
+        AlembicAPI.addDefaultParticle("sculk_hit");
     }
 }
