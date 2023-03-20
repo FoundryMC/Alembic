@@ -1,0 +1,11 @@
+{
+  "textures": [
+    "alembic:sculk_hit_0",
+	"alembic:sculk_hit_1",
+	"alembic:sculk_hit_2",
+	"alembic:sculk_hit_3",
+	"alembic:sculk_hit_4",
+	"alembic:sculk_hit_5",
+	"alembic:sculk_hit_6"
+  ]
+}
