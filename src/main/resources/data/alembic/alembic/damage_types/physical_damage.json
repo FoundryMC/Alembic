@@ -17,8 +17,8 @@
         "type": "alembic:physical_damage"
       },
       "player_only": true
-    },
-	{
+	  "filters": [
+	  {
             "entity_type": "minecraft:warden",
 			"player_only": false,
             "particle_options": {
@@ -34,5 +34,7 @@
             },
             "particle_speed": 0.15
         }
-  ]
+]
+    },
+	
 }
