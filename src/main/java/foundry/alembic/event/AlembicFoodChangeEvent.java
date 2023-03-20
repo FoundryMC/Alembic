@@ -1,14 +1,17 @@
 package foundry.alembic.event;
 
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
 
 public class AlembicFoodChangeEvent extends Event {
+    Player player;
     int foodLevel;
     int lastFoodLevel;
     float saturationLevel;
     float exhaustionLevel;
 
-    public AlembicFoodChangeEvent(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+    public AlembicFoodChangeEvent(Player player, int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+        this.player = player;
         this.foodLevel = foodLevel;
         this.lastFoodLevel = lastFoodLevel;
         this.saturationLevel = saturationLevel;
@@ -47,15 +50,19 @@ public class AlembicFoodChangeEvent extends Event {
         this.exhaustionLevel = exhaustionLevel;
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     public static class Increase extends AlembicFoodChangeEvent {
-        public Increase(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
-            super(foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel);
+        public Increase(Player player, int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+            super(player, foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel);
         }
     }
 
     public static class Decrease extends AlembicFoodChangeEvent {
-        public Decrease(int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
-            super(foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel);
+        public Decrease(Player player, int foodLevel, int lastFoodLevel, float saturationLevel, float exhaustionLevel) {
+            super(player, foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel);
         }
     }
 }

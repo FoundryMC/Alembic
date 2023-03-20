@@ -20,13 +20,13 @@ public class FoodDataMixin {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/lang/Math;max(II)I", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
     private void alembic$onTick(Player pPlayer, CallbackInfo ci, Difficulty difficulty){
-        MinecraftForge.EVENT_BUS.post(new AlembicFoodChangeEvent.Decrease(pPlayer.getFoodData().getFoodLevel(), pPlayer.getFoodData().getFoodLevel() - 1, pPlayer.getFoodData().getSaturationLevel(), pPlayer.getFoodData().getExhaustionLevel()));
+        MinecraftForge.EVENT_BUS.post(new AlembicFoodChangeEvent.Decrease(pPlayer, pPlayer.getFoodData().getFoodLevel(), pPlayer.getFoodData().getFoodLevel() - 1, pPlayer.getFoodData().getSaturationLevel(), pPlayer.getFoodData().getExhaustionLevel()));
     }
 
     @Inject(method = "eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/food/FoodData;eat(IF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void alembic$onEat(Item p_38713_, ItemStack p_38714_, LivingEntity entity, CallbackInfo ci, FoodProperties foodproperties){
         if(entity instanceof Player pl){
-            MinecraftForge.EVENT_BUS.post(new AlembicFoodChangeEvent.Increase(pl.getFoodData().getFoodLevel(), pl.getFoodData().getFoodLevel() - foodproperties.getNutrition(), pl.getFoodData().getSaturationLevel(), pl.getFoodData().getExhaustionLevel()));
+            MinecraftForge.EVENT_BUS.post(new AlembicFoodChangeEvent.Increase(pl, pl.getFoodData().getFoodLevel(), pl.getFoodData().getFoodLevel() - foodproperties.getNutrition(), pl.getFoodData().getSaturationLevel(), pl.getFoodData().getExhaustionLevel()));
         }
     }
 }

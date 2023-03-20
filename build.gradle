@@ -9,18 +9,17 @@ plugins {
 
 apply plugin: 'maven-publish'
 
-group = 'foundry'
-version = '1.0'
 
 configurations {
-    shade
-    implementation.extendsFrom(shade)
     library
 }
 
 if (System.getenv('BUILD_NUMBER') != null) {
     version += "." + System.getenv('BUILD_NUMBER')
+} else {
+
 }
+group = 'foundry'
 java {
     archivesBaseName = 'alembic'
     toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -194,7 +193,6 @@ jarJar.enable()
 
 reobf {
     jarJar{}
-    shadowJar{}
 }
 
 tasks.assemble {
@@ -205,15 +203,6 @@ jar.finalizedBy('reobfJar')
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-
-shadowJar{
-    configurations = [project.configurations.shade]
-
-    classifier ''
-    relocate 'com.llamalad7' , 'foundry.alembic.repack.com.llamalad7'
-
-    finalizedBy 'reobfShadowJar'
 }
 publishing {
     publications {

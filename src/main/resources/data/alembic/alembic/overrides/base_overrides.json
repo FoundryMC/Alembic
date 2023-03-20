@@ -26,6 +26,7 @@
     "mob": {"physical_damage": 1.0},
     "player": {"physical_damage": 1.0},
     "arrow": {"physical_damage": 1.0},
-    "thrown": {"physical_damage": 1.0}
+    "thrown": {"physical_damage": 1.0},
+    "fall": {"physical_damage": 1.0}
   }
 }
