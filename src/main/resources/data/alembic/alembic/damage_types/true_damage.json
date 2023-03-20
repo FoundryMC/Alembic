@@ -24,6 +24,30 @@
           "particle_options": {
             "type": "alembic:frostbite"
           }
+        },
+		{
+            "entity_type": "minecraft:wither_skeleton",
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:wither_decay"
+            },
+            "particle_speed": 0.05
+        },
+		{
+            "damage_source": "witherSkull"
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:wither_decay"
+            },
+            "particle_speed": 0.05
+        },
+		{
+            "damage_source": "WITHER"
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:wither_decay"
+            },
+            "particle_speed": 0.05
         }
       ]
     }

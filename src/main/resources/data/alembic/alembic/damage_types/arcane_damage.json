@@ -32,7 +32,7 @@
             "particle_options": {
                 "type": "alembic:sculk_hit"
             },
-            "particle_speed": 0.35
+            "particle_speed": 0.15
         },
 		{
             "damage_source": "sonic_boom",
@@ -40,7 +40,31 @@
             "particle_options": {
                 "type": "alembic:sculk_hit"
             },
-            "particle_speed": 0.35
+            "particle_speed": 0.15
+        },
+		{
+            "entity_type": "minecraft:wither_skeleton",
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:wither_decay"
+            },
+            "particle_speed": 0.05
+        },
+		{
+            "damage_source": "witherSkull"
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:wither_decay"
+            },
+            "particle_speed": 0.05
+        },
+		{
+            "damage_source": "WITHER"
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:wither_decay"
+            },
+            "particle_speed": 0.05
         }
       ]
     },
