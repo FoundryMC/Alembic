@@ -16,6 +16,7 @@
     "MobEffectAccessor",
     "MobEffectInstanceAccessor",
     "MobEffectMixin",
+    "PlayerMixin",
     "SwordItemMixin",
     "ThrownPotionMixin",
     "TridentItemMixin",

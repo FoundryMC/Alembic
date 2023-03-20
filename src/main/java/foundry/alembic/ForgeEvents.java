@@ -1,6 +1,6 @@
 package foundry.alembic;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import com.mojang.datafixers.util.Pair;
 import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
@@ -8,6 +8,7 @@ import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.items.ItemStatHolder;
 import foundry.alembic.items.ItemStatJSONListener;
+import foundry.alembic.items.ItemUUIDAccess;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
@@ -30,20 +31,22 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -69,6 +72,11 @@ import static net.minecraft.world.item.ItemStack.ATTRIBUTE_MODIFIER_FORMAT;
 @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
     public static UUID ALEMBIC_FIRE_RESIST_UUID = UUID.fromString("b3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
+    public static UUID ALEMBIC_FIRE_DAMAGE_UUID = UUID.fromString("e3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
+    public static UUID ALEMBIC_NEGATIVE_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
+
+    public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
+    public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     @SubscribeEvent
     static void onServerStarting(ServerStartingEvent event) {
         // do something when the server starts
@@ -122,41 +130,19 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onTooltipRender(ItemTooltipEvent event){
-        int target = 0;
-        List<Component> toRemove = new ArrayList<>();
-        for(Component component : event.getToolTip()){
-            if(component.getString().contains("When in")){
-                target = event.getToolTip().indexOf(component) + 1;
-            }
-            if(component.toString().contains("alembic") && (event.getItemStack().getItem() instanceof SwordItem || event.getItemStack().getItem() instanceof TridentItem || event.getItemStack().getItem() instanceof DiggerItem)){
-                toRemove.add(component);
-            }
-        }
-        event.getToolTip().removeAll(toRemove);
-        if(target != 0){
-            int finalTarget = target;
-            List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
-            if(holder == null) return;
-            holder.forEach(pair -> {
-                if(event.getEntity() == null) return;
-                if(pair.getFirst().descriptionId.contains("physical_damage")) return;
-                double d0 = pair.getSecond().getAmount();
-                d0 += event.getEntity().getAttributeBaseValue(pair.getFirst());
-                d0 = TooltipHelper.getMod(pair.getSecond(), d0);
-                event.getToolTip().add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + pair.getSecond().getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(pair.getFirst().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
-            });
-        }
-
-    }
-
-    @SubscribeEvent
     public static void onItemAttributes(ItemAttributeModifierEvent event){
+        if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)){
+            int level = event.getItemStack().getAllEnchantments().get(Enchantments.FIRE_ASPECT);
+            Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
+            if(fireDamage == null) return;
+            if(!event.getSlotType().name().equals("MAINHAND")) return;
+            event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
+            event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -1*(1+level), AttributeModifier.Operation.ADDITION));
+        }
         List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
         if(holder == null) return;
         holder.forEach(am -> {
             if(event.getSlotType().name().equals(ItemStatJSONListener.getStat(event.getItemStack().getItem()).equipmentSlot())){
-                //event.addModifier(am.getFirst(), am.getSecond());
                 if(am.getFirst().equals(ForgeRegistries.ATTRIBUTES.getValue(Alembic.location("physical_damage")))){
                     AtomicReference<Pair<Attribute, AttributeModifier>> toRemove = new AtomicReference<>();
                     event.getOriginalModifiers().forEach((attribute, attributeModifier) -> {
@@ -227,7 +213,13 @@ public class ForgeEvents {
                 AbstractHurtingProjectile projectile = (AbstractHurtingProjectile) e.getSource().getDirectEntity();
                 attacker = (LivingEntity) projectile.getOwner();
             }
+            if(attacker == null) {
+                noRecurse = false;
+                return;
+            }
             LivingEntity target = e.getEntity();
+            Multimap<Attribute, AttributeModifier> map = ArrayListMultimap.create();
+            if (handleEnchantments(attacker, target, map)) return;
             float totalDamage = e.getAmount();
             AlembicResistance stats = AlembicResistanceHolder.get(attacker.getType());
             boolean entityOverride = stats != null;
@@ -263,9 +255,48 @@ public class ForgeEvents {
                 target.hurt(src(attacker), totalDamage);
             }
             target.invulnerableTime = time;
+            attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
+                if (attributeInstance.getModifier(TEMP_MOD_UUID) != null) {
+                    attributeInstance.removeModifier(TEMP_MOD_UUID);
+                }
+                if(attributeInstance.getModifier(TEMP_MOD_UUID2) != null) {
+                    attributeInstance.removeModifier(TEMP_MOD_UUID2);
+                }
+            });
+            attacker.getAttributes();
         }
         noRecurse = false;
         e.setCanceled(true);
+    }
+
+    private static boolean handleEnchantments(LivingEntity attacker, LivingEntity target, Multimap<Attribute, AttributeModifier> map) {
+        for(Map.Entry<Enchantment, Integer> entry : attacker.getItemInHand(InteractionHand.MAIN_HAND).getAllEnchantments().entrySet()){
+            if(entry.getKey().equals(Enchantments.BANE_OF_ARTHROPODS)){
+                if(target.getMobType() == MobType.ARTHROPOD){
+                    Attribute alchDamage = DamageTypeRegistry.getDamageType("arcane_damage").getAttribute();
+                    if(alchDamage == null) return true;
+                    AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID, "Bane of Arthropods", entry.getValue(), AttributeModifier.Operation.ADDITION);
+                    attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
+                    map.put(alchDamage, attributeModifier);
+                }
+            } else if (entry.getKey().equals(Enchantments.SMITE)){
+                if(target.getMobType() == MobType.UNDEAD){
+                    Attribute alchDamage = DamageTypeRegistry.getDamageType("arcane_damage").getAttribute();
+                    if(alchDamage == null) return true;
+                    AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID2, "Smite", entry.getValue(), AttributeModifier.Operation.ADDITION);
+                    attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
+                    map.put(alchDamage, attributeModifier);
+                }
+            } else if (entry.getKey().equals(Enchantments.IMPALING)){
+                if(target.isInWaterOrRain()){
+                    Attribute alchDamage = DamageTypeRegistry.getDamageType("arcane_damage").getAttribute();
+                    if(alchDamage == null) return true;
+                    AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID, "Impaling", entry.getValue(), AttributeModifier.Operation.ADDITION);
+                    attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
+                    map.put(alchDamage, attributeModifier);
+                }
+            }
+        } return false;
     }
 
     private static void handleDamageInstance(LivingEntity target, AlembicDamageType damageType, float damage, DamageSource originalSource) {
