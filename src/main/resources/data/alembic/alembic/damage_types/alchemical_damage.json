@@ -17,7 +17,33 @@
         "type": "alembic:alchemical_reaction"
       },
       "player_only": false,
-      "particle_speed": 0.35
+      "particle_speed": 0.35,
+	  "filters": [
+        {
+          "player_only": false,
+          "entity_type": "minecraft:enderman",
+          "particle_options": {
+            "type": "minecraft:portal"
+          },
+          "particle_speed": 0.35
+        },
+		{
+          "player_only": false,
+          "entity_type": "minecraft:endermite",
+          "particle_options": {
+            "type": "minecraft:portal"
+          },
+          "particle_speed": 0.35
+        },
+		{
+          "player_only": false,
+          "damage_source": "DRAGON_BREATH",
+          "particle_options": {
+            "type": "minecraft:portal"
+          },
+          "particle_speed": 0.35
+        }
+		]
     },
     {
       "tag_id": "alembic:particle_tag",

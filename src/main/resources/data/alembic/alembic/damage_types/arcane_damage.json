@@ -17,6 +17,7 @@
         "type": "alembic:arcane_spark"
       },
       "player_only": false,
+	  "particle_speed": 0.35,
       "filters": [
         {
           "player_only": false,
@@ -27,44 +28,68 @@
           "particle_speed": 0.05
         },
 		{
-            "entity_type": "minecraft:warden",
 			"player_only": false,
+			"entity_type": "minecraft:warden",
             "particle_options": {
                 "type": "alembic:sculk_hit"
             },
             "particle_speed": 0.15
         },
 		{
-            "damage_source": "sonic_boom",
 			"player_only": false,
+			"damage_source": "sonic_boom",
             "particle_options": {
                 "type": "alembic:sculk_hit"
             },
             "particle_speed": 0.15
         },
 		{
-            "entity_type": "minecraft:wither_skeleton",
 			"player_only": false,
+			"entity_type": "minecraft:wither_skeleton",
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
             "particle_speed": 0.05
         },
 		{
-            "damage_source": "witherSkull"
 			"player_only": false,
+            "damage_source": "witherSkull",
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
             "particle_speed": 0.05
         },
 		{
-            "damage_source": "WITHER"
 			"player_only": false,
+			"damage_source": "WITHER",
             "particle_options": {
                 "type": "alembic:wither_decay"
             },
             "particle_speed": 0.05
+        },
+		{
+          "player_only": false,
+          "entity_type": "minecraft:enderman",
+          "particle_options": {
+            "type": "minecraft:portal"
+          },
+          "particle_speed": 0.35
+        },
+		{
+          "player_only": false,
+          "entity_type": "minecraft:endermite",
+          "particle_options": {
+            "type": "minecraft:portal"
+          },
+          "particle_speed": 0.35
+        },
+		{
+          "player_only": false,
+          "damage_source": "DRAGON_BREATH",
+          "particle_options": {
+            "type": "minecraft:portal"
+          },
+          "particle_speed": 0.35
         }
       ]
     },
