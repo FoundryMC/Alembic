@@ -6,7 +6,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
 import foundry.alembic.CodecUtil;
+import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.types.AlembicTypeModifier;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -23,7 +25,10 @@ public class AlembicPotionDataHolder {
                     Codec.FLOAT.fieldOf("value").forGetter(AlembicPotionDataHolder::getValue),
                     Codec.STRING.fieldOf("operation").forGetter(AlembicPotionDataHolder::getModifier),
                     Codec.BOOL.optionalFieldOf("vanilla_override").forGetter(AlembicPotionDataHolder::getVanillaOverrideOptional),
-                    Codec.list(Codec.STRING).optionalFieldOf("immunities").forGetter(AlembicPotionDataHolder::getImmunitiesOptional),
+                    AlembicDamageSourceIdentifier.CODEC.listOf().xmap(
+                            strings -> Util.<Set<AlembicDamageSourceIdentifier>>make((new TreeSet<AlembicDamageSourceIdentifier>()), set -> set.addAll(strings)),
+                            List::copyOf
+                    ).optionalFieldOf("immunities").forGetter(AlembicPotionDataHolder::getImmunitiesOptional),
                     Codec.INT.optionalFieldOf("max_level").forGetter(AlembicPotionDataHolder::getMaxLevelOptional),
                     Codec.INT.optionalFieldOf("base_duration").forGetter(AlembicPotionDataHolder::getBaseDurationOptional),
                     Codec.INT.optionalFieldOf("amplification_per_level").forGetter(AlembicPotionDataHolder::getAmplifierPerLevelOptional),
@@ -32,12 +37,11 @@ public class AlembicPotionDataHolder {
                     ItemStack.CODEC.optionalFieldOf("reagent").forGetter(AlembicPotionDataHolder::getReagentOptional)
             ).apply(instance, AlembicPotionDataHolder::new)
             );
-
     private String attribute;
     private String modifier;
     private float value;
     private Optional<Boolean> vanillaOverride;
-    private Optional<List<String>> immunities;
+    private Optional<Set<AlembicDamageSourceIdentifier>> immunities;
     private Optional<Integer> maxLevel;
 
     private Optional<Integer> baseDuration;
@@ -67,7 +71,7 @@ public class AlembicPotionDataHolder {
         POTION_DATA_HOLDERS.add(this);
     }
 
-    public AlembicPotionDataHolder(String attribute, float value, String modifier, Optional<Boolean> vanillaOverride, Optional<List<String>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
+    public AlembicPotionDataHolder(String attribute, float value, String modifier, Optional<Boolean> vanillaOverride, Optional<Set<AlembicDamageSourceIdentifier>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
         this.attribute = attribute;
         this.value = value;
         this.modifier = modifier;
@@ -115,7 +119,7 @@ public class AlembicPotionDataHolder {
         this.vanillaOverride = vanillaOverride;
     }
 
-    public void setImmunities(Optional<List<String>> immunities){
+    public void setImmunities(Optional<Set<AlembicDamageSourceIdentifier>> immunities){
         this.immunities = immunities;
     }
 
@@ -160,11 +164,11 @@ public class AlembicPotionDataHolder {
         return vanillaOverride;
     }
 
-    public List<String> getImmunities(){
+    public Set<AlembicDamageSourceIdentifier> getImmunities(){
         return immunities.orElse(null);
     }
 
-    public Optional<List<String>> getImmunitiesOptional(){
+    public Optional<Set<AlembicDamageSourceIdentifier>> getImmunitiesOptional(){
         return immunities;
     }
 

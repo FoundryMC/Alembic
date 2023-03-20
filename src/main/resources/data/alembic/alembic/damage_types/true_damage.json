@@ -12,7 +12,20 @@
   "color": "#FFFFFF",
   "tags": [
     {
-      "tag_id": "alembic:no_particle_tag"
+      "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:true_damage"
+      },
+      "player_only": true,
+      "filters": [
+        {
+          "player_only": false,
+          "damage_source": "freeze",
+          "particle_options": {
+            "type": "alembic:frostbite"
+          }
+        }
+      ]
     }
   ]
 }

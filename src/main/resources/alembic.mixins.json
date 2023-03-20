@@ -7,18 +7,22 @@
   "mixins": [
     "ArmorItemMixin",
     "BaseFireBlockMixin",
+    "CampfireBlockMixin",
     "DiggerItemMixin",
+    "EntityMixin",
     "EvokerFangsMixin",
     "FoodDataMixin",
     "GuardianAttackGoalMixin",
-    "ItemStackMixin",
     "MobEffectAccessor",
+    "MobEffectInstanceAccessor",
     "MobEffectMixin",
     "SwordItemMixin",
     "ThrownPotionMixin",
-    "TridentItemMixin"
+    "TridentItemMixin",
+    "client.ScreenEffectRendererMixin"
   ],
   "client": [
+    "client.EntityRenderDispatcherMixin",
     "client.GuiMixin"
   ],
   "injectors": {

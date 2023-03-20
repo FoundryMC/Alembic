@@ -16,7 +16,8 @@
       "particle_options": {
         "type": "alembic:alchemical_reaction"
       },
-      "player_only": false
+      "player_only": false,
+      "particle_speed": 0.35
     },
     {
       "tag_id": "alembic:particle_tag",
@@ -44,7 +45,7 @@
   "potion": {
     "attribute": "resistance",
     "value": 0.1,
-    "operation": "ADDITION",
+    "operation": "MULTIPLY_BASE",
     "base_duration": 600,
     "amplification_per_level": 1,
     "max_amplifier": 2,

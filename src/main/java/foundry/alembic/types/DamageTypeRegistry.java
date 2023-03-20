@@ -58,7 +58,7 @@ public class DamageTypeRegistry {
     }
 
     public static AlembicDamageType getDamageType(String id) {
-        return DAMAGE_TYPES.get(new ResourceLocation(id));
+        return DAMAGE_TYPES.get(Alembic.location(id));
     }
 
     public static boolean doesDamageTypeExist(ResourceLocation id) {

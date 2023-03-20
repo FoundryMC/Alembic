@@ -16,7 +16,24 @@
       "particle_options": {
         "type": "alembic:arcane_spark"
       },
-      "player_only": false
+      "player_only": false,
+      "filters": [
+        {
+          "player_only": false,
+          "damage_source": "soulFire",
+          "particle_options": {
+            "type": "alembic:soul_fire_flame"
+          },
+          "particle_speed": 0.05
+        }
+      ]
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:arcane_damage"
+      },
+      "player_only": true
     },
     {
       "tag_id": "alembic:per_level_tag",
@@ -29,7 +46,7 @@
   "potion": {
     "attribute": "resistance",
     "value": 0.1,
-    "operation": "ADDITION",
+    "operation": "MULTIPLY_BASE",
     "base_duration": 600,
     "amplification_per_level": 1,
     "max_amplifier": 2,

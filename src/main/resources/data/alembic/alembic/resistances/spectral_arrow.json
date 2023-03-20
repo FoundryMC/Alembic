@@ -1,0 +1,11 @@
+{
+  "priority": 1,
+  "type": "minecraft:spectral_arrow",
+  "resistances": {
+  },
+  "damage": {
+    "arcane_damage": 0.5,
+    "physical_damage": 0.5
+  },
+  "ignored_sources": []
+}

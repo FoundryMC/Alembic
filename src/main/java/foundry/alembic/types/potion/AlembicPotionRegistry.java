@@ -8,22 +8,61 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class AlembicPotionRegistry {
     public static final Map<ResourceLocation, AlembicPotionDataHolder> POTION_DATA = new HashMap<>();
     public static final Map<ResourceLocation, MobEffect> MOB_EFFECT_MAP = new HashMap<>();
+
+    public static final Map<ResourceLocation, AlembicPotionDataHolder> IMMUNITY_DATA = new HashMap<>();
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
     public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(ForgeRegistries.POTIONS, "alembic");
+
+    public static final RegistryObject<MobEffect> FIRE = MOB_EFFECTS.register("fire", () -> new AlembicMobEffect(MobEffectCategory.HARMFUL, 0x000000){
+        @Override
+        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            super.onApplication(effectInstance, source, entity, amplifier);
+            if(!entity.isOnFire()){
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            }
+        }
+    });
+    public static final RegistryObject<MobEffect> FROSTBITE = MOB_EFFECTS.register("frostbite", () -> new AlembicMobEffect(MobEffectCategory.HARMFUL, 0x000000){
+        @Override
+        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            if(entity.getTicksFrozen() < effectInstance.getDuration()){
+                entity.setTicksFrozen(effectInstance.getDuration());
+            }
+        }
+    });
+    public static final RegistryObject<MobEffect> SOUL_FIRE = MOB_EFFECTS.register("soul_fire", () -> new AlembicMobEffect(MobEffectCategory.HARMFUL, 0x000000){
+        @Override
+        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            super.onApplication(effectInstance, source, entity, amplifier);
+            if(!entity.isOnFire()){
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            }
+        }
+    });
+
 
     public static void init() {
         for(Map.Entry<ResourceLocation, AlembicPotionDataHolder> entry : POTION_DATA.entrySet()) {
@@ -64,16 +103,26 @@ public class AlembicPotionRegistry {
     }
 
     private static void setupMobEffect(AlembicPotionDataHolder data, String regId) {
+        if(regId.contains("fire_damage_resistance")){
+            Potion potion_long = new Potion(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 1200, 1));
+            POTIONS.register("fire_resistance_strong", () -> potion_long);
+            return;
+        } else if (data.getDamageType().getPath().contains("fire_damage")){
+            return;
+        }
+        regId = Alembic.location(regId).toString();
         MobEffect effect = getMobEffect(data);
         if (effect == null) return;
-        MOB_EFFECT_MAP.put(Alembic.location(regId), effect);
-        MOB_EFFECTS.register(regId, () -> MOB_EFFECT_MAP.get(Alembic.location(regId)));
-        Potion potion = new Potion(new MobEffectInstance(effect, 30, 0));
-        Potion potion_strong = new Potion(new MobEffectInstance(effect, 30, 1));
+        MOB_EFFECT_MAP.put(ResourceLocation.tryParse(regId), effect);
+        IMMUNITY_DATA.put(ResourceLocation.tryParse(regId), data);
+        regId = regId.substring(regId.indexOf(":") + 1);
+        if(regId.contains("fire_resistance")) return;
+        String finalRegId = regId;
+        MOB_EFFECTS.register(regId, () -> MOB_EFFECT_MAP.get(Alembic.location(finalRegId)));
+        Potion potion = new Potion(new MobEffectInstance(effect, 1200, 0));
+        Potion potion_strong = new Potion(new MobEffectInstance(effect, 1200, 1));
         POTIONS.register(regId, () -> potion);
         POTIONS.register(regId + "_strong", () -> potion_strong);
-        ForgeRegistries.POTIONS.getValue(Alembic.location(regId)).getEffects().forEach(eff -> {
-        });
         for(int i = 0; i < data.getMaxLevel(); i++){
             Alembic.LOGGER.info("Registering potion: " + regId + "_" + i);
             Potion potion1 = new Potion(new MobEffectInstance(effect, data.getBaseDuration(), i));
@@ -98,7 +147,9 @@ public class AlembicPotionRegistry {
                 eff.getAttributeModifiers().remove(entry.getKey(), entry.getValue());
             });
         }
-        eff.addAttributeModifier(DamageTypeRegistry.getDamageType(data.getDamageType()).getAttribute(), data.getUUID().toString(), data.getValue(), AttributeModifier.Operation.valueOf(data.getModifier()));
+        Attribute at = ForgeRegistries.ATTRIBUTES.getValue(ResourceLocation.tryParse(data.getDamageType().toString()+"_"+data.getAttribute()));
+        if (at == null) return;
+        eff.addAttributeModifier(at, data.getUUID().toString(), data.getValue(), AttributeModifier.Operation.valueOf(data.getModifier()));
         ((MobEffectAccessor)eff).setColor(data.getColor());
     }
 

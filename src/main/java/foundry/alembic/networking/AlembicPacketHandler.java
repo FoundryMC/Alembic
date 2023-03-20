@@ -16,5 +16,6 @@ public class AlembicPacketHandler {
 
     public static void init(){
         INSTANCE.registerMessage(id++, ClientboundAlembicDamagePacket.class, ClientboundAlembicDamagePacket::encode, ClientboundAlembicDamagePacket::decode, ClientboundAlembicDamagePacket::handle);
+        INSTANCE.registerMessage(id++, ClientboundAlembicFireTypePacket.class, ClientboundAlembicFireTypePacket::encode, ClientboundAlembicFireTypePacket::decode, ClientboundAlembicFireTypePacket::handle);
     }
 }

@@ -1,6 +1,8 @@
 package foundry.alembic;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
@@ -17,6 +19,8 @@ import foundry.alembic.resistances.ResistanceJsonListener;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
+import foundry.alembic.types.potion.AlembicPotionDataHolder;
+import foundry.alembic.types.potion.AlembicPotionRegistry;
 import foundry.alembic.types.tags.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.tags.AlembicHungerTag;
 import foundry.alembic.types.tags.AlembicPerLevelTag;
@@ -24,24 +28,29 @@ import foundry.alembic.types.tags.AlembicTag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -51,14 +60,15 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
+import static net.minecraft.world.item.ItemStack.ATTRIBUTE_MODIFIER_FORMAT;
 
 @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
+    public static UUID ALEMBIC_FIRE_RESIST_UUID = UUID.fromString("b3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     @SubscribeEvent
     static void onServerStarting(ServerStartingEvent event) {
         // do something when the server starts
@@ -112,6 +122,35 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
+    public static void onTooltipRender(ItemTooltipEvent event){
+        int target = 0;
+        List<Component> toRemove = new ArrayList<>();
+        for(Component component : event.getToolTip()){
+            if(component.getString().contains("When in")){
+                target = event.getToolTip().indexOf(component) + 1;
+            }
+            if(component.toString().contains("alembic") && (event.getItemStack().getItem() instanceof SwordItem || event.getItemStack().getItem() instanceof TridentItem || event.getItemStack().getItem() instanceof DiggerItem)){
+                toRemove.add(component);
+            }
+        }
+        event.getToolTip().removeAll(toRemove);
+        if(target != 0){
+            int finalTarget = target;
+            List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
+            if(holder == null) return;
+            holder.forEach(pair -> {
+                if(event.getEntity() == null) return;
+                if(pair.getFirst().descriptionId.contains("physical_damage")) return;
+                double d0 = pair.getSecond().getAmount();
+                d0 += event.getEntity().getAttributeBaseValue(pair.getFirst());
+                d0 = TooltipHelper.getMod(pair.getSecond(), d0);
+                event.getToolTip().add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + pair.getSecond().getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(pair.getFirst().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
+            });
+        }
+
+    }
+
+    @SubscribeEvent
     public static void onItemAttributes(ItemAttributeModifierEvent event){
         List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
         if(holder == null) return;
@@ -139,6 +178,11 @@ public class ForgeEvents {
     public static void onLivingSpawn(final LivingSpawnEvent event){
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void cancelShieldBlock(ShieldBlockEvent event){
+        event.setBlockedDamage(0);
+    }
+
     private static boolean noRecurse = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -146,6 +190,23 @@ public class ForgeEvents {
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
+        if(!e.getEntity().getActiveEffects().isEmpty()){
+            for(MobEffectInstance effectInstances : e.getEntity().getActiveEffects()){
+                ResourceLocation rl = ForgeRegistries.MOB_EFFECTS.getKey(effectInstances.getEffect());
+                if(rl != null){
+                    if(AlembicPotionRegistry.IMMUNITY_DATA.containsKey(rl)){
+                        AlembicPotionDataHolder data = AlembicPotionRegistry.IMMUNITY_DATA.get(rl);
+                        if(data != null){
+                            if (data.getImmunities().stream().map(AlembicDamageSourceIdentifier::getSerializedName).toList().contains(e.getSource().msgId)){
+                                e.setCanceled(true);
+                                noRecurse = false;
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if (e.getSource().getDirectEntity() == null || e.getSource().getDirectEntity() instanceof AbstractArrow) {
             noRecurse = false;
             LivingEntity target = e.getEntity();
@@ -178,6 +239,9 @@ public class ForgeEvents {
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
                 if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0) {
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
+                    if(target.isBlocking() && !damageType.getId().getPath().contains("true_damage")) {
+                        damage *= 0.25;
+                    }
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
                     if (damageType.getId().equals(Alembic.location("physical_damage")))
                         attrValue = target.getArmorValue();
@@ -237,6 +301,29 @@ public class ForgeEvents {
         }
     }
 
+    @SubscribeEvent
+    static void onEffect(MobEffectEvent event){
+        if(event.getEffectInstance() == null)return;
+        AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 *(1+ event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
+        if(event instanceof MobEffectEvent.Added){
+            if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
+                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                if(fireRes == null) return;
+                if(event.getEntity().getAttribute(fireRes) == null) return;
+                Objects.requireNonNull(event.getEntity().getAttribute(fireRes)).addPermanentModifier(attmod);
+            }
+        }
+        if (event instanceof MobEffectEvent.Remove){
+            if(event.getEffectInstance() == null)return;
+            if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
+                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                if(fireRes == null) return;
+                if(event.getEntity().getAttribute(fireRes) == null) return;
+                event.getEntity().getAttribute(fireRes).removeModifier(attmod);
+            }
+        }
+    }
+
     private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicOverride override, DamageSource originalSource) {
         for (Pair<AlembicDamageType, Float> pair : override.getDamages()) {
             AlembicDamageType damageType = pair.getFirst();
@@ -245,13 +332,10 @@ public class ForgeEvents {
             totalDamage -= damage;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
-                //totalDamage += damage;
                 continue;
             }
-            Alembic.LOGGER.info("Damage override for {} is {}! Total damage is {}", damageType.getId().toString(), damage, totalDamage);
             damageCalc(target, attacker, damageType, damage, originalSource);
         }
-        //return totalDamage;
     }
 
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
@@ -259,6 +343,9 @@ public class ForgeEvents {
         stats.getDamage().forEach((alembicDamageType, multiplier) -> {
             if (stats.getIgnoredSources().stream().map(AlembicDamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
             float damage = totalDamage * multiplier;
+            if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
+                damage *= 0.25;
+            }
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
                 return;

@@ -10,12 +10,39 @@
     "enchant_reduction": true,
     "enchant_source": "mob",
     "color": "#F14700",
-    "tags": [{
+    "tags": [
+        {
+            "tag_id": "alembic:particle_tag",
+            "particle_options": {
+                "type": "alembic:fire_damage"
+            },
+            "player_only": true
+        },
+        {
             "tag_id": "alembic:particle_tag",
             "particle_options": {
                 "type": "alembic:fire_flame"
             },
-        "player_only": false
+            "player_only": false,
+            "filters": [
+                {
+                    "player_only": false,
+                    "damage_source": "soulFire",
+                    "particle_options": {
+                        "type": "minecraft:soul_fire_flame"
+                    },
+                    "particle_speed": 0.05
+                },
+                {
+                    "entity_type": "minecraft:player",
+                    "player_only": true,
+                    "item": "minecraft:powder_snow_bucket",
+                    "particle_options": {
+                        "type": "alembic:frostbite"
+                    },
+                    "particle_speed": 0.35
+                }
+            ]
         },
         {
             "tag_id": "alembic:extend_fire_tag",
@@ -31,7 +58,7 @@
     "potion": {
         "attribute": "resistance",
         "value": 0.1,
-        "operation": "ADDITION",
+        "operation": "MULTIPLY_BASE",
         "vanilla_override": true,
         "immunities": [
             "onFire",

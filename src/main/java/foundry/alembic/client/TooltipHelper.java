@@ -5,6 +5,7 @@ import foundry.alembic.items.ItemStatHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -33,5 +34,15 @@ public class TooltipHelper {
             System.out.println("Flag is false");
         }
         int i = list.size();
+    }
+
+    public static double getMod(AttributeModifier mod, double d0){
+        double d1;
+        if (mod.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && mod.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
+            d1 = d0;
+        } else {
+            d1 = d0 * 100.0D;
+        }
+        return d1;
     }
 }

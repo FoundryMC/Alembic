@@ -97,7 +97,13 @@ public class Alembic {
 
         AlembicAPI.addDefaultParticle("alchemical_damage");
         AlembicAPI.addDefaultParticle("alchemical_reaction");
+        AlembicAPI.addDefaultParticle("arcane_damage");
         AlembicAPI.addDefaultParticle("arcane_spark");
+        AlembicAPI.addDefaultParticle("fire_damage");
         AlembicAPI.addDefaultParticle("fire_flame");
+        AlembicAPI.addDefaultParticle("frostbite");
+        AlembicAPI.addDefaultParticle("soul_fire_flame");
+        AlembicAPI.addDefaultParticle("true_damage");
+        AlembicAPI.addDefaultParticle("physical_damage");
     }
 }
