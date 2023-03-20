@@ -4,28 +4,36 @@
   "alembic.damage.fire_damage": "Fire Damage",
   "alembic.damage.physical_damage": "Physical Damage",
   "alembic.damage.true_damage": "True Damage",
+  
   "effect.alembic.alchemical_damage_resistance": "Alchemical Resistance",
   "effect.alembic.arcane_damage_resistance": "Arcane Resistance",
   "effect.alembic.fire_damage_resistance": "Fire Resistance",
+  
   "effect.alembic.alchemical_damage_absorption": "Alchemical Absorption",
   "effect.alembic.arcane_damage_absorption": "Arcane Absorption",
   "effect.alembic.fire_damage_absorption": "Fire Absorption",
+  
   "effect.alembic.alchemical_damage_shielding": "Alchemical Shielding",
   "effect.alembic.arcane_damage_shielding": "Arcane Shielding",
   "effect.alembic.fire_damage_shielding": "Fire Shielding",
+  
   "alembic:alchemical_damage_resistance": "Alchemical Resistance",
   "alembic:arcane_damage_resistance": "Arcane Resistance",
   "alembic:fire_damage_resistance": "Fire Resistance",
+  
   "alembic:alchemical_damage_absorption": "Alchemical Absorption",
   "alembic:arcane_damage_absorption": "Arcane Absorption",
   "alembic:fire_damage_absorption": "Fire Absorption",
+  
   "alembic:alchemical_damage": "Alchemical Damage",
   "alembic:arcane_damage": "Arcane Damage",
   "alembic:fire_damage": "Fire Damage",
   "alembic:physical_damage": "Physical Damage",
   "alembic:true_damage": "True Damage",
-  "effect.alembic.fire": "Aflame",
-  "effect.alembic.soul_fire": "Aflamed Soul",
+  
+  "effect.alembic.fire": "Fire",
+  "effect.alembic.soul_fire": "Soul Fire",
+  
   "item.minecraft.potion.effect.alchemical_damage_resistance": "Potion of Alchemical Resistance",
   "item.minecraft.splash_potion.effect.alchemical_damage_resistance": "Splash Potion of Alchemical Resistance",
   "item.minecraft.lingering_potion.effect.alchemical_damage_resistance": "Lingering Potion of Alchemical Resistance",
