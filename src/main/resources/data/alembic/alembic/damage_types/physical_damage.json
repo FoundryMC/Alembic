@@ -17,6 +17,22 @@
         "type": "alembic:physical_damage"
       },
       "player_only": true
-    }
+    },
+	{
+            "entity_type": "minecraft:warden",
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:sculk_hit"
+            },
+            "particle_speed": 0.35
+        },
+		{
+            "damage_source": "sonic_boom",
+			"player_only": false,
+            "particle_options": {
+                "type": "alembic:sculk_hit"
+            },
+            "particle_speed": 0.35
+        }
   ]
 }

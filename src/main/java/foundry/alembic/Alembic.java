@@ -95,6 +95,8 @@ public class Alembic {
         AlembicAPI.addDefaultPotionEffect("arcane_damage");
         AlembicAPI.addDefaultPotionEffect("alchemical_damage");
 
+        AlembicAPI.addDefaultParticle("true_damage");
+        AlembicAPI.addDefaultParticle("physical_damage");
         AlembicAPI.addDefaultParticle("alchemical_damage");
         AlembicAPI.addDefaultParticle("alchemical_reaction");
         AlembicAPI.addDefaultParticle("arcane_damage");
@@ -103,8 +105,6 @@ public class Alembic {
         AlembicAPI.addDefaultParticle("fire_flame");
         AlembicAPI.addDefaultParticle("frostbite");
         AlembicAPI.addDefaultParticle("soul_fire_flame");
-        AlembicAPI.addDefaultParticle("true_damage");
-        AlembicAPI.addDefaultParticle("physical_damage");
         AlembicAPI.addDefaultParticle("wither_decay");
         AlembicAPI.addDefaultParticle("sculk_hit");
     }
