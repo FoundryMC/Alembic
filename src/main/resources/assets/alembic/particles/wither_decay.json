@@ -1,0 +1,16 @@
+{
+  "textures": [
+    "alembic:wither_decay_0",
+	"alembic:wither_decay_1",
+	"alembic:wither_decay_2",
+	"alembic:wither_decay_3",
+	"alembic:wither_decay_dark_0",
+	"alembic:wither_decay_dark_1",
+	"alembic:wither_decay_dark_2",
+	"alembic:wither_decay_dark_3",
+	"alembic:wither_decay_black_0",
+	"alembic:wither_decay_black_1",
+	"alembic:wither_decay_black_2",
+	"alembic:wither_decay_black_3"
+  ]
+}
