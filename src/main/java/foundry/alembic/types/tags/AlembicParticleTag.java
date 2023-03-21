@@ -3,7 +3,6 @@ package foundry.alembic.types.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.*;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +13,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AlembicParticleTag implements AlembicTag {
@@ -53,20 +53,21 @@ public class AlembicParticleTag implements AlembicTag {
             if(source.getDirectEntity() != null){
                 if(source.getDirectEntity() instanceof Player){
                     if(!applyFilters(entity, (ServerLevel) level, source, particleCount, speed)){
-                        spawnParticle((ServerLevel) level, particleOptions, entity, particleCount, 0.35f);
+                        spawnParticle((ServerLevel) level, particleOptions, entity, particleCount, particleSpeed.orElse(0.35f));
                     }
                 }
             } else {
                 applyFilters(entity, (ServerLevel) level, source, particleCount, speed);
             }
         } else {
-            if (!applyFilters(entity, (ServerLevel) level, source, particleCount, speed)) {
-                spawnParticle((ServerLevel) level, particleOptions, entity, particleCount, 0.35f);
+            if (applyFilters(entity, (ServerLevel) level, source, particleCount, speed)) {
+                spawnParticle((ServerLevel) level, particleOptions, entity, particleCount, particleSpeed.orElse(0.35f));
             }
         }
     }
 
     private boolean applyFilters(LivingEntity entity, ServerLevel level, DamageSource source, float particleCount, AtomicReference<Float> speed) {
+        AtomicBoolean shouldPlayBaseParticle = new AtomicBoolean(true);
         entityFilter.ifPresent(particleTagEntityFilters -> particleTagEntityFilters.forEach(filter -> {
             float personalSpeed = filter.getParticleSpeed().orElse(speed.get());
             if (filter.hasEntityType()) {
@@ -75,20 +76,24 @@ public class AlembicParticleTag implements AlembicTag {
                     if (filter.isPlayerOnly() && source.getDirectEntity() instanceof Player) {
                         if ((filter.hasItem() && ((Player) source.getDirectEntity()).getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(filter.getItem().get())) || !filter.hasItem()) {
                             spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
+                            shouldPlayBaseParticle.set(false);
                         }
                     } else {
                         spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
+                        shouldPlayBaseParticle.set(false);
                     }
                 }
             } else if (filter.hasDamageSource()) {
                 if (source.msgId.equals(filter.getDamageSource().get())) {
                     spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
+                    shouldPlayBaseParticle.set(false);
                 }
             } else {
                 spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
+                shouldPlayBaseParticle.set(false);
             }
         }));
-        return entityFilter.isPresent();
+        return shouldPlayBaseParticle.get();
     }
 
     private void spawnParticle(ServerLevel level, ParticleOptions particleOptions, LivingEntity entity, float particleCount, float pSpeed) {

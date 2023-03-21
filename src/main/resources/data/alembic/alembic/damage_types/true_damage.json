@@ -20,7 +20,7 @@
       "filters": [
         {
           "player_only": false,
-          "damage_source": "freeze",
+          "damage_source": "FREEZE",
           "particle_options": {
             "type": "alembic:frostbite"
           }

@@ -252,6 +252,23 @@ public class AlembicDamageType {
         this.absorptionAttribute = absorptionAttribute;
     }
 
+    public void setAttribute(String type, RangedAttribute attribute){
+        switch (type){
+            case "shield":
+                this.shieldAttribute = attribute;
+                break;
+            case "resistance":
+                this.resistanceAttribute = attribute;
+                break;
+            case "absorption":
+                this.absorptionAttribute = (AlembicAttribute) attribute;
+                break;
+            default:
+                this.attribute = (AlembicAttribute) attribute;
+                break;
+        }
+    }
+
     AlembicDamageType copyValues(AlembicDamageType copyFrom) {
         this.priority = copyFrom.priority;
         this.base = copyFrom.base;

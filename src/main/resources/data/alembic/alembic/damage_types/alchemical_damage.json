@@ -53,13 +53,6 @@
       "player_only": true
     },
     {
-      "tag_id": "alembic:per_level_tag",
-      "bonus_per_level": 1,
-      "max": 15,
-      "level_difference": 2,
-      "attribute_type": "absorption"
-    },
-    {
       "tag_id": "alembic:hunger_tag",
       "attribute": "resistance",
       "hunger_amount": 8,

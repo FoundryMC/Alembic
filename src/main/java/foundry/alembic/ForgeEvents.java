@@ -91,7 +91,6 @@ public class ForgeEvents {
             if (player.getAttributes().hasAttribute(attribute)) {
                 AttributeInstance playerAttribute = player.getAttribute(attribute);
                 playerAttribute.setBaseValue(playerAttribute.getBaseValue()+tag.getBonusPerLevel());
-                player.sendSystemMessage(Component.literal("You have leveled up your %s to %s".formatted(attribute.descriptionId, playerAttribute.getValue())).withStyle(style -> style.withColor(ChatFormatting.GOLD)));
 
                 CompoundTag nbt = player.getPersistentData();
                 if (nbt.contains(attribute.descriptionId)) {
@@ -120,13 +119,6 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onItemUse(PlayerInteractEvent.RightClickItem event) {
-        if (event.getEntity().level.isClientSide) return;
-        if (event.getItemStack().getItem() == Items.STICK) {
-            for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
-                event.getEntity().sendSystemMessage(damageType.getVisualString());
-                event.getEntity().sendSystemMessage(Component.literal(event.getEntity().getAttribute(damageType.getAttribute()).getValue() + "").withStyle(s -> s.withColor(ChatFormatting.GOLD)));
-            }
-        }
     }
 
     @SubscribeEvent
@@ -341,6 +333,7 @@ public class ForgeEvents {
                 Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
+                if(event.getEntity().getAttribute(fireRes).getModifier(attmod.getId()) != null) return;
                 Objects.requireNonNull(event.getEntity().getAttribute(fireRes)).addPermanentModifier(attmod);
             }
         }
@@ -410,7 +403,6 @@ public class ForgeEvents {
             float absorption = Math.min(absorptionValue, damage);
             absorptionValue -= absorption;
             absorptionValue = Math.max(0, absorptionValue);
-            target.sendSystemMessage(Component.literal("Absorbed " + absorption + " damage!").withStyle(s -> s.withColor(alembicDamageType.getColor())));
             damage -= absorption;
             if (alembicDamageType.hasAbsorption()) {
                 target.getAttribute(alembicDamageType.getAbsorptionAttribute()).setBaseValue(absorptionValue);

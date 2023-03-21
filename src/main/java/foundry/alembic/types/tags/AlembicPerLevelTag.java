@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AlembicPerLevelTag implements AlembicTag {
     public static final Codec<AlembicPerLevelTag> CODEC = RecordCodecBuilder.create(instance ->

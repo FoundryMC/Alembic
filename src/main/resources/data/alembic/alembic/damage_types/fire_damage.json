@@ -33,15 +33,6 @@
                         "type": "minecraft:soul_fire_flame"
                     },
                     "particle_speed": 0.05
-                },
-                {
-                    "entity_type": "minecraft:player",
-                    "player_only": true,
-                    "item": "minecraft:powder_snow_bucket",
-                    "particle_options": {
-                        "type": "alembic:frostbite"
-                    },
-                    "particle_speed": 0.35
                 }
             ]
         },
