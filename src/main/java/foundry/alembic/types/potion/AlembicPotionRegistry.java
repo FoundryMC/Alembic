@@ -69,23 +69,9 @@ public class AlembicPotionRegistry {
             AlembicPotionDataHolder data = entry.getValue();
             data.setDamageType(entry.getKey());
             switch(data.getAttribute()) {
-                case "shielding"-> {
-                    String regId = AlembicTypeModifier.SHIELDING.getId(entry.getKey().getPath());
-                    setupMobEffect(data, regId);
-                }
-                case "resistance" -> {
+                case "resistance", "all" -> {
                     String regId = AlembicTypeModifier.RESISTANCE.getId(entry.getKey().getPath());
                     setupMobEffect(data, regId);
-                }
-                case "absorption" -> {
-                    String regId = AlembicTypeModifier.ABSORPTION.getId(entry.getKey().getPath());
-                    setupMobEffect(data, regId);
-                }
-                case "all" -> {
-                    for(AlembicTypeModifier modfier : AlembicTypeModifier.values()){
-                        String regId = modfier.getId(entry.getKey().getPath());
-                        setupMobEffect(data, regId);
-                    }
                 }
                 default -> {
                     Alembic.LOGGER.error("Could not find attribute for damage type: " + data.getDamageType());
@@ -119,13 +105,15 @@ public class AlembicPotionRegistry {
         if(regId.contains("fire_resistance")) return;
         String finalRegId = regId;
         MOB_EFFECTS.register(regId, () -> MOB_EFFECT_MAP.get(Alembic.location(finalRegId)));
-        Potion potion = new Potion(new MobEffectInstance(effect, 1200, 0));
+        Potion potion = new Potion(new MobEffectInstance(effect, 3600, 0));
+        Potion potion_long = new Potion(new MobEffectInstance(effect, 9600, 0));
         Potion potion_strong = new Potion(new MobEffectInstance(effect, 1200, 1));
         POTIONS.register(regId, () -> potion);
+        POTIONS.register(regId + "_long", () -> potion_long);
         POTIONS.register(regId + "_strong", () -> potion_strong);
         for(int i = 0; i < data.getMaxLevel(); i++){
             Alembic.LOGGER.info("Registering potion: " + regId + "_" + i);
-            Potion potion1 = new Potion(new MobEffectInstance(effect, data.getBaseDuration(), i));
+            Potion potion1 = new Potion(new MobEffectInstance(effect, 3600*(i+1), i));
             POTIONS.register(regId + "_level_" + i, () -> potion1);
         }
     }

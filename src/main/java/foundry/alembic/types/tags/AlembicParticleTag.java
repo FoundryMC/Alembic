@@ -84,7 +84,7 @@ public class AlembicParticleTag implements AlembicTag {
                     }
                 }
             } else if (filter.hasDamageSource()) {
-                if (source.msgId.equals(filter.getDamageSource().get())) {
+                if (source.msgId.equalsIgnoreCase(filter.getDamageSource().get())) {
                     spawnParticle(level, filter.getParticleOptions(), entity, particleCount, personalSpeed);
                     shouldPlayBaseParticle.set(false);
                 }
