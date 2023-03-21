@@ -34,6 +34,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -185,7 +186,7 @@ public class ForgeEvents {
                 }
             }
         }
-        if (e.getSource().getDirectEntity() == null || e.getSource().getDirectEntity() instanceof AbstractArrow) {
+        if (e.getSource() instanceof IndirectEntityDamageSource || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get()) || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile){
             noRecurse = false;
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
@@ -197,13 +198,12 @@ public class ForgeEvents {
                 e.setCanceled(true);
             }
         }
-        if (e.getSource().getDirectEntity() instanceof LivingEntity || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile) {
+        if (e.getSource().getDirectEntity() instanceof LivingEntity || (e.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
             LivingEntity attacker;
-            if (e.getSource().getDirectEntity() instanceof LivingEntity living) {
-                attacker = living;
+            if(e.getSource().getDirectEntity() instanceof AbstractArrow) {
+                attacker = (LivingEntity) ((AbstractArrow) e.getSource().getDirectEntity()).getOwner();
             } else {
-                AbstractHurtingProjectile projectile = (AbstractHurtingProjectile) e.getSource().getDirectEntity();
-                attacker = (LivingEntity) projectile.getOwner();
+                attacker = (LivingEntity) e.getSource().getDirectEntity();
             }
             if(attacker == null) {
                 noRecurse = false;
@@ -407,6 +407,9 @@ public class ForgeEvents {
             if (alembicDamageType.hasAbsorption()) {
                 target.getAttribute(alembicDamageType.getAbsorptionAttribute()).setBaseValue(absorptionValue);
             }
+        }
+        if(attacker instanceof Player pl){
+            pl.sendSystemMessage(Component.literal("Dealing " + damage + " " + alembicDamageType.getId().toString() + " damage to " + target.getName().getString() + " with " + attrValue + " resistance and " + absorptionValue + " absorption"));
         }
         handleDamageInstance(target, alembicDamageType, damage, originalSource);
         AlembicDamageEvent.Post postDamage = new AlembicDamageEvent.Post(target, attacker, alembicDamageType, damage, attrValue);

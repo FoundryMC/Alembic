@@ -2,6 +2,7 @@ package foundry.alembic.override;
 
 import foundry.alembic.Alembic;
 import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 
 import java.util.HashMap;
@@ -12,6 +13,10 @@ public class AlembicOverrideHolder {
 
     public static boolean containsKey(AlembicDamageSourceIdentifier sourceIdentifier) {
         return OVERRIDES.containsKey(sourceIdentifier);
+    }
+
+    public static Map<AlembicDamageSourceIdentifier, AlembicOverride> getOverrides() {
+        return OVERRIDES;
     }
 
     public static AlembicOverride get(AlembicDamageSourceIdentifier sourceIdentifier) {
@@ -26,13 +31,14 @@ public class AlembicOverrideHolder {
         OVERRIDES.remove(sourceIdentifier);
     }
 
-    public static void smartAddOverride(AlembicDamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
+    public static void smartAddOverride(AlembicDamageSourceIdentifier sourceIdentifier, AlembicOverride override, ResourceLocation id) {
         Alembic.LOGGER.info("Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId());
         if (containsKey(sourceIdentifier)){
             String overrideName = sourceIdentifier.getSerializedName() + "_" + override.getId();
             String baseName = sourceIdentifier.getSerializedName() + "_" + get(sourceIdentifier).getId();
             if (overrideName.equals(baseName)){
                 if (get(sourceIdentifier).getPriority() < override.getPriority()) {
+                    Alembic.LOGGER.info("Replacing override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId() + " from location " + id.toString() + " because it has a higher priority");
                     remove(sourceIdentifier);
                     add(sourceIdentifier, override);
                 }

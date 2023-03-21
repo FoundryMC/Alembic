@@ -60,6 +60,13 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable,
         return damageSourceId.compareTo(o.damageSourceId);
     }
 
+    @Override
+    public String toString() {
+        return "AlembicDamageSourceIdentifier{" +
+                "damageSourceId='" + damageSourceId + '\'' +
+                '}';
+    }
+
     public enum DefaultWrappedSources implements StringRepresentable {
         DROWN("DROWN", DamageSource.DROWN),
         FALL("FALL", DamageSource.FALL),

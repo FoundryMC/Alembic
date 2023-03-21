@@ -54,13 +54,16 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
 
                 if (parsedEntry.getKey().left().isPresent()) {
                     for (AlembicDamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
-                        AlembicOverrideHolder.smartAddOverride(id, override);
+                        AlembicOverrideHolder.smartAddOverride(id, override, dataEntry.getKey());
                     }
                 } else {
-                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override);
+                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override, dataEntry.getKey());
                 }
             }
         }
+        // write the map to a human readable string
+        String logPut = AlembicOverrideHolder.getOverrides().entrySet().stream().map(entry -> entry.getKey().toString() + " -> " + entry.getValue().toString()).reduce((s, s2) -> s + ", " + s2).orElse("Empty");
+        Alembic.LOGGER.debug("Loaded overrides: %s".formatted(logPut));
     }
 
     record OverrideStorage(int priority, Map<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> map) {}

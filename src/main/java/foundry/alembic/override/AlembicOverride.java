@@ -68,4 +68,14 @@ public class AlembicOverride {
     public int getPriority() {
         return priority;
     }
+
+    @Override
+    public String toString() {
+        List<String> damageStrings = damages.object2FloatEntrySet().stream().map(entry -> "{"+entry.getKey().getId().toString() + " " + entry.getFloatValue()+"}").toList();
+        return "AlembicOverride{" +
+                "damages=" + damageStrings +
+                ", priority=" + priority +
+                ", id=" + id +
+                '}';
+    }
 }
