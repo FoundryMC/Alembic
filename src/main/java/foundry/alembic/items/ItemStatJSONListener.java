@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -23,8 +24,6 @@ import java.util.UUID;
 
 
 public class ItemStatJSONListener extends SimpleJsonResourceReloadListener {
-    public static List<ItemStat> itemStats = new ArrayList<>();
-
     private static final Gson GSON = new Gson();
     public ItemStatJSONListener() {
         super(GSON, "alembic/item_stats");
@@ -38,48 +37,22 @@ public class ItemStatJSONListener extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        itemStats.clear();
         ItemStatHolder.clear();
-        for(Map.Entry<ResourceLocation, JsonElement> entry : pObject.entrySet()){
-            DataResult<ItemStat> result = ItemStat.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+        int numStatsLoaded = 0;
+        for(Map.Entry<ResourceLocation, JsonElement> jsonEntry : pObject.entrySet()) {
+            DataResult<ItemStat> result = ItemStat.CODEC.parse(JsonOps.INSTANCE, jsonEntry.getValue());
             if (result.error().isPresent()) {
-                Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(jsonEntry.getKey(), result.error().get().message()));
                 continue;
             }
-            ItemStat obj = result.result().get();
-            itemStats.add(obj);
-            Item item = ForgeRegistries.ITEMS.getValue(obj.id());
-            if(item == null) {
-                Alembic.LOGGER.error("Could not find item %s".formatted(obj.id()));
-                continue;
-            }
-            Alembic.LOGGER.debug("Adding item stat %s to %s".formatted(obj.id(), item.getDescriptionId()));
-            List<Pair<Attribute, AttributeModifier>> modifiers = new ArrayList<>();
-            for (ItemStatAttributeData entry1 : obj.attributes()) {
-                Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(ResourceLocation.tryParse(entry1.getAttribute()));
-                if (attribute == null) {
-                    Alembic.LOGGER.error("Could not find attribute %s".formatted(entry1.getAttribute()));
-                    continue;
-                }
-                UUID uuid = entry1.getAttribute().equals("alembic:physical_damage") ? ItemUUIDAccess.getbaseAttackDamageUUID() : entry1.getUUIDType();
-                AttributeModifier modifier = new AttributeModifier(uuid, "Weapon modifier", entry1.getValue(), entry1.getOperationEnum());
-                modifiers.add(Pair.of(attribute, modifier));
-            }
-            ItemStatHolder.add(item, modifiers);
-        }
-        Alembic.LOGGER.debug("Loaded " + itemStats.size() + " item stats");
-    }
+            ItemStat stat = result.result().get();
+            Item item = stat.item();
+            ResourceLocation itemId = Registry.ITEM.getKey(item);
+            Alembic.LOGGER.debug("Adding item stat %s to %s".formatted(jsonEntry.getKey(), itemId));
 
-    public static List<ItemStat> getItemStats(){
-        return itemStats;
-    }
-
-    public static ItemStat getStat(Item item){
-        for(ItemStat stat : itemStats){
-            if(stat.id().equals(ForgeRegistries.ITEMS.getKey(item))){
-                return stat;
-            }
+            ItemStatHolder.put(item, stat);
+            numStatsLoaded++;
         }
-        return null;
+        Alembic.LOGGER.debug("Loaded " + numStatsLoaded + " item stats");
     }
 }

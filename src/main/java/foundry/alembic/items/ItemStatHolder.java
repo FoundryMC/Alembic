@@ -1,53 +1,38 @@
 package foundry.alembic.items;
 
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 
 import java.util.*;
 
 public class ItemStatHolder {
-    public static Map<Item, List<Pair<Attribute, AttributeModifier>>> itemStats = new HashMap<>();
+    private static final Map<Item, ItemStat> ITEM_STATS = new HashMap<>();
 
-    public static void add(Item item, Attribute attribute, AttributeModifier modifier){
-        itemStats.put(item, List.of(Pair.of(attribute, modifier)));
+    public static ItemStat get(Item item){
+        return ITEM_STATS.get(item);
     }
 
-    public static void add(Item item, List<Pair<Attribute, AttributeModifier>> attributes){
-        itemStats.put(item, attributes);
+    static void clear() {
+        ITEM_STATS.clear();
     }
 
-    public static List<Pair<Attribute, AttributeModifier>> get(Item item){
-        return itemStats.get(item);
-    }
-
-    public static void clear() {
-        itemStats.clear();
+    static void put(Item item, ItemStat stat) {
+        ITEM_STATS.put(item, stat);
     }
 
     public static boolean contains(Item item){
-        return itemStats.containsKey(item);
+        return ITEM_STATS.containsKey(item);
     }
 
-    public static List<Item> getItems(){
-        return (List<Item>) itemStats.keySet();
-    }
-
-    public static int size(){
-        return itemStats.size();
-    }
-
-    public static void remove(Item item){
-        itemStats.remove(item);
+    public static Collection<Item> getItems(){
+        return Collections.unmodifiableCollection(ITEM_STATS.keySet());
     }
 
     public static List<UUID> getUUIDs(Item item){
-        List<Pair<Attribute, AttributeModifier>> attributes = itemStats.get(item);
+        ItemStat itemStat = ITEM_STATS.get(item);
         List<UUID> uuids = new ArrayList<>();
-        if(attributes == null) return uuids;
-        for (Pair<Attribute, AttributeModifier> attribute : attributes) {
-            uuids.add(attribute.getSecond().getId());
+        if(itemStat == null) return uuids;
+        for (ItemStatAttributeData data : itemStat.attributeData()) {
+            uuids.add(data.getUUID());
         }
         return uuids;
     }

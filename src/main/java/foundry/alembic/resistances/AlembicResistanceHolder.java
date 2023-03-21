@@ -8,18 +8,15 @@ public class AlembicResistanceHolder {
     private static final Map<EntityType<?>, AlembicResistance> RESISTANCE_MAP = new HashMap<>();
 
     public static Collection<AlembicResistance> getValuesView() {
-        return RESISTANCE_MAP.values();
+        return Collections.unmodifiableCollection(RESISTANCE_MAP.values());
     }
 
-    public static void add(AlembicResistance resistance){
+    private static void put(AlembicResistance resistance){
         RESISTANCE_MAP.put(resistance.getEntityType(), resistance);
     }
 
-    public static void remove(AlembicResistance resistance){
-        RESISTANCE_MAP.remove(resistance.getEntityType());
-    }
 
-    public static void clear() {
+    static void clear() {
         RESISTANCE_MAP.clear();
     }
 
@@ -29,13 +26,8 @@ public class AlembicResistanceHolder {
 
     public static void smartAddResistance(AlembicResistance resistance){
         AlembicResistance existing = get(resistance.getEntityType());
-        if(existing == null){
-            add(resistance);
-        } else {
-            if(existing.getPriority() < resistance.getPriority()){
-                remove(existing);
-                add(resistance);
-            }
+        if(existing == null || existing.getPriority() < resistance.getPriority()){
+            put(resistance);
         }
     }
 }

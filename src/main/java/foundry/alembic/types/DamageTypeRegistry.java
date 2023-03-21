@@ -8,18 +8,18 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DamageTypeRegistry {
-    public static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
+    private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
     public static final DeferredRegister<Attribute> DAMAGE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
     public static final DeferredRegister<Attribute> DEFENSIVE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
     public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Alembic.MODID);
 
     public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {
-        DAMAGE_TYPES.put(id, damageType);
+        if (DAMAGE_TYPES.putIfAbsent(id, damageType) != null) {
+            Alembic.LOGGER.error("DamageType with id: '%s' already present. Failed to register new value.".formatted(id));
+        }
     }
 
     public static void init() {
@@ -33,20 +33,16 @@ public class DamageTypeRegistry {
         }
     }
 
-    public static void replaceWithData(AlembicDamageType damageType) {
+    static void replaceWithData(AlembicDamageType damageType) {
         DAMAGE_TYPES.get(damageType.getId()).copyValues(damageType);
     }
 
-    public static List<AlembicDamageType> getDamageTypes() {
-        return List.copyOf(DAMAGE_TYPES.values());
+    public static Collection<AlembicDamageType> getDamageTypes() {
+        return Collections.unmodifiableCollection(DAMAGE_TYPES.values());
     }
 
     public static AlembicDamageType getDamageType(ResourceLocation id) {
         return DAMAGE_TYPES.get(id);
-    }
-
-    public static void removeDamageType(ResourceLocation id) {
-        DAMAGE_TYPES.remove(id);
     }
 
     public static AlembicDamageType getDamageType(DamageSource damageSource) {
@@ -58,7 +54,7 @@ public class DamageTypeRegistry {
     }
 
     public static AlembicDamageType getDamageType(String id) {
-        return DAMAGE_TYPES.get(Alembic.location(id));
+        return DAMAGE_TYPES.get(id.contains(":") ? new ResourceLocation(id) : Alembic.location(id));
     }
 
     public static boolean doesDamageTypeExist(ResourceLocation id) {

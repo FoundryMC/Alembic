@@ -30,7 +30,7 @@ public class AlembicOverrideHolder {
 
     public static void smartAddOverride(AlembicDamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
         Alembic.LOGGER.info("Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId());
-        if (containsKey(sourceIdentifier)){
+        if (containsKey(sourceIdentifier)) {
             if (get(sourceIdentifier).getPriority() < override.getPriority()) {
                 Alembic.LOGGER.info("Replacing override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId() + " because it has a higher priority");
                 put(sourceIdentifier, override);

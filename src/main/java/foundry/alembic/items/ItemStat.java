@@ -2,17 +2,33 @@ package foundry.alembic.items;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.CodecUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.Item;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-public record ItemStat(ResourceLocation id, List<ItemStatAttributeData> attributes, String equipmentSlot) {
+public record ItemStat(Item item, List<ItemStatAttributeData> attributeData, EquipmentSlot equipmentSlot) {
     public static final Codec<ItemStat> CODEC = RecordCodecBuilder.create(itemStatInstance ->
             itemStatInstance.group(
-                    ResourceLocation.CODEC.fieldOf("id").forGetter(ItemStat::id),
-                    ItemStatAttributeData.CODEC.listOf().fieldOf("attributes").forGetter(ItemStat::attributes),
-                    Codec.STRING.fieldOf("equipment_slot").forGetter(ItemStat::equipmentSlot)
+                    Registry.ITEM.byNameCodec().fieldOf("id").forGetter(ItemStat::item),
+                    ItemStatAttributeData.CODEC.listOf().fieldOf("attributes").forGetter(ItemStat::attributeData),
+                    CodecUtil.EQUIPMENT_SLOT_CODEC.fieldOf("equipment_slot").forGetter(ItemStat::equipmentSlot)
             ).apply(itemStatInstance, ItemStat::new)
     );
 
+    public Map<Attribute, AttributeModifier> createAttributes() {
+        Map<Attribute, AttributeModifier> modifierMap = new Object2ObjectOpenHashMap<>();
+        for (ItemStatAttributeData data : attributeData) {
+            modifierMap.put(data.getAttribute(), data.createModifier());
+        }
+        return modifierMap;
+    }
 }

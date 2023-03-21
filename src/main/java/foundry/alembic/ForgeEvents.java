@@ -6,6 +6,7 @@ import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
+import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatHolder;
 import foundry.alembic.items.ItemStatJSONListener;
 import foundry.alembic.items.ItemUUIDAccess;
@@ -123,30 +124,31 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onItemAttributes(ItemAttributeModifierEvent event){
+    public static void onItemAttributes(ItemAttributeModifierEvent event) {
         if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)){
             int level = event.getItemStack().getAllEnchantments().get(Enchantments.FIRE_ASPECT);
             Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
             if(fireDamage == null) return;
-            if(!event.getSlotType().name().equals("MAINHAND")) return;
+            if(!event.getSlotType().equals(EquipmentSlot.MAINHAND)) return;
             event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
             event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -1*(1+level), AttributeModifier.Operation.ADDITION));
         }
-        List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
-        if(holder == null) return;
-        holder.forEach(am -> {
-            if(event.getSlotType().name().equals(ItemStatJSONListener.getStat(event.getItemStack().getItem()).equipmentSlot())){
-                if(am.getFirst().equals(ForgeRegistries.ATTRIBUTES.getValue(Alembic.location("physical_damage")))){
+        ItemStat stat = ItemStatHolder.get(event.getItemStack().getItem());
+        if(stat == null) return;
+        stat.createAttributes().forEach((key, value) -> {
+            if (stat.equipmentSlot().equals(event.getSlotType())) {
+                if (key.equals(ForgeRegistries.ATTRIBUTES.getValue(Alembic.location("physical_damage")))) {
                     AtomicReference<Pair<Attribute, AttributeModifier>> toRemove = new AtomicReference<>();
                     event.getOriginalModifiers().forEach((attribute, attributeModifier) -> {
-                        if(attribute.equals(Attributes.ATTACK_DAMAGE)){
+                        if (attribute.equals(Attributes.ATTACK_DAMAGE)) {
                             toRemove.set(Pair.of(attribute, attributeModifier));
                         }
                     });
-                    if(toRemove.get() != null) event.getOriginalModifiers().remove(toRemove.get().getFirst(), toRemove.get().getSecond());
-                    event.getOriginalModifiers().put(Attributes.ATTACK_DAMAGE, am.getSecond());
+                    if (toRemove.get() != null)
+                        event.getOriginalModifiers().remove(toRemove.get().getFirst(), toRemove.get().getSecond());
+                    event.getOriginalModifiers().put(Attributes.ATTACK_DAMAGE, value);
                 } else {
-                    event.getOriginalModifiers().put(am.getFirst(), am.getSecond());
+                    event.getOriginalModifiers().put(key, value);
                 }
             }
         });

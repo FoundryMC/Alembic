@@ -1,12 +1,11 @@
 package foundry.alembic;
 
-import com.mojang.datafixers.util.Pair;
 import foundry.alembic.client.TooltipHelper;
+import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.SwordItem;
@@ -39,16 +38,16 @@ public class ForgeClientEvents {
         event.getToolTip().removeAll(toRemove);
         if(target != 0){
             int finalTarget = target;
-            List<Pair<Attribute, AttributeModifier>> holder = ItemStatHolder.get(event.getItemStack().getItem());
-            if(holder == null) return;
-            holder.forEach(pair -> {
-                if(event.getEntity() == null) return;
-                if(pair.getFirst().descriptionId.contains("physical_damage")) return;
-                double d0 = pair.getSecond().getAmount();
-                d0 += event.getEntity().getAttributeBaseValue(pair.getFirst());
-                d0 += event.getItemStack().getAttributeModifiers(EquipmentSlot.MAINHAND).get(pair.getFirst()).stream().mapToDouble(AttributeModifier::getAmount).sum();
-                d0 = TooltipHelper.getMod(pair.getSecond(), d0);
-                event.getToolTip().add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + pair.getSecond().getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(pair.getFirst().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
+            ItemStat stat = ItemStatHolder.get(event.getItemStack().getItem());
+            if(stat == null) return;
+            stat.createAttributes().forEach((key, value) -> {
+                if (event.getEntity() == null) return;
+                if (key.descriptionId.contains("physical_damage")) return;
+                double d0 = value.getAmount();
+                d0 += event.getEntity().getAttributeBaseValue(key);
+                d0 += event.getItemStack().getAttributeModifiers(EquipmentSlot.MAINHAND).get(key).stream().mapToDouble(AttributeModifier::getAmount).sum();
+                d0 = TooltipHelper.getMod(value, d0);
+                event.getToolTip().add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + value.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(key.getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
             });
         }
 

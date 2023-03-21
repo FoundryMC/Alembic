@@ -4,8 +4,6 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
-
-// TODO: figure out how to add existing damage types to the config without regenerating the whole thingggggggggggggggggggggg
 public class AlembicConfig {
     public static ForgeConfigSpec.ConfigValue<? extends List<String>> damageTypes;
     public static ForgeConfigSpec.ConfigValue<? extends List<String>> potionEffects;
