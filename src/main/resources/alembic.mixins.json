@@ -13,6 +13,7 @@
     "EvokerFangsMixin",
     "FoodDataMixin",
     "GuardianAttackGoalMixin",
+    "LivingEntityMixin",
     "MobEffectAccessor",
     "MobEffectInstanceAccessor",
     "MobEffectMixin",
