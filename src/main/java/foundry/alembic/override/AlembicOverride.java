@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,8 @@ public class AlembicOverride {
         this.damages = damages;
     }
 
-    public List<Pair<AlembicDamageType, Float>> getDamages() {
-        return damages.object2FloatEntrySet().stream().map(entry -> Pair.of(entry.getKey(), entry.getFloatValue())).toList();
+    public Map<AlembicDamageType, Float> getDamages() {
+        return Collections.unmodifiableMap(damages);
     }
 
     public ResourceLocation getId() {

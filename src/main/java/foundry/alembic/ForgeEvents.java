@@ -349,9 +349,9 @@ public class ForgeEvents {
     }
 
     private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicOverride override, DamageSource originalSource) {
-        for (Pair<AlembicDamageType, Float> pair : override.getDamages()) {
-            AlembicDamageType damageType = pair.getFirst();
-            float percentage = pair.getSecond();
+        for (Map.Entry<AlembicDamageType, Float> entry : override.getDamages().entrySet()) {
+            AlembicDamageType damageType = entry.getKey();
+            float percentage = entry.getValue();
             float damage = totalDamage * percentage;
             totalDamage -= damage;
             if (damage <= 0) {

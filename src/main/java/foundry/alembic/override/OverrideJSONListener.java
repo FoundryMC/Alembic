@@ -36,9 +36,9 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> jsonMap, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         AlembicOverrideHolder.clearOverrides();
-        for (Map.Entry<ResourceLocation, JsonElement> dataEntry : pObject.entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> dataEntry : jsonMap.entrySet()) {
             DataResult<OverrideStorage> dataResult = STORAGE_CODEC.parse(JsonOps.INSTANCE, dataEntry.getValue());
             if (dataResult.error().isPresent()) {
                 Alembic.LOGGER.error("Could not read %s. %s".formatted(dataEntry.getKey(), dataResult.error().get().message()));
@@ -54,14 +54,14 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
 
                 if (parsedEntry.getKey().left().isPresent()) {
                     for (AlembicDamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
-                        AlembicOverrideHolder.smartAddOverride(id, override, dataEntry.getKey());
+                        AlembicOverrideHolder.smartAddOverride(id, override);
                     }
                 } else {
-                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override, dataEntry.getKey());
+                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override);
                 }
             }
         }
-        // write the map to a human readable string
+        // write the map to a human-readable string
         String logPut = AlembicOverrideHolder.getOverrides().entrySet().stream().map(entry -> entry.getKey().toString() + " -> " + entry.getValue().toString()).reduce((s, s2) -> s + ", " + s2).orElse("Empty");
         Alembic.LOGGER.debug("Loaded overrides: %s".formatted(logPut));
     }
