@@ -41,7 +41,7 @@ public class ForgeClientEvents {
             stat.createAttributes().forEach((key, value) -> {
                 if (event.getEntity() == null) return;
                 if (key.descriptionId.contains("physical_damage")) return;
-                double d0 = value.getAmount();
+                double d0 = 0;
                 d0 += event.getEntity().getAttributeBaseValue(key);
                 d0 += event.getItemStack().getAttributeModifiers(EquipmentSlot.MAINHAND).get(key).stream().mapToDouble(AttributeModifier::getAmount).sum();
                 d0 = TooltipHelper.getMod(value, d0);
