@@ -21,6 +21,7 @@ public class AlembicTagRegistry<T extends AlembicTag> {
         register(Alembic.location("extend_fire_tag"), AlembicTagType.EXTEND_FIRE);
         register(Alembic.location("per_level_tag"), AlembicTagType.LEVEL_UP);
         register(Alembic.location("hunger_tag"), AlembicTagType.HUNGER);
+        register(Alembic.location("attribute_replacement_tag"), AlembicTagType.ATTRIBUTE_REPLACEMENT);
     }
 
     public static void register(ResourceLocation name, AlembicTagType<?> type) {

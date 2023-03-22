@@ -318,12 +318,16 @@ public class ForgeEvents {
             target.getCombatTracker().recordDamage(DamageSource.GENERIC, health, damage);
             target.setHealth(health - damage);
             target.setAbsorptionAmount(target.getAbsorptionAmount() - f2);
-            AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() ->
-                            new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level.dimension())),
-                    new ClientboundAlembicDamagePacket(target.getId(), damageType.getId().toString(), damage, damageType.getColor()));
+            sendDamagePacket(target, damageType, damage);
             target.gameEvent(GameEvent.ENTITY_DAMAGE);
             target.invulnerableTime = invtime;
         }
+    }
+
+    private static void sendDamagePacket(LivingEntity target, AlembicDamageType damageType, float damage) {
+        AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() ->
+                        new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level.dimension())),
+                new ClientboundAlembicDamagePacket(target.getId(), damageType.getId().toString(), damage, damageType.getColor()));
     }
 
     @SubscribeEvent
