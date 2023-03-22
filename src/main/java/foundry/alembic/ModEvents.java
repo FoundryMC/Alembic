@@ -21,7 +21,7 @@ public class ModEvents {
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
                 event.add(type, damageType.getAttribute(), damageType.getBase());
                 event.add(type, damageType.getShieldAttribute(), 0);
-                if(!damageType.getResistanceAttribute().equals(Attributes.ARMOR))event.add(type, damageType.getResistanceAttribute(), 1);
+                if (!damageType.getResistanceAttribute().equals(Attributes.ARMOR)) event.add(type, damageType.getResistanceAttribute(), 1);
                 event.add(type, damageType.getAbsorptionAttribute(), 0);
             }
         }

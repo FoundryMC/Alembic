@@ -7,9 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -29,11 +27,11 @@ public class ForgeClientEvents {
         int target = 0;
         List<Component> toRemove = new ArrayList<>();
         for(Component component : event.getToolTip()){
-            if(component.getString().contains("When in")){
+            if(component.getString().contains("When in")) {
                 target = event.getToolTip().indexOf(component) + 1;
-                removeAttributeTooltip(event, toRemove, component);
+                removeAttributeTooltip(event.getItemStack(), toRemove, component);
             }
-            removeAttributeTooltip(event, toRemove, component);
+            removeAttributeTooltip(event.getItemStack(), toRemove, component);
         }
         event.getToolTip().removeAll(toRemove);
         if(target != 0){
@@ -53,20 +51,23 @@ public class ForgeClientEvents {
 
     }
 
-    private static void removeAttributeTooltip(ItemTooltipEvent event, List<Component> toRemove, Component component) {
-        if(event.getItemStack().isEnchanted()){
-            if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)){
-                if((component.toString().contains("alembic") &&!component.toString().contains("fire_damage"))){
+    private static void removeAttributeTooltip(ItemStack stack, List<Component> toRemove, Component component) {
+        if (stack.isEnchanted()) {
+            if (stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
+                if (component.toString().contains("alembic") && !component.toString().contains("fire_damage")) {
                     toRemove.add(component);
                 }
             } else {
-                if((component.toString().contains("alembic"))){
+                if (component.toString().contains("alembic")) {
                     toRemove.add(component);
                 }
             }
-        } else if ((component.toString().contains("alembic"))
-                && (event.getItemStack().getItem() instanceof SwordItem || event.getItemStack().getItem() instanceof TridentItem || event.getItemStack().getItem() instanceof DiggerItem)){
+        } else if (component.toString().contains("alembic") && isValidItem(stack.getItem())) {
             toRemove.add(component);
         }
+    }
+
+    private static boolean isValidItem(Item item) {
+        return item instanceof SwordItem || item instanceof TridentItem || item instanceof DiggerItem;
     }
 }

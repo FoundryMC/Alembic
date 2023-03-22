@@ -3,7 +3,9 @@ package foundry.alembic;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
+import java.util.Set;
 
+//TODO: make-a da system
 public class AlembicConfig {
     public static ForgeConfigSpec.ConfigValue<? extends List<String>> damageTypes;
     public static ForgeConfigSpec.ConfigValue<? extends List<String>> potionEffects;

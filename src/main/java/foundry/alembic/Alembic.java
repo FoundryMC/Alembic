@@ -23,9 +23,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Mod(Alembic.MODID)
 public class Alembic {
@@ -40,8 +38,8 @@ public class Alembic {
         final CommentedFileConfig file = CommentedFileConfig.builder(FMLPaths.CONFIGDIR.get().resolve("alembic-common.toml"))
                 .sync().autosave().writingMode(WritingMode.REPLACE).build();
         file.load();
-        List<String> types = file.get("general.types");
         spec.setConfig(file);
+        verifyConfigOrRemake();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, spec);
         setupConfig();
         DamageTypeRegistry.DAMAGE_ATTRIBUTES.register(modEventBus);
@@ -60,11 +58,21 @@ public class Alembic {
         return new ResourceLocation(MODID, name);
     }
 
-    private static void setupConfig(){
+    private static void verifyConfigOrRemake() {
+        if (!new HashSet<>(AlembicConfig.damageTypes.get()).containsAll(AlembicAPI.getDefaultDamageTypes())) {
+            AlembicConfig.damageTypes.set(funnyCast(AlembicAPI.getDefaultDamageTypes()));
+        }
+    }
+
+    private static <T> T funnyCast(Object o) {
+        return (T) o;
+    }
+
+    private static void setupConfig() {
         for (String s : AlembicConfig.damageTypes.get()) {
             LOGGER.info("Registered Damage Type: " + s);
             ResourceLocation id = Alembic.location(s);
-            if(s.equals("physical_damage")){
+            if (s.equals("physical_damage")) {
                 AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
                 damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
                 DamageTypeRegistry.registerDamageType(id, damageType);
@@ -78,7 +86,7 @@ public class Alembic {
             try{
                 AlembicPotionRegistry.registerPotionData(s, data);
                 LOGGER.info("Registered Potion Effect: " + s);
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOGGER.error("Failed to register Potion Effect: " + s);
             }
         }

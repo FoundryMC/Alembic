@@ -27,22 +27,7 @@ public class TooltipHelper {
         return Pair.of(d0, flag);
     }
 
-    public static void getFlag(boolean flag, List<Component> list){
-        if(flag){
-            System.out.println("Flag is true");
-        }else{
-            System.out.println("Flag is false");
-        }
-        int i = list.size();
-    }
-
     public static double getMod(AttributeModifier mod, double d0){
-        double d1;
-        if (mod.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && mod.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
-            d1 = d0;
-        } else {
-            d1 = d0 * 100.0D;
-        }
-        return d1;
+        return mod.getOperation() == AttributeModifier.Operation.ADDITION ? d0 : d0 * 100d;
     }
 }

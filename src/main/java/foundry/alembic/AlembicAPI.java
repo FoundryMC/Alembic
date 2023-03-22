@@ -3,15 +3,19 @@ package foundry.alembic;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AlembicAPI {
     private static final List<String> DAMAGE_TYPES = new ArrayList<>();
@@ -35,6 +39,14 @@ public class AlembicAPI {
         DAMAGE_TYPES.add(damageType);
     }
 
+    public static void addDefaultPotionEffect(String potionEffect) {
+        POTION_EFFECTS.add(potionEffect);
+    }
+
+    public static void addDefaultParticle(String particle) {
+        PARTICLES.add(particle);
+    }
+
     public static List<String> getDefaultDamageTypes() {
         return DAMAGE_TYPES;
     }
@@ -45,14 +57,6 @@ public class AlembicAPI {
 
     public static List<String> getDefaultParticles() {
         return PARTICLES;
-    }
-
-    public static void addDefaultPotionEffect(String potionEffect) {
-        POTION_EFFECTS.add(potionEffect);
-    }
-
-    public static void addDefaultParticle(String particle) {
-        PARTICLES.add(particle);
     }
 
     public static AlembicDamageType getDamageType(String damageType) {
