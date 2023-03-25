@@ -32,36 +32,9 @@ public class AlembicPotionRegistry {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
     public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(ForgeRegistries.POTIONS, "alembic");
 
-    public static final RegistryObject<MobEffect> FIRE = MOB_EFFECTS.register("fire", () -> new AlembicMobEffect(MobEffectCategory.HARMFUL, 0x000000){
-        @Override
-        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
-            super.onApplication(effectInstance, source, entity, amplifier);
-            if(!entity.isOnFire()){
-                entity.setRemainingFireTicks(effectInstance.getDuration());
-            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
-                entity.setRemainingFireTicks(effectInstance.getDuration());
-            }
-        }
-    });
-    public static final RegistryObject<MobEffect> FROSTBITE = MOB_EFFECTS.register("frostbite", () -> new AlembicMobEffect(MobEffectCategory.HARMFUL, 0x000000){
-        @Override
-        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
-            if(entity.getTicksFrozen() < effectInstance.getDuration()){
-                entity.setTicksFrozen(effectInstance.getDuration());
-            }
-        }
-    });
-    public static final RegistryObject<MobEffect> SOUL_FIRE = MOB_EFFECTS.register("soul_fire", () -> new AlembicMobEffect(MobEffectCategory.HARMFUL, 0x000000){
-        @Override
-        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
-            super.onApplication(effectInstance, source, entity, amplifier);
-            if(!entity.isOnFire()){
-                entity.setRemainingFireTicks(effectInstance.getDuration());
-            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
-                entity.setRemainingFireTicks(effectInstance.getDuration());
-            }
-        }
-    });
+    public static final RegistryObject<MobEffect> FIRE = MOB_EFFECTS.register("fire", FireMobEffect::new);
+    public static final RegistryObject<MobEffect> FROSTBITE = MOB_EFFECTS.register("frostbite", FrostbiteMobEffect::new);
+    public static final RegistryObject<MobEffect> SOUL_FIRE = MOB_EFFECTS.register("soul_fire", SoulFireMobEffect::new);
 
 
     public static void init() {
@@ -151,5 +124,74 @@ public class AlembicPotionRegistry {
         }
         effect.addAttributeModifier(attribute, data.getUUID().toString(), data.getValue(), AttributeModifier.Operation.valueOf(data.getModifier()));
         return effect;
+    }
+
+    public static class SoulFireMobEffect extends AlembicMobEffect {
+        public SoulFireMobEffect() {
+            super(MobEffectCategory.HARMFUL, 0x9760FB);
+        }
+
+        @Override
+        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            if(!entity.isOnFire()){
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            }
+        }
+
+        @Override
+        public void tick(LivingEntity entity, @Nullable MobEffectInstance effectInstance, int amplifier) {
+            if(!entity.isOnFire()){
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            }
+        }
+    }
+
+    public static class FrostbiteMobEffect extends AlembicMobEffect {
+        public FrostbiteMobEffect() {
+            super(MobEffectCategory.HARMFUL, 0x00F1F1);
+        }
+
+        @Override
+        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            if(entity.getTicksFrozen() < effectInstance.getDuration()){
+                entity.setTicksFrozen(effectInstance.getDuration());
+            }
+        }
+
+        @Override
+        public void tick(LivingEntity entity, @Nullable MobEffectInstance effectInstance, int amplifier) {
+            if(entity.getTicksFrozen() < effectInstance.getDuration()){
+                entity.setTicksFrozen(effectInstance.getDuration());
+            }
+        }
+    }
+
+    public static class FireMobEffect extends AlembicMobEffect {
+        public FireMobEffect() {
+            super(MobEffectCategory.HARMFUL, 0xF14700);
+        }
+
+        @Override
+        public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            if(!entity.isOnFire()){
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            }
+        }
+
+        @Override
+        public void tick(LivingEntity entity, @Nullable MobEffectInstance effectInstance, int amplifier) {
+            System.out.println("Ticking");
+            if(!entity.isOnFire()){
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
+                entity.setRemainingFireTicks(effectInstance.getDuration());
+            }
+        }
     }
 }

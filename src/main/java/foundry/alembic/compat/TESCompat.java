@@ -1,8 +1,12 @@
 package foundry.alembic.compat;
 
 import com.mojang.math.Vector3f;
+import foundry.alembic.Alembic;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.tes.api.TESAPI;
@@ -11,15 +15,22 @@ import net.tslat.tes.core.particle.type.TextParticle;
 import net.tslat.tes.core.state.EntityState;
 
 public class TESCompat {
+    public static ResourceLocation TES_CLAIMANT = Alembic.location("alembic_claimant");
     public static void spawnParticle(Level level, int entityID, String damageType, float damageAmount, int color){
         EntityState state = TESAPI.getTESDataForEntity(entityID);
-        Entity e = level.getEntity(entityID);
+        LivingEntity e = (LivingEntity) level.getEntity(entityID);
         if(state != null){
-            Vec3 ePos = level.getEntity(entityID).position();
-            Vector3f pos = new Vector3f((float)ePos.x, (float)ePos.y+1.5f, (float)ePos.z);
-            TextParticle particle = new TextParticle(state, pos, TESParticle.Animation.POP_OFF, Math.round(damageAmount*10)/10f+"");
-            particle.setColour(color);
-            TESAPI.addTESParticle(particle);
+            CompoundTag data = new CompoundTag();
+            data.putFloat("damage", damageAmount);
+            data.putInt("color", color);
+            TESAPI.submitParticleClaim(TES_CLAIMANT, e, data);
         }
+    }
+
+    public static void registerClaimant(){
+        TESAPI.registerParticleClaimant(TES_CLAIMANT, (entityState, healthDelta, data, particleAdder) -> {
+            particleAdder.accept(new TextParticle(entityState, new Vector3f(entityState.getEntity().getEyePosition()), TESParticle.Animation.POP_OFF, ""+data.getFloat("damage")).withColour(data.getInt("color")));
+            return healthDelta - data.getFloat("damage");
+        });
     }
 }

@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.mojang.logging.LogUtils;
 import foundry.alembic.client.AlembicOverlayRegistry;
+import foundry.alembic.compat.TESCompat;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.types.AlembicDamageType;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -52,6 +54,9 @@ public class Alembic {
         AlembicOverlayRegistry.init();
         AlembicPacketHandler.init();
         AlembicPotionRegistry.init();
+        if(ModList.get().isLoaded("tslatentitystatus")){
+            TESCompat.registerClaimant();
+        }
     }
 
     public static ResourceLocation location(String name) {

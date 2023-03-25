@@ -20,12 +20,11 @@
     "PlayerMixin",
     "SwordItemMixin",
     "ThrownPotionMixin",
-    "TridentItemMixin",
-    "client.ScreenEffectRendererMixin"
+    "TridentItemMixin"
   ],
   "client": [
     "client.EntityRenderDispatcherMixin",
-    "client.GuiMixin"
+    "client.ScreenEffectRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

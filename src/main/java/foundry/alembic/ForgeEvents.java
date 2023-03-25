@@ -2,6 +2,7 @@ package foundry.alembic;
 
 import com.google.common.collect.*;
 import com.mojang.datafixers.util.Pair;
+import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
@@ -38,6 +39,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
@@ -52,6 +54,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.*;
@@ -104,6 +107,11 @@ public class ForgeEvents {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void attachCaps(AttachCapabilitiesEvent<Entity> event) {
+        event.addCapability(Alembic.location("fire_tag"), new AlembicFlammableProvider());
     }
 
     @SubscribeEvent
