@@ -15,13 +15,10 @@ public class OverrideHelper {
         String s = le.getCapability(AlembicFlammableHandler.CAPABILITY, null).map(AlembicFlammable::getFireType).orElse("normal");
         MobEffect eff = le.getFeetBlockState().is(Blocks.SOUL_FIRE) || s.equals("soul") ? AlembicPotionRegistry.SOUL_FIRE.get() : AlembicPotionRegistry.FIRE.get();
         if (le.hasEffect(eff)) {
-            MobEffectInstance effect = le.getEffect(eff);
-            if (effect == null) return;
-            ((MobEffectInstanceAccessor) effect).setDuration(ticks);
-            le.removeEffect(eff);
-            le.addEffect(new MobEffectInstance(eff, ticks+2, 0, true, false));
+            if(le.getEffect(eff) == null) return;
+            ((MobEffectInstanceAccessor)le.getEffect(eff)).setDuration(ticks);
         } else {
-            le.addEffect(new MobEffectInstance(eff, ticks+2, 0, true, false));
+                le.addEffect(new MobEffectInstance(eff, ticks+2, 0, true, false));
         }
     }
 

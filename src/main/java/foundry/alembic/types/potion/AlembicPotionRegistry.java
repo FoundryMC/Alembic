@@ -1,6 +1,7 @@
 package foundry.alembic.types.potion;
 
 import foundry.alembic.Alembic;
+import foundry.alembic.caps.AlembicFlammableHandler;
 import foundry.alembic.mixin.MobEffectAccessor;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.DamageTypeRegistry;
@@ -134,6 +135,7 @@ public class AlembicPotionRegistry {
         @Override
         public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
             if(effectInstance== null) return;
+            entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("soul"));
             if(!entity.isOnFire()){
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
@@ -163,7 +165,6 @@ public class AlembicPotionRegistry {
 
         @Override
         public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
-            System.out.println("Ticking");
             if(effectInstance== null) return;
             if(entity.getTicksFrozen() < effectInstance.getDuration()){
                 entity.setTicksFrozen(effectInstance.getDuration());
@@ -191,6 +192,7 @@ public class AlembicPotionRegistry {
         @Override
         public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
             if(effectInstance== null) return;
+            entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("normal"));
             if(!entity.isOnFire()){
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
