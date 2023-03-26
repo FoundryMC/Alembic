@@ -133,15 +133,21 @@ public class AlembicPotionRegistry {
 
         @Override
         public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            if(effectInstance== null) return;
             if(!entity.isOnFire()){
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             }
         }
+        @Override
+        public boolean shouldTickEffect(@Nullable MobEffectInstance effectInstance, @Nullable LivingEntity entity, int ticksRemaining, int amplifier) {
+            return true;
+        }
 
         @Override
         public void tick(LivingEntity entity, @Nullable MobEffectInstance effectInstance, int amplifier) {
+            if(effectInstance== null) return;
             if(!entity.isOnFire()){
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
@@ -157,13 +163,20 @@ public class AlembicPotionRegistry {
 
         @Override
         public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            System.out.println("Ticking");
+            if(effectInstance== null) return;
             if(entity.getTicksFrozen() < effectInstance.getDuration()){
                 entity.setTicksFrozen(effectInstance.getDuration());
             }
         }
+        @Override
+        public boolean shouldTickEffect(@Nullable MobEffectInstance effectInstance, @Nullable LivingEntity entity, int ticksRemaining, int amplifier) {
+            return true;
+        }
 
         @Override
         public void tick(LivingEntity entity, @Nullable MobEffectInstance effectInstance, int amplifier) {
+            if(effectInstance== null) return;
             if(entity.getTicksFrozen() < effectInstance.getDuration()){
                 entity.setTicksFrozen(effectInstance.getDuration());
             }
@@ -177,6 +190,7 @@ public class AlembicPotionRegistry {
 
         @Override
         public void onApplication(@Nullable MobEffectInstance effectInstance, @Nullable Entity source, LivingEntity entity, int amplifier) {
+            if(effectInstance== null) return;
             if(!entity.isOnFire()){
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {
@@ -185,8 +199,13 @@ public class AlembicPotionRegistry {
         }
 
         @Override
+        public boolean shouldTickEffect(@Nullable MobEffectInstance effectInstance, @Nullable LivingEntity entity, int ticksRemaining, int amplifier) {
+            return true;
+        }
+
+        @Override
         public void tick(LivingEntity entity, @Nullable MobEffectInstance effectInstance, int amplifier) {
-            System.out.println("Ticking");
+            if(effectInstance== null) return;
             if(!entity.isOnFire()){
                 entity.setRemainingFireTicks(effectInstance.getDuration());
             } else if (entity.getRemainingFireTicks() < effectInstance.getDuration()) {

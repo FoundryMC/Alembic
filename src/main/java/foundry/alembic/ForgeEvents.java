@@ -302,12 +302,14 @@ public class ForgeEvents {
     }
 
     private static void handleDamageInstance(LivingEntity target, AlembicDamageType damageType, float damage, DamageSource originalSource) {
+        damage = Math.round(Math.max(damage, 0)*10)/10f;
         if (damage > 0) {
+            float finalDamage = damage;
             damageType.getTags().forEach(r -> {
                 AlembicTag.ComposedData data = AlembicTag.ComposedData.createEmpty()
                                 .add(AlembicTag.ComposedDataType.LEVEL, target.level)
                                         .add(AlembicTag.ComposedDataType.TARGET_ENTITY, target)
-                                        .add(AlembicTag.ComposedDataType.FINAL_DAMAGE, damage)
+                                        .add(AlembicTag.ComposedDataType.FINAL_DAMAGE, finalDamage)
                                                 .add(AlembicTag.ComposedDataType.ORIGINAL_SOURCE, originalSource);
                 AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
                 MinecraftForge.EVENT_BUS.post(event);
@@ -421,9 +423,6 @@ public class ForgeEvents {
             if (alembicDamageType.hasAbsorption()) {
                 target.getAttribute(alembicDamageType.getAbsorptionAttribute()).setBaseValue(absorptionValue);
             }
-        }
-        if(attacker instanceof Player pl){
-            pl.sendSystemMessage(Component.literal("Dealing " + damage + " " + alembicDamageType.getId().toString() + " damage to " + target.getName().getString() + " with " + attrValue + " resistance and " + absorptionValue + " absorption"));
         }
         handleDamageInstance(target, alembicDamageType, damage, originalSource);
         AlembicDamageEvent.Post postDamage = new AlembicDamageEvent.Post(target, attacker, alembicDamageType, damage, attrValue);

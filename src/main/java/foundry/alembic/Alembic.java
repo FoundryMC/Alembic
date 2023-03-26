@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.mojang.logging.LogUtils;
 import foundry.alembic.client.AlembicOverlayRegistry;
 import foundry.alembic.compat.TESCompat;
+import foundry.alembic.event.AlembicSetupEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.types.AlembicDamageType;
@@ -16,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -98,27 +100,19 @@ public class Alembic {
     }
 
     private static void setupDamageTypes() {
-        AlembicAPI.addDefaultDamageType("fire_damage");
-        AlembicAPI.addDefaultDamageType("arcane_damage");
-        AlembicAPI.addDefaultDamageType("alchemical_damage");
-        AlembicAPI.addDefaultDamageType("true_damage");
-        AlembicAPI.addDefaultDamageType("physical_damage");
-
-        AlembicAPI.addDefaultPotionEffect("fire_damage");
-        AlembicAPI.addDefaultPotionEffect("arcane_damage");
-        AlembicAPI.addDefaultPotionEffect("alchemical_damage");
-
-        AlembicAPI.addDefaultParticle("true_damage");
-        AlembicAPI.addDefaultParticle("physical_damage");
-        AlembicAPI.addDefaultParticle("alchemical_damage");
-        AlembicAPI.addDefaultParticle("alchemical_reaction");
-        AlembicAPI.addDefaultParticle("arcane_damage");
-        AlembicAPI.addDefaultParticle("arcane_spark");
-        AlembicAPI.addDefaultParticle("fire_damage");
-        AlembicAPI.addDefaultParticle("fire_flame");
-        AlembicAPI.addDefaultParticle("frostbite");
-        AlembicAPI.addDefaultParticle("soul_fire_flame");
-        AlembicAPI.addDefaultParticle("wither_decay");
-        AlembicAPI.addDefaultParticle("sculk_hit");
+        AlembicSetupEvent event = new AlembicSetupEvent();
+        MinecraftForge.EVENT_BUS.post(event);
+        event.getDamageTypes().forEach(id -> {
+            LOGGER.info("Registered Damage Type: " + id);
+            AlembicAPI.addDefaultDamageType(id);
+        });
+        event.getParticles().forEach(id -> {
+            LOGGER.info("Registered Particle: " + id);
+            AlembicAPI.addDefaultParticle(id);
+        });
+        event.getPotionEffects().forEach(id -> {
+            LOGGER.info("Registered Potion Effect: " + id);
+            AlembicAPI.addDefaultPotionEffect(id);
+        });
     }
 }
