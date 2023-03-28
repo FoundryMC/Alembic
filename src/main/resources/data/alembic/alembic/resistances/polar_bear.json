@@ -1,0 +1,17 @@
+{
+  "priority": 1,
+  "type": "minecraft:polar_bear",
+  "resistances": {
+    "alchemical_damage": 0.7,
+    "physical_damage": 1.0,
+    "fire_damage": 1.1,
+    "arcane_damage": 1.0,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "physical_damage": 1.0
+  },
+  "ignored_sources": [
+   "freeze"
+   ]
+}

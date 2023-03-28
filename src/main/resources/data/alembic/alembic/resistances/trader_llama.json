@@ -1,0 +1,15 @@
+{
+  "priority": 1,
+  "type": "minecraft:trader_llama",
+  "resistances": {
+    "alchemical_damage": 0.70,
+    "physical_damage": 1.0,
+    "fire_damage": 0.9,
+    "arcane_damage": 1.0,
+    "true_damage": 0.0
+  },
+  "damage": {
+    "physical_damage": 1.0
+  },
+  "ignored_sources": []
+}
