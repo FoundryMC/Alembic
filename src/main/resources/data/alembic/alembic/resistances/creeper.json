@@ -9,8 +9,8 @@
     "true_damage": 0.0
   },
   "damage": {
-    "alchemical_damage": 0.25,
-    "physical_damage": 0.75
+    "fire_damage": 0.50,
+	"physical_damage": 0.50
   },
   "ignored_sources": []
 }

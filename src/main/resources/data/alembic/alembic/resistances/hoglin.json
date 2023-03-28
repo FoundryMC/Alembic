@@ -9,12 +9,7 @@
     "true_damage": 0.0
   },
   "damage": {
-    "fire_damage": 0.50,
-    "physical_damage": 0.50
+    "physical_damage": 1.0
   },
-  "ignored_sources": [
-    "onFire",
-    "inFire",
-    "soulFire"
-  ]
+  "ignored_sources": []
 }

@@ -9,8 +9,9 @@
     "true_damage": 0.0
   },
   "damage": {
-    "alchemical_damage": 0.5,
-    "arcane_damage": 0.5
+    "physical_damage": 0.7,
+    "arcane_damage": 0.3,
+	"true_damage": 0.1
   },
   "ignored_sources": [
     "lava"

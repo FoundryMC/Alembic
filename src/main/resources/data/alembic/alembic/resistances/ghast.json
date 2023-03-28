@@ -9,12 +9,10 @@
     "true_damage": 0.0
   },
   "damage": {
-    "alchemical_damage": 0.80,
-    "physical_damage": 0.20
+    "alchemical_damage": 0.50,
+    "physical_damage": 0.50
   },
   "ignored_sources": [
-    "onFire",
-    "inFire",
-    "soulFire"
+    "inFire"
   ]
 }
