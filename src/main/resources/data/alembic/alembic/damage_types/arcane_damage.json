@@ -71,7 +71,7 @@
           "player_only": false,
           "entity_type": "minecraft:enderman",
           "particle_options": {
-            "type": "minecraft:portal"
+            "type": "alembic:ender_magic"
           },
           "particle_speed": 0.35
         },
@@ -79,7 +79,7 @@
           "player_only": false,
           "entity_type": "minecraft:endermite",
           "particle_options": {
-            "type": "minecraft:portal"
+            "type": "alembic:ender_magic"
           },
           "particle_speed": 0.35
         },
@@ -87,7 +87,7 @@
           "player_only": false,
           "damage_source": "DRAGON_BREATH",
           "particle_options": {
-            "type": "minecraft:portal"
+            "type": "alembic:ender_magic"
           },
           "particle_speed": 0.35
         }

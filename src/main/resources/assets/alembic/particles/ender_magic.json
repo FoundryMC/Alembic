@@ -1,0 +1,16 @@
+{
+  "textures": [
+    "alembic:ender_magic_0",
+	"alembic:ender_magic_1",
+	"alembic:ender_magic_2",
+	"alembic:ender_magic_3",
+	"alembic:ender_magic_dark_0",
+	"alembic:ender_magic_dark_1",
+	"alembic:ender_magic_dark_2",
+	"alembic:ender_magic_dark_3",
+	"alembic:ender_magic_light_0",
+	"alembic:ender_magic_light_1",
+	"alembic:ender_magic_light_2",
+	"alembic:ender_magic_light_3"
+  ]
+}
