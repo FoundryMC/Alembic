@@ -13,8 +13,8 @@
 	"physical_damage": 0.10
   },
   "ignored_sources": [
-  "lava"
-  "inFire"
+  "lava",
+  "inFire",
   "onFire"
   ]
 }
