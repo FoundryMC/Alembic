@@ -62,7 +62,7 @@ public class ForgeClientEvents {
                     toRemove.add(component);
                 }
             }
-        } else if (component.toString().contains("alembic") && isValidItem(stack.getItem())) {
+        } else if (component.toString().contains("alembic")) {
             toRemove.add(component);
         }
     }
