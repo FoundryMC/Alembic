@@ -1,6 +1,5 @@
-package foundry.alembic;
+package foundry.alembic.testmod;
 
-import foundry.alembic.data.TestDamageProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;

@@ -1,4 +1,4 @@
-package foundry.alembic.data;
+package foundry.alembic.testmod.data;
 
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
