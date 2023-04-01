@@ -2,7 +2,7 @@
   "id": "minecraft:golden_leggings",
   "attributes": [
     {
-      "attribute": "alembic:arcane_damage_resistance",
+      "attribute": "alembic:arcane_damage.resistance",
       "value": 5,
       "operation": "ADDITION",
       "uuid": "f1c3de3d-1fea-4d7c-a8b0-29f63c4c3454"

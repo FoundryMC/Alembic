@@ -21,10 +21,6 @@ public class DamageTypeRegistry {
     public static void init() {
     }
 
-    static void replaceWithData(AlembicDamageType damageType) {
-        DAMAGE_TYPES.get(damageType.getId()).copyValues(damageType);
-    }
-
     public static Collection<AlembicDamageType> getDamageTypes() {
         return Collections.unmodifiableCollection(DAMAGE_TYPES.values());
     }

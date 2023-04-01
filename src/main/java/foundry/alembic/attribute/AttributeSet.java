@@ -98,6 +98,6 @@ public class AttributeSet {
     }
 
     private void register(DeferredRegister<Attribute> register, AlembicTypeModifier modifier, double base, double min, double max) {
-        register.register(modifier.getTranslationId(id.toString()), () -> new AlembicAttribute(modifier.getTranslationId(id.toLanguageKey("attribute")), base, min, max));
+        register.register(modifier.getTranslationId(id.getPath()), () -> new AlembicAttribute(modifier.getTranslationId(id.toLanguageKey("attribute")), base, min, max));
     }
 }

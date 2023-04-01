@@ -2,7 +2,7 @@
   "id": "minecraft:netherite_boots",
   "attributes": [
     {
-      "attribute": "alembic:fire_damage_resistance",
+      "attribute": "alembic:fire_damage.resistance",
       "value": 4,
       "operation": "ADDITION",
       "uuid": "f8e3de3d-1fea-4d7c-a8b0-29f63c4c3454"

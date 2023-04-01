@@ -2,7 +2,7 @@
   "id": "minecraft:golden_chestplate",
   "attributes": [
     {
-      "attribute": "alembic:arcane_damage_resistance",
+      "attribute": "alembic:arcane_damage.resistance",
       "value": 6,
       "operation": "ADDITION",
       "uuid": "f3c3de3d-1fea-4d7c-a8b0-29f63c4c3454"

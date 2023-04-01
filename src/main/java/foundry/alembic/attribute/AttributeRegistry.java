@@ -1,5 +1,6 @@
 package foundry.alembic.attribute;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
@@ -13,7 +14,6 @@ import foundry.alembic.types.potion.AlembicPotionDataHolder;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -21,9 +21,11 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class AttributeRegistry {
     private static final Map<String, DeferredRegister<Attribute>> ATTRIBUTE_REGISTRY_MAP = new HashMap<>();
@@ -78,6 +80,12 @@ public class AttributeRegistry {
         for (DeferredRegister<Attribute> register : ATTRIBUTE_REGISTRY_MAP.values()) {
             register.register(modBus);
         }
+        for (DeferredRegister<Potion> register : POTION_REGISTRY_MAP.values()) {
+            register.register(modBus);
+        }
+        for (DeferredRegister<MobEffect> register : MOB_EFFECT_REGISTRY_MAP.values()) {
+            register.register(modBus);
+        }
     }
 
     private static void registerEffectsAndPotions(ResourceLocation setId, AttributeSet attributeSet, AlembicPotionDataHolder dataHolder) {
@@ -89,14 +97,15 @@ public class AttributeRegistry {
             return;
         }
 
-        MobEffect effect = new AlembicMobEffect(attributeSet.getResistanceAttribute(), dataHolder);
-        mobEffectRegister.register(setId.getPath(), () -> effect);
-        potionRegister.register(setId.getPath(), () -> new Potion(new MobEffectInstance(effect, 3600, 0)));
-        potionRegister.register(setId.getPath() + "_long", () -> new Potion(new MobEffectInstance(effect, 9600, 0)));
-        potionRegister.register(setId.getPath() + "_strong", () -> new Potion(new MobEffectInstance(effect, 1200, 1)));
+        String resistanceId = setId.getPath() + "_resistance";
+
+        RegistryObject<MobEffect> effectObj = mobEffectRegister.register(resistanceId, () -> new AlembicMobEffect(attributeSet.getResistanceAttribute(), dataHolder));
+        potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
+        potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
+        potionRegister.register(resistanceId + "_strong", () -> new Potion(new MobEffectInstance(effectObj.get(), 1200, 1)));
         for(int i = 0; i < dataHolder.getMaxLevel(); i++){
-            Potion potion = new Potion(new MobEffectInstance(effect, 3600*(i+1), i)); // TODO: is this right?
-            potionRegister.register(setId.getPath() + "_level_" + i, () -> potion);
+            final int real = i;
+            potionRegister.register(resistanceId + "_level_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600*(real+1), real))); // TODO: is this right?
         }
     }
 }
