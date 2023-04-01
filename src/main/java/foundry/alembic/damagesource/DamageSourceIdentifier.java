@@ -14,27 +14,27 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class AlembicDamageSourceIdentifier implements StringRepresentable, Comparable<AlembicDamageSourceIdentifier> {
-    private static final Interner<AlembicDamageSourceIdentifier> INTERNED = Interners.newWeakInterner();
+public final class DamageSourceIdentifier implements StringRepresentable, Comparable<DamageSourceIdentifier> {
+    private static final Interner<DamageSourceIdentifier> INTERNED = Interners.newWeakInterner();
 
-    public static final Codec<AlembicDamageSourceIdentifier> CODEC = Codec.STRING.xmap(AlembicDamageSourceIdentifier::create, AlembicDamageSourceIdentifier::getSerializedName);
-    public static final Codec<Either<DefaultWrappedSources, AlembicDamageSourceIdentifier>> EITHER_CODEC = Codec.either(DefaultWrappedSources.CODEC, CODEC);
+    public static final Codec<DamageSourceIdentifier> CODEC = Codec.STRING.xmap(DamageSourceIdentifier::create, DamageSourceIdentifier::getSerializedName);
+    public static final Codec<Either<DefaultWrappedSource, DamageSourceIdentifier>> EITHER_CODEC = Codec.either(DefaultWrappedSource.CODEC, CODEC);
 
     private final String damageSourceId;
 
-    private AlembicDamageSourceIdentifier(String wrappedName) {
+    private DamageSourceIdentifier(String wrappedName) {
         this.damageSourceId = wrappedName;
     }
 
     public boolean matches(DamageSource damageSource) {
         return damageSourceId.equals(damageSource.msgId);
     }
-    public boolean matches(AlembicDamageSourceIdentifier damageSource) {
+    public boolean matches(DamageSourceIdentifier damageSource) {
         return this == damageSource;
     }
 
-    public static AlembicDamageSourceIdentifier create(String damageSourceId) {
-        return INTERNED.intern(new AlembicDamageSourceIdentifier(damageSourceId));
+    public static DamageSourceIdentifier create(String damageSourceId) {
+        return INTERNED.intern(new DamageSourceIdentifier(damageSourceId));
     }
 
     @Override
@@ -46,7 +46,7 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable,
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AlembicDamageSourceIdentifier that = (AlembicDamageSourceIdentifier) o;
+        DamageSourceIdentifier that = (DamageSourceIdentifier) o;
         return Objects.equals(damageSourceId, that.damageSourceId);
     }
 
@@ -56,7 +56,7 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable,
     }
 
     @Override
-    public int compareTo(@NotNull AlembicDamageSourceIdentifier o) {
+    public int compareTo(@NotNull DamageSourceIdentifier o) {
         return damageSourceId.compareTo(o.damageSourceId);
     }
 
@@ -67,7 +67,7 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable,
                 '}';
     }
 
-    public enum DefaultWrappedSources implements StringRepresentable {
+    public enum DefaultWrappedSource implements StringRepresentable {
         DROWN("DROWN", DamageSource.DROWN),
         FALL("FALL", DamageSource.FALL),
         PRICKED("PRICKED", DamageSource.CACTUS, DamageSource.SWEET_BERRY_BUSH),
@@ -89,17 +89,17 @@ public final class AlembicDamageSourceIdentifier implements StringRepresentable,
         ATTACK("ATTACK", new DamageSource("mob"), new DamageSource("player")),
         MODDED("MODDED");
 
-        public static final Codec<DefaultWrappedSources> CODEC = StringRepresentable.fromEnum(DefaultWrappedSources::values);
+        public static final Codec<DefaultWrappedSource> CODEC = StringRepresentable.fromEnum(DefaultWrappedSource::values);
 
         private final String safeName;
-        private final Set<AlembicDamageSourceIdentifier> identifiers;
+        private final Set<DamageSourceIdentifier> identifiers;
 
-        DefaultWrappedSources(String safeName, DamageSource... sources) {
+        DefaultWrappedSource(String safeName, DamageSource... sources) {
             this.safeName = safeName;
-            this.identifiers = Arrays.stream(sources).map(source -> AlembicDamageSourceIdentifier.create(source.msgId)).collect(Collectors.toSet());
+            this.identifiers = Arrays.stream(sources).map(source -> DamageSourceIdentifier.create(source.msgId)).collect(Collectors.toSet());
         }
 
-        public Set<AlembicDamageSourceIdentifier> getIdentifiers() {
+        public Set<DamageSourceIdentifier> getIdentifiers() {
             return identifiers;
         }
 

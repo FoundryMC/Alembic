@@ -38,18 +38,12 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
             type.handlePostParse(entry.getKey());
 
 
-            if (DamageTypeRegistry.doesDamageTypeExist(type.getId())) {
+            if (DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
                 if (type.getPriority() < DamageTypeRegistry.getDamageType(type.getId()).getPriority()) {
                     Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(type.getId()));
-                } else {
-                    Alembic.LOGGER.debug("Damage type %s already exists with a lower priority. Overwriting.".formatted(type.getId()));
-                    DamageTypeRegistry.replaceWithData(type);
                 }
-            }
-
-            if(AlembicPotionRegistry.doesPotionDataExist(type.getId())){
-                Alembic.LOGGER.debug("Potion data for %s already exists. Overwriting.".formatted(type.getId()));
-                AlembicPotionRegistry.replaceWithData(type.getId(), type.getPotionDataHolder());
+            } else {
+                DamageTypeRegistry.registerDamageType(entry.getKey(), type);
             }
         }
     }

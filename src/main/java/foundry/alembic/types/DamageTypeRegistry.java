@@ -12,25 +12,13 @@ import java.util.*;
 
 public class DamageTypeRegistry {
     private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
-    public static final DeferredRegister<Attribute> DAMAGE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
-    public static final DeferredRegister<Attribute> DEFENSIVE_ATTRIBUTES = DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, Alembic.MODID);
     public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Alembic.MODID);
 
     public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {
-        if (DAMAGE_TYPES.putIfAbsent(id, damageType) != null) {
-            Alembic.LOGGER.error("DamageType with id: '%s' already present. Failed to register new value.".formatted(id));
-        }
+        DAMAGE_TYPES.put(id, damageType);
     }
 
     public static void init() {
-        for (Map.Entry<ResourceLocation, AlembicDamageType> entry : DAMAGE_TYPES.entrySet()) {
-            DAMAGE_ATTRIBUTES.register(entry.getKey().getPath(), entry.getValue()::getAttribute);
-            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModifier.SHIELDING.getId(entry.getValue()), entry.getValue()::getShieldAttribute);
-            if (!ForgeRegistries.ATTRIBUTES.containsValue(entry.getValue().getResistanceAttribute())) {
-                DEFENSIVE_ATTRIBUTES.register(AlembicTypeModifier.RESISTANCE.getId(entry.getValue()), entry.getValue()::getResistanceAttribute);
-            }
-            DEFENSIVE_ATTRIBUTES.register(AlembicTypeModifier.ABSORPTION.getId(entry.getValue()), entry.getValue()::getAbsorptionAttribute);
-        }
     }
 
     static void replaceWithData(AlembicDamageType damageType) {

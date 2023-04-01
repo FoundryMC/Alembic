@@ -8,7 +8,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
-import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
+import foundry.alembic.damagesource.DamageSourceIdentifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -21,7 +21,7 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
     private static final Codec<OverrideStorage> STORAGE_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("priority").forGetter(OverrideStorage::priority),
-                    Codec.unboundedMap(AlembicDamageSourceIdentifier.EITHER_CODEC, AlembicOverride.CODEC).fieldOf("source_overrides").forGetter(OverrideStorage::map)
+                    Codec.unboundedMap(DamageSourceIdentifier.EITHER_CODEC, AlembicOverride.CODEC).fieldOf("source_overrides").forGetter(OverrideStorage::map)
             ).apply(instance, OverrideStorage::new)
     );
 
@@ -46,14 +46,14 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
             }
 
             OverrideStorage storage = dataResult.result().get();
-            for (Map.Entry<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
+            for (Map.Entry<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
                 AlembicOverride override = parsedEntry.getValue();
 
                 override.setId(dataEntry.getKey());
                 override.setPriority(storage.priority);
 
                 if (parsedEntry.getKey().left().isPresent()) {
-                    for (AlembicDamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
+                    for (DamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
                         AlembicOverrideHolder.smartAddOverride(id, override);
                     }
                 } else {
@@ -66,5 +66,5 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
         Alembic.LOGGER.debug("Loaded overrides: %s".formatted(logPut));
     }
 
-    record OverrideStorage(int priority, Map<Either<AlembicDamageSourceIdentifier.DefaultWrappedSources, AlembicDamageSourceIdentifier>, AlembicOverride> map) {}
+    record OverrideStorage(int priority, Map<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>, AlembicOverride> map) {}
 }

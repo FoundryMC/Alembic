@@ -1,11 +1,6 @@
 {
     "priority": 1,
-    "min": 0.0,
-    "max": 1024.0,
-    "default": 0.0,
-    "shielding": false,
-    "absorption": true,
-    "resistance": true,
+    "attributes": "alembic:fire_damage",
     "particles": true,
     "enchant_reduction": true,
     "enchant_source": "mob",
@@ -46,19 +41,5 @@
                 "soulFire"
             ]
         }
-    ],
-    "potion": {
-        "attribute": "resistance",
-        "value": 0.1,
-        "operation": "MULTIPLY_BASE",
-        "vanilla_override": true,
-        "immunities": [
-            "onFire",
-            "inFire",
-            "lava",
-            "soulFire",
-            "hotFloor"
-        ],
-        "max_level": 2
-    }
+    ]
 }

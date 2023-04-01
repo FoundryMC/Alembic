@@ -1,62 +1,48 @@
 package foundry.alembic;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
+import foundry.alembic.attribute.AttributeRegistry;
 import foundry.alembic.client.AlembicOverlayRegistry;
 import foundry.alembic.compat.TESCompat;
-import foundry.alembic.event.AlembicSetupEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
-import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
-import foundry.alembic.types.potion.AlembicPotionDataHolder;
 import foundry.alembic.types.potion.AlembicPotionRegistry;
-import foundry.alembic.types.tags.AlembicTagRegistry;
+import foundry.alembic.types.tag.AlembicTagRegistry;
+import io.github.lukebemish.defaultresources.api.ResourceProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.slf4j.Logger;
-
-import java.util.*;
 
 @Mod(Alembic.MODID)
 public class Alembic {
     public static final String MODID = "alembic";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
 
     public Alembic() {
+        ResourceProvider.forceInitialization();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        AttributeRegistry.initAndRegister(modEventBus);
+        AlembicParticleRegistry.initAndRegister(modEventBus);
         AlembicTagRegistry.init();
-        setupDamageTypes();
         ForgeConfigSpec spec = AlembicConfig.makeConfig(new ForgeConfigSpec.Builder());
-        final CommentedFileConfig file = CommentedFileConfig.builder(FMLPaths.CONFIGDIR.get().resolve("alembic-common.toml"))
-                .sync().autosave().writingMode(WritingMode.REPLACE).build();
-        file.load();
-        spec.setConfig(file);
-        verifyConfigOrRemake();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, spec);
         setupConfig();
-        DamageTypeRegistry.DAMAGE_ATTRIBUTES.register(modEventBus);
-        DamageTypeRegistry.DEFENSIVE_ATTRIBUTES.register(modEventBus);
-        AlembicParticleRegistry.PARTICLE_TYPES.register(modEventBus);
         AlembicPotionRegistry.MOB_EFFECTS.register(modEventBus);
-        AlembicPotionRegistry.POTIONS.register(modEventBus);
         DamageTypeRegistry.init();
-        AlembicParticleRegistry.init();
         AlembicOverlayRegistry.init();
         AlembicPacketHandler.init();
-        AlembicPotionRegistry.init();
-        if(ModList.get().isLoaded("tslatentitystatus")){
+        if (ModList.get().isLoaded("tslatentitystatus")) {
             TESCompat.registerClaimant();
         }
     }
@@ -65,54 +51,33 @@ public class Alembic {
         return new ResourceLocation(MODID, name);
     }
 
-    private static void verifyConfigOrRemake() {
-        if (!new HashSet<>(AlembicConfig.damageTypes.get()).containsAll(AlembicAPI.getDefaultDamageTypes())) {
-            AlembicConfig.damageTypes.set(funnyCast(AlembicAPI.getDefaultDamageTypes()));
+    public void ifDevEnv(Runnable runnable) {
+        if (!FMLLoader.isProduction()) {
+            runnable.run();
         }
-    }
-
-    private static <T> T funnyCast(Object o) {
-        return (T) o;
     }
 
     private static void setupConfig() {
-        for (String s : AlembicConfig.damageTypes.get()) {
-            LOGGER.info("Registered Damage Type: " + s);
-            ResourceLocation id = Alembic.location(s);
-            if (s.equals("physical_damage")) {
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
-                damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
-                DamageTypeRegistry.registerDamageType(id, damageType);
-            } else {
-                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
-                DamageTypeRegistry.registerDamageType(id, damageType);
-            }
-        }
-        for (String s : AlembicConfig.potionEffects.get()) {
-            AlembicPotionDataHolder data = new AlembicPotionDataHolder();
-            try{
-                AlembicPotionRegistry.registerPotionData(s, data);
-                LOGGER.info("Registered Potion Effect: " + s);
-            } catch (Exception e) {
-                LOGGER.error("Failed to register Potion Effect: " + s);
-            }
-        }
-    }
-
-    private static void setupDamageTypes() {
-        AlembicSetupEvent event = new AlembicSetupEvent();
-        MinecraftForge.EVENT_BUS.post(event);
-        event.getDamageTypes().forEach(id -> {
-            LOGGER.info("Registered Damage Type: " + id);
-            AlembicAPI.addDefaultDamageType(id);
-        });
-        event.getParticles().forEach(id -> {
-            LOGGER.info("Registered Particle: " + id);
-            AlembicAPI.addDefaultParticle(id);
-        });
-        event.getPotionEffects().forEach(id -> {
-            LOGGER.info("Registered Potion Effect: " + id);
-            AlembicAPI.addDefaultPotionEffect(id);
-        });
+//        for (String s : AlembicConfig.damageTypes.get()) {
+//            LOGGER.info("Registered Damage Type: " + s);
+//            ResourceLocation id = Alembic.location(s);
+//            if (s.equals("physical_damage")) {
+//                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
+//                damageType.setResistanceAttribute((RangedAttribute) Attributes.ARMOR);
+//                DamageTypeRegistry.registerDamageType(id, damageType);
+//            } else {
+//                AlembicDamageType damageType = new AlembicDamageType(0, id, 0,0,1,false,false,false, false, 0, new ArrayList<>(), Optional.empty());
+//                DamageTypeRegistry.registerDamageType(id, damageType);
+//            }
+//        }
+//        for (String s : AlembicConfig.potionEffects.get()) {
+//            AlembicPotionDataHolder data = new AlembicPotionDataHolder();
+//            try{
+//                AlembicPotionRegistry.registerPotionData(s, data);
+//                LOGGER.info("Registered Potion Effect: " + s);
+//            } catch (Exception e) {
+//                LOGGER.error("Failed to register Potion Effect: " + s);
+//            }
+//        }
     }
 }

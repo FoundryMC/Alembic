@@ -1,11 +1,6 @@
 {
   "priority": 1,
-  "min": 0,
-  "max": 1024,
-  "default": 0.0,
-  "shielding": true,
-  "absorption": true,
-  "resistance": true,
+  "attributes": "alembic:alchemical_damage",
   "particles": true,
   "color": "#12B88E",
   "enchant_reduction": true,
@@ -54,22 +49,11 @@
     },
     {
       "tag_id": "alembic:hunger_tag",
-      "attribute": "resistance",
+      "modifier_type": "resistance",
       "hunger_amount": 8,
       "amount": -1,
       "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
       "operation": "ADDITION"
     }
-  ],
-  "potion": {
-    "attribute": "resistance",
-    "value": 0.1,
-    "operation": "MULTIPLY_BASE",
-    "base_duration": 600,
-    "amplification_per_level": 1,
-    "max_amplifier": 2,
-    "max_level": 2,
-    "color": "#12B88E",
-    "reagent": "minecraft:lapis_lazuli"
-  }
+  ]
 }

@@ -1,15 +1,12 @@
 package foundry.alembic.types.potion;
 
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.tslat.effectslib.api.ExtendedMobEffect;
 
 public class AlembicMobEffect extends ExtendedMobEffect {
-    protected AlembicMobEffect(AlembicPotionDataHolder data) {
+    public AlembicMobEffect(Attribute attribute, AlembicPotionDataHolder data) {
         super(MobEffectCategory.BENEFICIAL, data.getColor());
-    }
-
-    public AlembicMobEffect(MobEffectCategory category, int color) {
-        super(category, color);
+        addAttributeModifier(attribute, data.getUUID().toString(), data.getValue(), data.getOperation());
     }
 }

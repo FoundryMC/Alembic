@@ -1,6 +1,5 @@
 package foundry.alembic.types;
 
-import com.mojang.serialization.Codec;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class AlembicAttribute extends RangedAttribute {

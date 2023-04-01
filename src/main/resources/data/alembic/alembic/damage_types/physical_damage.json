@@ -1,11 +1,11 @@
 {
   "priority": 1,
-  "min": 0.0,
-  "max": 1024.0,
-  "default": 0.0,
-  "shielding": true,
-  "absorption": true,
-  "resistance": true,
+  "attributes": {
+    "attribute": "alembic:physical_damage",
+    "shielding_attribute": "alembic:physical_damage.shielding",
+    "absorption_attribute": "alembic:physical_damage.absorption",
+    "resistance_attribute": "minecraft:generic.armor"
+  },
   "particles": false,
   "color": "#F10000",
   "enchant_reduction": true,

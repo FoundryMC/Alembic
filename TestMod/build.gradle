@@ -114,7 +114,9 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.2-43.2.4'
 
-    compileOnly(rootProject)
+    compileOnly(rootProject) {
+        transitive = true
+    }
 
     implementation(fg.deobf("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}"))
     jarJar("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}") {

@@ -11,6 +11,7 @@ import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 @Mod.EventBusSubscriber(modid = Alembic.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvents {
@@ -19,9 +20,9 @@ public class ModEvents {
     static void onAttributeModification(final EntityAttributeModificationEvent event) {
         for (EntityType<? extends LivingEntity> type : event.getTypes()) {
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
-                event.add(type, damageType.getAttribute(), damageType.getBase());
-                event.add(type, damageType.getShieldAttribute(), 0);
-                if (!damageType.getResistanceAttribute().equals(Attributes.ARMOR)) event.add(type, damageType.getResistanceAttribute(), 1);
+                event.add(type, damageType.getAttribute(), damageType.getAttribute().defaultValue);
+                event.add(type, damageType.getShieldingAttribute(), 0);
+                event.add(type, damageType.getResistanceAttribute(), 1);
                 event.add(type, damageType.getAbsorptionAttribute(), 0);
             }
         }
@@ -34,4 +35,10 @@ public class ModEvents {
         });
     }
 
+    @SubscribeEvent
+    static void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+
+        });
+    }
 }

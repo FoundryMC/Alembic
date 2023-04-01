@@ -1,11 +1,6 @@
 {
   "priority": 1,
-  "min": 0.0,
-  "max": 1024.0,
-  "default": 0.0,
-  "shielding": true,
-  "absorption": true,
-  "resistance": true,
+  "attributes": "alembic:arcane_damage",
   "particles": false,
   "color": "#9760FB",
   "enchant_reduction": true,
@@ -105,17 +100,7 @@
       "bonus_per_level": 1,
       "max": 10,
       "level_difference": 5,
-      "attribute_type": "resistance"
+      "modifier_type": "resistance"
     }
-  ],
-  "potion": {
-    "attribute": "resistance",
-    "value": 0.1,
-    "operation": "MULTIPLY_BASE",
-    "base_duration": 600,
-    "amplification_per_level": 1,
-    "max_amplifier": 2,
-    "color": "#9760FB",
-    "reagent": "minecraft:lapis_lazuli"
-  }
+  ]
 }

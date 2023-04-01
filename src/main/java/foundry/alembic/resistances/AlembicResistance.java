@@ -3,21 +3,18 @@ package foundry.alembic.resistances;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.CodecUtil;
-import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
+import foundry.alembic.util.CodecUtil;
+import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class AlembicResistance {
     public static final Codec<AlembicResistance> CODEC = RecordCodecBuilder.create(instance ->
@@ -62,10 +59,7 @@ public class AlembicResistance {
                                 return DataResult.success(retMap);
                             }
                     ).fieldOf("damage").forGetter(AlembicResistance::getDamage),
-                    AlembicDamageSourceIdentifier.CODEC.listOf().xmap(
-                            strings -> Util.<Set<AlembicDamageSourceIdentifier>>make(new TreeSet<>(), set -> set.addAll(strings)),
-                            strings -> strings.stream().toList()
-                    ).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSources)
+                    CodecUtil.setOf(DamageSourceIdentifier.CODEC).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSources)
             ).apply(instance, AlembicResistance::new)
     );
 
@@ -75,9 +69,9 @@ public class AlembicResistance {
     private Object2FloatMap<AlembicDamageType> resistances;
     private Object2FloatMap<AlembicDamageType> damage;
 
-    private Set<AlembicDamageSourceIdentifier> ignoredSources;
+    private Set<DamageSourceIdentifier> ignoredSources;
 
-    public AlembicResistance(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<AlembicDamageSourceIdentifier> ignoredSources) {
+    public AlembicResistance(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<DamageSourceIdentifier> ignoredSources) {
         this.entityType = entityType;
         this.priority = priority;
         this.resistances = resistances;
@@ -89,7 +83,7 @@ public class AlembicResistance {
         return entityType;
     }
 
-    public Set<AlembicDamageSourceIdentifier> getIgnoredSources() {
+    public Set<DamageSourceIdentifier> getIgnoredSources() {
         return ignoredSources;
     }
 

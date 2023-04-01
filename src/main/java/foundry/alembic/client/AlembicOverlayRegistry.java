@@ -11,8 +11,9 @@ public class AlembicOverlayRegistry {
     public static Map<String, ResourceLocation> OVERLAYS = new HashMap<>();
 
     public static void init(){
-        for(String type : AlembicConfig.damageTypes.get()){
-            OVERLAYS.put(type, Alembic.location("textures/gui/" + type + "_hearts.png"));
-        }
+//        for(String type : AlembicConfig
+//                .damageTypes.get()){
+//            OVERLAYS.put(type, Alembic.location("textures/gui/" + type + "_hearts.png"));
+//        }
     }
 }

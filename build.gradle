@@ -107,6 +107,7 @@ sourceSets {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url "https://cursemaven.com"
         content {
@@ -122,20 +123,32 @@ repositories {
         name = "TslatEntityStatus (TEL) Maven Repo"
         url = "https://dl.cloudsmith.io/public/tslat/tel/maven/"
     }
+//    maven {
+//        url = 'https://maven.lukebemish.dev/releases'
+//    }
+    flatDir {
+        dirs "libs"
+    }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.2-43.2.4'
 
+//    implementation(fg.deobf("dev.lukebemish.defaultresources:defaultresources-forge-${minecraft_version}:${defaultresources_version}"))
+//    implementation(fg.deobf("ignored:defaultresources-forge:1.19.2-0.3.0"))
+    implementation(fg.deobf("io.github.lukebemish:defaultresources-forge-1.19.2:${defaultresources_version}"))
+
     implementation(fg.deobf("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}"))
     jarJar("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}") {
         jarJar.ranged(it, "[1.5,)")
     }
+
     implementation(fg.deobf("net.tslat.tes:TES-forge-${project.minecraft_version}:${project.tes_version}"))
     implementation(fg.deobf("curse.maven:attributetooltipfix-658833:3932463"))
     jarJar("curse.maven:attributetooltipfix-658833:3932463") {
         jarJar.ranged(it, "[1.0.0,)")
     }
+
     implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-beta.5"))
     implementation(jarJar("com.github.llamalad7.mixinextras:mixinextras-forge:0.2.0-beta.5")) {
         jarJar.ranged(it, "[0.2.0-beta.5,)")

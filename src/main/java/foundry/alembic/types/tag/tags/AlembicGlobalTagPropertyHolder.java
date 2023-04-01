@@ -1,4 +1,4 @@
-package foundry.alembic.types.tags;
+package foundry.alembic.types.tag.tags;
 
 import foundry.alembic.types.AlembicDamageType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;

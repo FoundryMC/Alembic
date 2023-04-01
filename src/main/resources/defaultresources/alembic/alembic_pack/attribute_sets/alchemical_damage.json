@@ -1,6 +1,8 @@
 {
-    "damage_type": "alembic:damage_type", // Lazily resolves to a damage type when a world is loaded
-    "modifier": "resistance", // attribute modifier. fully resolves to "alembic:damage_type_resistance" at runtime
+  "base_attribute_min": 0,
+  "base_attribute_max": 1024.0,
+  "base_attribute_default": 0,
+  "resistance_potion": {
     "value": 0.1,
     "operation": "MULTIPLY_BASE",
     "base_duration": 600,
@@ -9,4 +11,5 @@
     "max_level": 2,
     "color": "#12B88E",
     "reagent": "minecraft:lapis_lazuli"
+  }
 }
