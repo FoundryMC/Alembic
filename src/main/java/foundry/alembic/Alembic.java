@@ -11,6 +11,7 @@ import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.potion.AlembicPotionRegistry;
 import foundry.alembic.types.tag.AlembicTagRegistry;
+import foundry.alembic.types.tag.condition.TagConditionRegistry;
 import io.github.lukebemish.defaultresources.api.ResourceProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -34,6 +35,7 @@ public class Alembic {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AttributeRegistry.initAndRegister(modEventBus);
         AlembicParticleRegistry.initAndRegister(modEventBus);
+        TagConditionRegistry.init();
         AlembicTagRegistry.init();
         ForgeConfigSpec spec = AlembicConfig.makeConfig(new ForgeConfigSpec.Builder());
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, spec);

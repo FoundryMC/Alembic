@@ -16,6 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -54,6 +55,8 @@ public class CodecUtil {
             return s -> null;
         }
     }
+
+    public static final Codec<UUID> STRING_UUID = ExtraCodecs.stringResolverCodec(UUID::toString, UUID::fromString);
 
     public static final Codec<EquipmentSlot> EQUIPMENT_SLOT_CODEC = ExtraCodecs.stringResolverCodec(Enum::name, enumFromString(EquipmentSlot.class));
 

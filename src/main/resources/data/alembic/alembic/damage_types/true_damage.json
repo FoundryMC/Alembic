@@ -11,38 +11,60 @@
       "particle_options": {
         "type": "alembic:true_damage"
       },
-      "player_only": true,
-      "filters": [
+      "player_only": true
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_options": {
+        "type": "alembic:frostbite"
+      },
+      "conditions": [
         {
-          "player_only": false,
-          "damage_source": "FREEZE",
-          "particle_options": {
-            "type": "alembic:frostbite"
-          }
-        },
-		{
-            "entity_type": "minecraft:wither_skeleton",
-			"player_only": false,
-            "particle_options": {
-                "type": "alembic:wither_decay"
-            },
-            "particle_speed": 0.2
-        },
-		{
-            "damage_source": "witherSkull",
-			"player_only": false,
-            "particle_options": {
-                "type": "alembic:wither_decay"
-            },
-            "particle_speed": 0.2
-        },
-		{
-            "damage_source": "WITHER",
-			"player_only": false,
-            "particle_options": {
-                "type": "alembic:wither_decay"
-            },
-            "particle_speed": 0.2
+          "condition_type": "alembic:damage_source",
+          "damage_source": "FREEZE"
+        }
+      ]
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_options": {
+        "type": "alembic:wither_decay"
+      },
+      "particle_speed": 0.2,
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "direct_entity": "minecraft:wither_skeleton"
+        }
+      ]
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_options": {
+        "type": "alembic:wither_decay"
+      },
+      "particle_speed": 0.2,
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "witherSkull"
+        }
+      ]
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_options": {
+        "type": "alembic:wither_decay"
+      },
+      "particle_speed": 0.2,
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "WITHER"
         }
       ]
     }

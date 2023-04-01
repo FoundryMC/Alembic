@@ -6,6 +6,10 @@
         "fire_damage",
         "true_damage",
         "alchemical_reaction",
-        "arcane_spark"
+        "arcane_spark",
+        "ender_magic",
+        "sculk_hit",
+        "wither_decay",
+        "frostbite"
     ]
 }

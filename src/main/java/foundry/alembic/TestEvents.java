@@ -7,6 +7,7 @@ import foundry.alembic.types.DamageTypeRegistry;
 import foundry.alembic.types.tag.tags.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,10 +38,13 @@ public class TestEvents {
     private static void applyHungerMod(Player player, int foodLevel) {
         for(Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()){
             Attribute attribute = entry.getValue().getTypeModifier().getAffectedAttribute(entry.getKey());
-            if (attribute == null) return;
-            if (player.getAttribute(attribute).getModifier(entry.getValue().getUUID()) != null)
-                player.getAttribute(attribute).removeModifier(entry.getValue().getUUID());
-            player.getAttribute(attribute).addTransientModifier(new AttributeModifier(entry.getValue().getUUID(), "Alembic hunger", entry.getValue().getScaleAmount()*(Math.floor((21- foodLevel)/(float)entry.getValue().getHungerTrigger())), entry.getValue().getOperation()));
+            AttributeInstance instance = player.getAttribute(attribute);
+            if (instance != null) {
+                if (instance.getModifier(entry.getValue().getUUID()) != null) {
+                    instance.removeModifier(entry.getValue().getUUID());
+                }
+                instance.addTransientModifier(new AttributeModifier(entry.getValue().getUUID(), "Alembic hunger", entry.getValue().getScaleAmount()*(Math.floor((21- foodLevel)/(float)entry.getValue().getHungerTrigger())), entry.getValue().getOperation()));
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ public class AlembicHungerTag extends AbstractTag {
                             AlembicTypeModifier.CODEC.fieldOf("modifier_type").forGetter(AlembicHungerTag::getTypeModifier),
                             Codec.INT.fieldOf("hunger_amount").forGetter(alembicHungerTag -> alembicHungerTag.hungerTrigger),
                             Codec.FLOAT.fieldOf("amount").forGetter(alembicHungerTag -> alembicHungerTag.scaleAmount),
-                            ExtraCodecs.stringResolverCodec(UUID::toString, UUID::fromString).fieldOf("uuid").forGetter(alembicHungerTag -> alembicHungerTag.uuid),
+                            CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(alembicHungerTag -> alembicHungerTag.uuid),
                             CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(alembicHungerTag -> alembicHungerTag.operation)
                     )
             ).apply(instance, AlembicHungerTag::new)
