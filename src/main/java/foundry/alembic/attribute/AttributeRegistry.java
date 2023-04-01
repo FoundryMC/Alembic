@@ -80,10 +80,10 @@ public class AttributeRegistry {
         for (DeferredRegister<Attribute> register : ATTRIBUTE_REGISTRY_MAP.values()) {
             register.register(modBus);
         }
-        for (DeferredRegister<Potion> register : POTION_REGISTRY_MAP.values()) {
+        for (DeferredRegister<MobEffect> register : MOB_EFFECT_REGISTRY_MAP.values()) {
             register.register(modBus);
         }
-        for (DeferredRegister<MobEffect> register : MOB_EFFECT_REGISTRY_MAP.values()) {
+        for (DeferredRegister<Potion> register : POTION_REGISTRY_MAP.values()) {
             register.register(modBus);
         }
     }

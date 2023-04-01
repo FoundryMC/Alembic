@@ -33,7 +33,7 @@ public enum AlembicTypeModifier implements StringRepresentable {
     }
 
     public ResourceLocation getId(ResourceLocation baseRl) {
-        return new ResourceLocation(baseRl.getNamespace(), baseRl.getPath() + "_" + safeName);
+        return new ResourceLocation(baseRl.getNamespace(), baseRl.getPath() + "." + safeName);
     }
 
     public String getTranslationId(String baseStr) {
