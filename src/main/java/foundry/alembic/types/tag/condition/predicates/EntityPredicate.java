@@ -4,8 +4,10 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.util.CodecUtil;
+import foundry.alembic.util.ToBooleanFunction;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,36 +17,78 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class EntityPredicate {
-    public static final Codec<EntityPredicate> CODEC = RecordCodecBuilder.create(instance ->
+    public static final Codec<EntityPredicate> RECORD_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Codec.either(ForgeRegistries.ENTITY_TYPES.getCodec(), TagKey.codec(Registry.ENTITY_TYPE_REGISTRY)).optionalFieldOf("entity_type").forGetter(entityPredicate -> CodecUtil.optionalEither(entityPredicate.entityType, entityPredicate.entityTypeTag)),
+                    ExtraCodecs.TAG_OR_ELEMENT_ID.optionalFieldOf("entity_type").forGetter(entityPredicate -> Optional.ofNullable(entityPredicate.tagOrElement)),
                     ForgeRegistries.ITEMS.getCodec().optionalFieldOf("held_item").forGetter(entityPredicate -> Optional.ofNullable(entityPredicate.heldItem))
             ).apply(instance, EntityPredicate::new)
     );
+    public static final Codec<EntityPredicate> CODEC = Codec.either(ExtraCodecs.TAG_OR_ELEMENT_ID, RECORD_CODEC).xmap(
+            either -> {
+                if (either.left().isPresent()) {
+                    return new EntityPredicate(either.left(), Optional.empty());
+                } else {
+                    return either.right().get();
+                }
+            },
+            entityPredicate -> {
+                if (entityPredicate.heldItem != null) {
+                    return Either.right(entityPredicate);
+                }
+                return Either.left(entityPredicate.tagOrElement);
+            }
+    );
+
     public static final EntityPredicate EMPTY = new EntityPredicate();
 
     @Nullable
-    private EntityType<?> entityType;
-    @Nullable
-    private TagKey<EntityType<?>> entityTypeTag;
+    private final ExtraCodecs.TagOrElementLocation tagOrElement;
     @Nullable
     private final Item heldItem; // TODO: Expand to ItemPredicate. Possibly an EquipmentPredicate to test all known equipment slots?
+    private ToBooleanFunction<EntityType<?>> entityTestFunction = this::resolveTagOrElement;
 
-    public EntityPredicate(@Nonnull Optional<Either<EntityType<?>, TagKey<EntityType<?>>>> eitherOptional, @Nonnull Optional<Item> item) {
-        eitherOptional.ifPresent(either -> CodecUtil.resolveEither(either, entityType1 -> entityType = entityType1, entityTypeTagKey -> entityTypeTag = entityTypeTagKey));
+    public EntityPredicate(@Nonnull Optional<ExtraCodecs.TagOrElementLocation> tagOrElement, @Nonnull Optional<Item> item) {
+        this.tagOrElement = tagOrElement.orElse(null);
         this.heldItem = item.orElse(null);
     }
 
     private EntityPredicate() {
-        entityType = null;
-        entityTypeTag = null;
+        this.tagOrElement = null;
         heldItem = null;
     }
 
+    private boolean resolveTagOrElement(EntityType<?> entityType) {
+        if (tagOrElement == null) {
+            entityTestFunction = type -> true;
+            return entityTestFunction.apply(entityType);
+        }
+        if (tagOrElement.tag()) {
+            entityTestFunction = new ToBooleanFunction<>() {
+                TagKey<EntityType<?>> tagKey = TagKey.create(Registry.ENTITY_TYPE_REGISTRY, tagOrElement.id());
+
+                @Override
+                public boolean apply(EntityType<?> entityType) {
+                    return entityType.is(tagKey);
+                }
+            };
+        } else {
+            entityTestFunction = new ToBooleanFunction<>() {
+                EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(tagOrElement.id());
+
+                @Override
+                public boolean apply(EntityType<?> entityType) {
+                    return entityType == type;
+                }
+            };
+        }
+        return entityTestFunction.apply(entityType);
+    }
+
     public boolean match(@Nonnull Entity entity) {
-        if ((entityType != null && entity.getType() != entityType) || (entityTypeTag != null && !entity.getType().is(entityTypeTag))) {
+        if (entityTestFunction.apply(entity.getType())) {
             return false;
         }
         if (heldItem != null && entity instanceof LivingEntity livingEntity) {

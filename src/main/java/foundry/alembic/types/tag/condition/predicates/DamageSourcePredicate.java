@@ -2,6 +2,7 @@ package foundry.alembic.types.tag.condition.predicates;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.util.CodecUtil;
@@ -10,8 +11,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import java.util.Optional;
 
 public class DamageSourcePredicate {
-    public static final Codec<DamageSourcePredicate> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
+    public static final MapCodec<DamageSourcePredicate> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                     EntityPredicate.CODEC.optionalFieldOf("direct_entity", EntityPredicate.EMPTY).forGetter(damageSourcePredicate -> damageSourcePredicate.directEntityPredicate),
                     EntityPredicate.CODEC.optionalFieldOf("indirect_entity", EntityPredicate.EMPTY).forGetter(damageSourcePredicate -> damageSourcePredicate.indirectEntityPredicate),
                     DamageSourceIdentifier.EITHER_CODEC.optionalFieldOf("damage_source").forGetter(damageSourcePredicate -> CodecUtil.optionalEither(damageSourcePredicate.wrappedSource, damageSourcePredicate.sourceId))

@@ -72,9 +72,9 @@ public class AlembicDamageType {
         this.priority = priority;
         this.attributesEither = attributesEither;
         this.attribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getBaseAttribute, AttributeHolder::getAttribute));
-        this.shieldingAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getShieldingAttribute, AttributeHolder::getShieldingAttribute));
-        this.absorptionAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getAbsorptionAttribute, AttributeHolder::getAbsorptionAttribute));
-        this.resistanceAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getResistanceAttribute, AttributeHolder::getResistanceAttribute));
+        this.shieldingAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, attributeSet -> attributeSet.getShieldingAttribute().get(), AttributeHolder::getShieldingAttribute));
+        this.absorptionAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, attributeSet -> attributeSet.getAbsorptionAttribute().get(), AttributeHolder::getAbsorptionAttribute));
+        this.resistanceAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, attributeSet -> attributeSet.getResistanceAttribute().get(), AttributeHolder::getResistanceAttribute));
         this.hasParticles = hasParticles;
         this.color = color;
         this.tags = tags;

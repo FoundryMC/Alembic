@@ -7,7 +7,7 @@ import foundry.alembic.util.CodecUtil;
 import net.minecraft.resources.ResourceLocation;
 
 public class TagConditionRegistry {
-    public static final BiMap<ResourceLocation, TagConditionType<?>> REGISTRY = HashBiMap.create();
+    private static final BiMap<ResourceLocation, TagConditionType<?>> REGISTRY = HashBiMap.create();
     public static final Codec<TagConditionType<?>> CONDITION_LOOKUP_CODEC = CodecUtil.ALEMBIC_RL_CODEC.xmap(REGISTRY::get, REGISTRY.inverse()::get);
 
     public static void init() {

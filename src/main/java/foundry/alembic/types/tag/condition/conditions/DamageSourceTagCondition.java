@@ -1,14 +1,20 @@
 package foundry.alembic.types.tag.condition.conditions;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.*;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.types.tag.condition.TagConditionType;
 import foundry.alembic.types.tag.condition.predicates.DamageSourcePredicate;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
 
+import java.util.stream.Stream;
+
 public class DamageSourceTagCondition implements TagCondition {
-    public static final Codec<DamageSourceTagCondition> CODEC = DamageSourcePredicate.CODEC.xmap(DamageSourceTagCondition::new, damageSourceTagCondition -> damageSourceTagCondition.damageSourcePredicate);
+    public static final Codec<DamageSourceTagCondition> CODEC = DamageSourcePredicate.CODEC.xmap(
+            DamageSourceTagCondition::new,
+            damageSourceTagCondition -> damageSourceTagCondition.damageSourcePredicate
+    ).codec();
 
     private final DamageSourcePredicate damageSourcePredicate;
 
