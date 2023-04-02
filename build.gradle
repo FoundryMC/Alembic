@@ -107,7 +107,6 @@ sourceSets {
 }
 
 repositories {
-    mavenLocal()
     maven {
         url "https://cursemaven.com"
         content {
@@ -134,9 +133,12 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.2-43.2.4'
 
-//    implementation(fg.deobf("dev.lukebemish.defaultresources:defaultresources-forge-${minecraft_version}:${defaultresources_version}"))
-//    implementation(fg.deobf("ignored:defaultresources-forge:1.19.2-0.3.0"))
-    implementation(fg.deobf("io.github.lukebemish:defaultresources-forge-1.19.2:${defaultresources_version}"))
+    jarJar(implementation(fg.deobf("ignored:defaultresources-forge:1.19.2-0.3.0"))) {
+        jarJar.ranged(it, "[0.3.0,)")
+    }
+//    jarJar(implementation(fg.deobf("io.github.lukebemish:defaultresources-forge-1.19.2:${defaultresources_version}"))) {
+//        jarJar.ranged(it, "[0.3.0,)")
+//    }
 
     implementation(fg.deobf("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}"))
     jarJar("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}") {
