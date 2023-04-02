@@ -1,6 +1,6 @@
 {
     "priority": 1,
-    "__comment": "Attributes either define a set, using a single string to reference it, or a map of each attribute to a corresponding attribute. If one is omitted, it means it does not have that attribute",
+    "__comment": "Attributes either define a set, using a single string to reference it, or a map of each attribute to a corresponding attribute",
     "attributes": "alembic:attribute_set",
     "particles": true,
     "color": "#12B88E",
@@ -15,7 +15,7 @@
             "conditions": [
                 {
                     "condition_type": "alembic:damage_source",
-                    "direct_entity":
+                    "direct_entity": "minecraft:pig"
                 }
             ]
         },
