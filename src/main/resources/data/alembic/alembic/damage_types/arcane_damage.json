@@ -16,6 +16,13 @@
     },
     {
       "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:arcane_damage"
+      },
+      "player_only": true
+    },
+    {
+      "tag_id": "alembic:particle_tag",
       "player_only": false,
       "particle_options": {
         "type": "minecraft:soul_fire_flame"
@@ -139,13 +146,6 @@
           "damage_source": "DRAGON_BREATH"
         }
       ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "particle_options": {
-        "type": "alembic:arcane_damage"
-      },
-      "player_only": true
     },
     {
       "tag_id": "alembic:per_level_tag",
