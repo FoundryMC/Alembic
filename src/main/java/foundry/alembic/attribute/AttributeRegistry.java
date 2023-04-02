@@ -60,13 +60,13 @@ public class AttributeRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus) {
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHandler.readAsJson("alembic_pack/attribute_sets").entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHandler.readAsJson("attribute_sets").entrySet()) {
             DataResult<AttributeSet> setResult = AttributeSet.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (setResult.error().isPresent()) {
                 throw new IllegalStateException(setResult.error().get().message());
             }
             AttributeSet set = setResult.result().get();
-            ResourceLocation sanitizedId = Utils.sanitize(entry.getKey(), "alembic_pack/attribute_sets/", ".json");
+            ResourceLocation sanitizedId = Utils.sanitize(entry.getKey(), "attribute_sets/", ".json");
             set.setId(sanitizedId);
 
             if (ID_TO_SET_BIMAP.containsKey(sanitizedId)) {

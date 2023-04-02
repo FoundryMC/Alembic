@@ -177,17 +177,7 @@ public class AlembicDamageType {
     void handlePostParse(ResourceLocation id) {
         this.id = id;
         this.damageSource = new DamageSource(id.toString());
-        this.translationString = "alembic.damage." + id.getNamespace() + "." + id.getPath();
+        this.translationString = id.getNamespace() + ".damage." + id.getPath();
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
-    }
-
-    AlembicDamageType copyValues(AlembicDamageType copyFrom) {
-        this.priority = copyFrom.priority;
-        this.color = copyFrom.color;
-        this.hasParticles = copyFrom.hasParticles;
-        this.tags = copyFrom.tags;
-        this.enchantSource = copyFrom.enchantSource;
-        this.enchantReduction = copyFrom.enchantReduction;
-        return this;
     }
 }

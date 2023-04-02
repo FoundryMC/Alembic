@@ -26,7 +26,7 @@ public class AlembicParticleRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus){
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHandler.readAsJson("alembic_pack/particles.json").entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHandler.readAsJson("particles.json").entrySet()) {
             JsonArray array = entry.getValue().getAsJsonObject().getAsJsonArray("values");
             for (JsonElement particleName : array) {
                 String particleStr = particleName.getAsString();

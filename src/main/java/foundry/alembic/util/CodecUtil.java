@@ -38,7 +38,7 @@ public class CodecUtil {
             STRINGIFIED_LITERAL_COLOR_CODEC,
             Codec.INT
     ).xmap(
-            either -> either.left().isPresent() ? either.left().get() : either.right().get(),
+            either -> resolveEither(either, Function.identity(), Function.identity()),
             Either::left
     );
 
