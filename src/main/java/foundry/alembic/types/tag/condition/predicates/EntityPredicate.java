@@ -87,7 +87,10 @@ public class EntityPredicate {
         return entityTestFunction.apply(entityType);
     }
 
-    public boolean match(@Nonnull Entity entity) {
+    public boolean match(@Nullable Entity entity) {
+        if (entity == null) {
+            return false;
+        }
         if (entityTestFunction.apply(entity.getType())) {
             return false;
         }
