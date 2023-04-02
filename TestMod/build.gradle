@@ -118,6 +118,8 @@ dependencies {
         transitive = true
     }
 
+    implementation(fg.deobf("io.github.lukebemish:defaultresources-forge-1.19.2:${defaultresources_version}"))
+
     implementation(fg.deobf("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}"))
     jarJar("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}") {
         jarJar.ranged(it, "[1.5,)")

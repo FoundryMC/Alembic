@@ -1,6 +1,6 @@
 {
   "priority": 1,
-  "attributes": "alembic:bludgeoning_damage",
+  "attributes": "testpack:bludgeoning_damage",
   "particles": false,
   "enchant_reduction": false,
   "enchant_source": "mob",
@@ -29,10 +29,10 @@
     {
       "tag_id": "alembic:particle_tag",
       "player_only": false,
+      "particle_speed": 0.2,
       "particle_options": {
         "type": "alembic:wither_decay"
       },
-      "particle_speed": 0.2,
       "conditions": [
         {
           "condition_type": "alembic:damage_source",

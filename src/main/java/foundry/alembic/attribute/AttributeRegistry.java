@@ -1,6 +1,5 @@
 package foundry.alembic.attribute;
 
-import com.google.common.base.Suppliers;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
