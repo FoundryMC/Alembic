@@ -12,6 +12,7 @@ public interface TagConditionType<T extends TagCondition> {
     TagConditionType<AndCondition> AND_CONDITION = register("and", AndCondition.CODEC);
     TagConditionType<OrCondition> OR_CONDITION = register("or", OrCondition.CODEC);
     TagConditionType<DamageSourceTagCondition> DAMAGE_SOURCE_CONDITION = register("damage_source", DamageSourceTagCondition.CODEC);
+    // TODO: ConditionReference condition. This allows users to put conditions in 'damage_types/tags/conditions' and reference them by resource location
 
     Codec<T> getCodec();
 

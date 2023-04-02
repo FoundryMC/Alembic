@@ -8,26 +8,26 @@
     "tags": [
         {
             "tag_id": "alembic:particle_tag",
+            "player_only": true,
             "particle_options": {
                 "type": "alembic:fire_damage"
-            },
-            "player_only": true
-        },
-        {
-            "tag_id": "alembic:particle_tag",
-            "particle_options": {
-                "type": "minecraft:flame"
-            },
-            "particle_speed": 0.05,
-            "player_only": false
+            }
         },
         {
             "tag_id": "alembic:particle_tag",
             "player_only": false,
+            "particle_speed": 0.05,
+            "particle_options": {
+                "type": "minecraft:flame"
+            }
+        },
+        {
+            "tag_id": "alembic:particle_tag",
+            "player_only": false,
+            "particle_speed": 0.05,
             "particle_options": {
                 "type": "minecraft:soul_fire_flame"
             },
-            "particle_speed": 0.05,
             "conditions": [
                 {
                     "condition_type": "alembic:damage_source",

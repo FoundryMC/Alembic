@@ -29,42 +29,27 @@
     {
       "tag_id": "alembic:particle_tag",
       "player_only": false,
+      "particle_speed": 0.2,
       "particle_options": {
         "type": "alembic:wither_decay"
       },
-      "particle_speed": 0.2,
       "conditions": [
         {
-          "condition_type": "alembic:damage_source",
-          "direct_entity": "minecraft:wither_skeleton"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_options": {
-        "type": "alembic:wither_decay"
-      },
-      "particle_speed": 0.2,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "damage_source": "witherSkull"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_options": {
-        "type": "alembic:wither_decay"
-      },
-      "particle_speed": 0.2,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "damage_source": "WITHER"
+          "condition_type": "alembic:or",
+          "conditions": [
+            {
+              "condition_type": "alembic:damage_source",
+              "direct_entity": "minecraft:wither_skeleton"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "damage_source": "witherSkull"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "damage_source": "WITHER"
+            }
+          ]
         }
       ]
     }

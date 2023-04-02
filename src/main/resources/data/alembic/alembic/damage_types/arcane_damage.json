@@ -8,26 +8,26 @@
   "tags": [
     {
       "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_speed": 0.35,
       "particle_options": {
         "type": "alembic:arcane_spark"
-      },
-      "player_only": false,
-	  "particle_speed": 0.35
+      }
     },
     {
       "tag_id": "alembic:particle_tag",
+      "player_only": true,
       "particle_options": {
         "type": "alembic:arcane_damage"
-      },
-      "player_only": true
+      }
     },
     {
       "tag_id": "alembic:particle_tag",
       "player_only": false,
+      "particle_speed": 0.05,
       "particle_options": {
         "type": "minecraft:soul_fire_flame"
       },
-      "particle_speed": 0.05,
       "conditions": [
         {
           "condition_type": "alembic:damage_source",
@@ -38,112 +38,77 @@
     {
       "tag_id": "alembic:particle_tag",
       "player_only": false,
+      "particle_speed": 0.25,
       "particle_options": {
         "type": "alembic:sculk_hit"
       },
-      "particle_speed": 0.25,
       "conditions": [
         {
-          "condition_type": "alembic:damage_source",
-          "direct_entity": "minecraft:warden"
+          "condition_type": "alembic:or",
+          "conditions": [
+            {
+              "condition_type": "alembic:damage_source",
+              "direct_entity": "minecraft:warden"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "damage_source": "sonic_boom"
+            }
+          ]
         }
       ]
     },
     {
       "tag_id": "alembic:particle_tag",
       "player_only": false,
-      "particle_options": {
-        "type": "alembic:sculk_hit"
-      },
-      "particle_speed": 0.25,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "damage_source": "sonic_boom"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
+      "particle_speed": 0.2,
       "particle_options": {
         "type": "alembic:wither_decay"
       },
-      "particle_speed": 0.2,
       "conditions": [
         {
-          "condition_type": "alembic:damage_source",
-          "direct_entity": "minecraft:wither_skeleton"
+          "condition_type": "alembic:or",
+          "conditions": [
+            {
+              "condition_type": "alembic:damage_source",
+              "direct_entity": "minecraft:wither_skeleton"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "damage_source": "witherSkull"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "damage_source": "WITHER"
+            }
+          ]
         }
       ]
     },
     {
       "tag_id": "alembic:particle_tag",
       "player_only": false,
-      "particle_options": {
-        "type": "alembic:wither_decay"
-      },
-      "particle_speed": 0.2,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "damage_source": "witherSkull"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_options": {
-        "type": "alembic:wither_decay"
-      },
-      "particle_speed": 0.2,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "damage_source": "WITHER"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
+      "particle_speed": 0.35,
       "particle_options": {
         "type": "alembic:ender_magic"
       },
-      "particle_speed": 0.35,
       "conditions": [
         {
-          "condition_type": "alembic:damage_source",
-          "direct_entity": "minecraft:enderman"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_options": {
-        "type": "alembic:ender_magic"
-      },
-      "particle_speed": 0.35,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "direct_entity": "minecraft:endermite"
-        }
-      ]
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_options": {
-        "type": "alembic:ender_magic"
-      },
-      "particle_speed": 0.35,
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "damage_source": "DRAGON_BREATH"
+          "condition_type": "alembic:or",
+          "conditions": [
+            {
+              "condition_type": "alembic:damage_source",
+              "direct_entity": "minecraft:enderman"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "direct_entity": "minecraft:endermite"
+            },
+            {
+              "condition_type": "alembic:damage_source",
+              "damage_source": "DRAGON_BREATH"
+            }
+          ]
         }
       ]
     },
