@@ -7,7 +7,9 @@ import foundry.alembic.types.tag.condition.TagConditionType;
 import foundry.alembic.types.tag.condition.predicates.DamageSourcePredicate;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
 public class DamageSourceTagCondition implements TagCondition {
@@ -27,6 +29,7 @@ public class DamageSourceTagCondition implements TagCondition {
         return damageSourcePredicate.matches(composedData.get(ComposedDataTypes.ORIGINAL_SOURCE));
     }
 
+    @Nonnull
     @Override
     public TagConditionType<?> getType() {
         return TagConditionType.DAMAGE_SOURCE_CONDITION;
