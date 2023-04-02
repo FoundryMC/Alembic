@@ -70,16 +70,40 @@ public class AttributeSet {
         return lazyAttributeHolder.get().getAttribute();
     }
 
-    public RangedAttribute getShieldingAttribute() {
-        return lazyAttributeHolder.get().getShieldingAttribute();
+    public double getBase() {
+        return base;
     }
 
-    public RangedAttribute getAbsorptionAttribute() {
-        return lazyAttributeHolder.get().getAbsorptionAttribute();
+    public double getMin() {
+        return min;
     }
 
-    public RangedAttribute getResistanceAttribute() {
-        return lazyAttributeHolder.get().getResistanceAttribute();
+    public double getMax() {
+        return max;
+    }
+
+    public boolean hasShielding() {
+        return hasShielding;
+    }
+
+    public boolean hasAbsorption() {
+        return hasAbsorption;
+    }
+
+    public boolean hasResistance() {
+        return hasResistance;
+    }
+
+    public Optional<RangedAttribute> getShieldingAttribute() {
+        return Optional.ofNullable(lazyAttributeHolder.get().getShieldingAttribute());
+    }
+
+    public Optional<RangedAttribute> getAbsorptionAttribute() {
+        return Optional.ofNullable(lazyAttributeHolder.get().getAbsorptionAttribute());
+    }
+
+    public Optional<RangedAttribute> getResistanceAttribute() {
+        return Optional.ofNullable(lazyAttributeHolder.get().getResistanceAttribute());
     }
 
     public Optional<AlembicPotionDataHolder> getPotionDataHolder() {
@@ -88,16 +112,5 @@ public class AttributeSet {
 
     public boolean isFullSet() {
         return hasShielding && hasAbsorption && hasResistance;
-    }
-
-    void registerAttributes(DeferredRegister<Attribute> deferredRegister) {
-        deferredRegister.register(id.getPath(), () -> new AlembicAttribute(id.toLanguageKey("attribute"), base, min, max));
-        if (hasShielding) register(deferredRegister, AlembicTypeModifier.SHIELDING, 0, 0, 1024);
-        if (hasAbsorption) register(deferredRegister, AlembicTypeModifier.ABSORPTION, 0, 0, 1024);
-        if (hasResistance) register(deferredRegister, AlembicTypeModifier.RESISTANCE, 1, -1024, 1024);
-    }
-
-    private void register(DeferredRegister<Attribute> register, AlembicTypeModifier modifier, double base, double min, double max) {
-        register.register(modifier.getTranslationId(id.getPath()), () -> new AlembicAttribute(modifier.getTranslationId(id.toLanguageKey("attribute")), base, min, max));
     }
 }

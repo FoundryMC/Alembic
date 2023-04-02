@@ -1,5 +1,7 @@
 package foundry.alembic.types.potion;
 
+import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
@@ -18,7 +20,7 @@ public class AlembicPotionDataHolder {
                     Codec.FLOAT.fieldOf("value").forGetter(AlembicPotionDataHolder::getValue),
                     CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(AlembicPotionDataHolder::getOperation),
                     Codec.BOOL.optionalFieldOf("vanilla_override").forGetter(AlembicPotionDataHolder::getVanillaOverrideOptional),
-                    CodecUtil.setOf(DamageSourceIdentifier.CODEC).optionalFieldOf("immunities").forGetter(AlembicPotionDataHolder::getImmunitiesOptional),
+                    CodecUtil.setOf(DamageSourceIdentifier.EITHER_CODEC).optionalFieldOf("immunities").forGetter(dataHolder -> dataHolder.immunitiesEither),
                     Codec.INT.optionalFieldOf("max_level").forGetter(AlembicPotionDataHolder::getMaxLevelOptional),
                     Codec.INT.optionalFieldOf("base_duration").forGetter(AlembicPotionDataHolder::getBaseDurationOptional),
                     Codec.INT.optionalFieldOf("amplification_per_level").forGetter(AlembicPotionDataHolder::getAmplifierPerLevelOptional),
@@ -31,7 +33,8 @@ public class AlembicPotionDataHolder {
     private AttributeModifier.Operation operation;
     private float value;
     private Optional<Boolean> vanillaOverride;
-    private Optional<Set<DamageSourceIdentifier>> immunities;
+    private final Optional<Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>>> immunitiesEither;
+    private Set<DamageSourceIdentifier> immunities;
     private Optional<Integer> maxLevel;
 
     private Optional<Integer> baseDuration;
@@ -46,7 +49,8 @@ public class AlembicPotionDataHolder {
         this.value = 0;
         this.operation = AttributeModifier.Operation.ADDITION;
         this.vanillaOverride = Optional.empty();
-        this.immunities = Optional.empty();
+        this.immunitiesEither = Optional.empty();
+        this.immunities = Set.of();
         this.maxLevel = Optional.empty();
         this.baseDuration = Optional.empty();
         this.amplifierPerLevel = Optional.empty();
@@ -56,11 +60,23 @@ public class AlembicPotionDataHolder {
         uuid = UUID.randomUUID();
     }
 
-    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, Optional<Boolean> vanillaOverride, Optional<Set<DamageSourceIdentifier>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
+    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, Optional<Boolean> vanillaOverride, Optional<Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
         this.value = value;
         this.operation = operation;
         this.vanillaOverride = vanillaOverride;
-        this.immunities = immunities;
+        this.immunitiesEither = immunities;
+        ImmutableSet.Builder<DamageSourceIdentifier> setBuilder = ImmutableSet.builder();
+        for (Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier> either : immunities.orElse(Set.of())) {
+            if (either.left().isPresent()) {
+                DamageSourceIdentifier.DefaultWrappedSource wrappedSource = either.left().get();
+                for (DamageSourceIdentifier identifier : wrappedSource.getIdentifiers()) {
+                    setBuilder.add(identifier);
+                }
+            } else {
+                setBuilder.add(either.right().get());
+            }
+        }
+        this.immunities = setBuilder.build();
         this.maxLevel = maxLevel;
         this.baseDuration = baseDuration;
         this.amplifierPerLevel = amplifierPerLevel;
@@ -90,7 +106,7 @@ public class AlembicPotionDataHolder {
         this.vanillaOverride = vanillaOverride;
     }
 
-    public void setImmunities(Optional<Set<DamageSourceIdentifier>> immunities){
+    public void setImmunities(Set<DamageSourceIdentifier> immunities){
         this.immunities = immunities;
     }
 
@@ -132,10 +148,6 @@ public class AlembicPotionDataHolder {
     }
 
     public Set<DamageSourceIdentifier> getImmunities(){
-        return immunities.orElse(null);
-    }
-
-    public Optional<Set<DamageSourceIdentifier>> getImmunitiesOptional(){
         return immunities;
     }
 

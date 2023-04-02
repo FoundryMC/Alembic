@@ -15,10 +15,10 @@ public class AttributeHolder {
             ).apply(instance, AttributeHolder::new)
     );
 
-    private RangedAttribute attribute;
-    private RangedAttribute shieldingAttribute;
-    private RangedAttribute absorptionAttribute;
-    private RangedAttribute resistanceAttribute;
+    private final RangedAttribute attribute;
+    private final RangedAttribute shieldingAttribute;
+    private final RangedAttribute absorptionAttribute;
+    private final RangedAttribute resistanceAttribute;
 
     public AttributeHolder(RangedAttribute attribute, RangedAttribute shieldingAttribute, RangedAttribute absorptionAttribute, RangedAttribute resistanceAttribute) {
         this.attribute = attribute;

@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AlembicPotionRegistry {
-    public static final Map<ResourceLocation, AlembicPotionDataHolder> IMMUNITY_DATA = new HashMap<>();
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
 
     public static final RegistryObject<MobEffect> FIRE = MOB_EFFECTS.register("fire", FireMobEffect::new);

@@ -6,6 +6,7 @@ import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
+import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatHolder;
 import foundry.alembic.items.ItemStatJSONListener;
@@ -65,6 +66,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.tslat.effectslib.api.ExtendedMobEffect;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -79,6 +81,7 @@ public class ForgeEvents {
 
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
+
     @SubscribeEvent
     static void onServerStarting(ServerStartingEvent event) {
         // do something when the server starts
@@ -121,7 +124,7 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onItemAttributes(ItemAttributeModifierEvent event) {
-        if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)){
+        if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
             int level = event.getItemStack().getAllEnchantments().get(Enchantments.FIRE_ASPECT);
             Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
             if(fireDamage == null) return;
@@ -152,38 +155,21 @@ public class ForgeEvents {
 
 
     @SubscribeEvent
-    public static void onLivingSpawn(final LivingSpawnEvent event){
+    public static void onLivingSpawn(final LivingSpawnEvent event) {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void cancelShieldBlock(ShieldBlockEvent event){
+    public static void cancelShieldBlock(ShieldBlockEvent event) {
         event.setBlockedDamage(0);
     }
 
-    private static boolean noRecurse = false;
+    private static boolean noRecurse = false; // TODO: this feels dangerous? but I have no proof that it is
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    static void hurt(final LivingHurtEvent e){
+    static void hurt(final LivingHurtEvent e) {
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
-        if(!e.getEntity().getActiveEffects().isEmpty()){
-            for(MobEffectInstance effectInstances : e.getEntity().getActiveEffects()){
-                ResourceLocation rl = ForgeRegistries.MOB_EFFECTS.getKey(effectInstances.getEffect());
-                if(rl != null){
-                    if(AlembicPotionRegistry.IMMUNITY_DATA.containsKey(rl)){
-                        AlembicPotionDataHolder data = AlembicPotionRegistry.IMMUNITY_DATA.get(rl);
-                        if(data != null){
-                            if (data.getImmunities().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(e.getSource().msgId)){
-                                e.setCanceled(true);
-                                noRecurse = false;
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         if (e.getSource() instanceof IndirectEntityDamageSource || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get()) || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile){
             noRecurse = false;
             LivingEntity target = e.getEntity();
@@ -293,7 +279,7 @@ public class ForgeEvents {
         damage = Math.round(Math.max(damage, 0)*10)/10f;
         if (damage > 0) {
             float finalDamage = damage;
-            damageType.getTags().forEach(r -> {
+            damageType.getTags().forEach(tag -> {
                 ComposedData data = ComposedData.createEmpty()
                         .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level)
                         .add(ComposedDataTypes.TARGET_ENTITY, target)
@@ -303,7 +289,9 @@ public class ForgeEvents {
                 AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
                 MinecraftForge.EVENT_BUS.post(event);
                 data = event.getData();
-                r.onDamage(data);
+                if (tag.testConditions(data)) {
+                    tag.onDamage(data);
+                }
             });
             int invtime = target.invulnerableTime;
             target.invulnerableTime = 0;
@@ -397,7 +385,7 @@ public class ForgeEvents {
         damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
         damage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, alembicDamageType, damage);
         boolean enchantReduce = alembicDamageType.hasEnchantReduction();
-        if(enchantReduce){
+        if(enchantReduce) {
             int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), DamageSource.mobAttack(attacker));
             if (k > 0) {
                 damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
@@ -425,12 +413,12 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    static void playerTick(TickEvent.PlayerTickEvent event){
-        if (event.player.level.isClientSide) return;
+    static void hungerChanged(AlembicFoodChangeEvent event) {
+        if (event.getPlayer().level.isClientSide) return;
         for (Map.Entry<AlembicDamageType, AlembicHungerTag> set : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
             AlembicDamageType type = set.getKey();
             AlembicHungerTag tag = set.getValue();
-            Player player = event.player;
+            Player player = event.getPlayer();
             //if(player.getFoodData().getFoodLevel() >= 20) return;
             RangedAttribute attribute = tag.getTypeModifier().getAffectedAttribute(type);
             AttributeInstance instance = player.getAttribute(attribute);
@@ -448,6 +436,4 @@ public class ForgeEvents {
             }
         }
     }
-
-
 }

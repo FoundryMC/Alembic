@@ -1,5 +1,7 @@
 package foundry.alembic;
 
+import foundry.alembic.attribute.AttributeRegistry;
+import foundry.alembic.attribute.AttributeSet;
 import foundry.alembic.particle.AlembicParticleRegistry;
 import foundry.alembic.particle.AlembicParticleType;
 import foundry.alembic.types.AlembicDamageType;
@@ -19,11 +21,11 @@ public class ModEvents {
     @SubscribeEvent
     static void onAttributeModification(final EntityAttributeModificationEvent event) {
         for (EntityType<? extends LivingEntity> type : event.getTypes()) {
-            for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
-                event.add(type, damageType.getAttribute(), damageType.getAttribute().defaultValue);
-                event.add(type, damageType.getShieldingAttribute(), 0);
-                event.add(type, damageType.getResistanceAttribute(), 1);
-                event.add(type, damageType.getAbsorptionAttribute(), 0);
+            for (AttributeSet attributeSet : AttributeRegistry.ID_TO_SET_BIMAP.values()) {
+                event.add(type, attributeSet.getBaseAttribute(), attributeSet.getBaseAttribute().defaultValue);
+                attributeSet.getShieldingAttribute().ifPresent(attribute -> event.add(type, attribute, 0));
+                attributeSet.getResistanceAttribute().ifPresent(attribute -> event.add(type, attribute, 1));
+                attributeSet.getAbsorptionAttribute().ifPresent(attribute -> event.add(type, attribute, 0));
             }
         }
     }
