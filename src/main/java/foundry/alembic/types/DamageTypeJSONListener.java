@@ -29,7 +29,7 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
-            DataResult<AlembicDamageType> result =  AlembicDamageType.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (result.error().isPresent()) {
                 Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
                 continue;
@@ -38,18 +38,12 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
             type.handlePostParse(entry.getKey());
 
 
-            if (DamageTypeRegistry.doesDamageTypeExist(type.getId())) {
+            if (DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
                 if (type.getPriority() < DamageTypeRegistry.getDamageType(type.getId()).getPriority()) {
                     Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(type.getId()));
-                } else {
-                    Alembic.LOGGER.debug("Damage type %s already exists with a lower priority. Overwriting.".formatted(type.getId()));
-                    DamageTypeRegistry.replaceWithData(type);
                 }
-            }
-
-            if(AlembicPotionRegistry.doesPotionDataExist(type.getId())){
-                Alembic.LOGGER.debug("Potion data for %s already exists. Overwriting.".formatted(type.getId()));
-                AlembicPotionRegistry.replaceWithData(type.getId(), type.getPotionDataHolder());
+            } else {
+                DamageTypeRegistry.registerDamageType(entry.getKey(), type);
             }
         }
     }

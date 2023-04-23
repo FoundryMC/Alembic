@@ -1,0 +1,44 @@
+{
+  "priority": 1,
+  "attributes": "testpack:bludgeoning_damage",
+  "particles": false,
+  "enchant_reduction": false,
+  "enchant_source": "mob",
+  "color": "#FFFFFF",
+  "tags": [
+    {
+      "tag_id": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:true_damage"
+      },
+      "player_only": true
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_options": {
+        "type": "alembic:frostbite"
+      },
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "FREEZE"
+        }
+      ]
+    },
+    {
+      "tag_id": "alembic:particle_tag",
+      "player_only": false,
+      "particle_speed": 0.2,
+      "particle_options": {
+        "type": "alembic:wither_decay"
+      },
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "direct_entity": "minecraft:wither_skeleton"
+        }
+      ]
+    }
+  ]
+}

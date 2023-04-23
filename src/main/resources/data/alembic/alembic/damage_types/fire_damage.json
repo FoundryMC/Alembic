@@ -1,11 +1,6 @@
 {
     "priority": 1,
-    "min": 0.0,
-    "max": 1024.0,
-    "default": 0.0,
-    "shielding": false,
-    "absorption": true,
-    "resistance": true,
+    "attributes": "alembic:fire_damage",
     "particles": true,
     "enchant_reduction": true,
     "enchant_source": "mob",
@@ -13,26 +8,30 @@
     "tags": [
         {
             "tag_id": "alembic:particle_tag",
+            "player_only": true,
             "particle_options": {
                 "type": "alembic:fire_damage"
-            },
-            "player_only": true
+            }
         },
         {
             "tag_id": "alembic:particle_tag",
+            "player_only": false,
+            "particle_speed": 0.05,
             "particle_options": {
                 "type": "minecraft:flame"
-            },
-            "particle_speed": 0.05,
+            }
+        },
+        {
+            "tag_id": "alembic:particle_tag",
             "player_only": false,
-            "filters": [
+            "particle_speed": 0.05,
+            "particle_options": {
+                "type": "minecraft:soul_fire_flame"
+            },
+            "conditions": [
                 {
-                    "player_only": false,
-                    "damage_source": "soulFire",
-                    "particle_options": {
-                        "type": "minecraft:soul_fire_flame"
-                    },
-                    "particle_speed": 0.05
+                    "condition_type": "alembic:damage_source",
+                    "damage_source": "soulFire"
                 }
             ]
         },
@@ -46,19 +45,5 @@
                 "soulFire"
             ]
         }
-    ],
-    "potion": {
-        "attribute": "resistance",
-        "value": 0.1,
-        "operation": "MULTIPLY_BASE",
-        "vanilla_override": true,
-        "immunities": [
-            "onFire",
-            "inFire",
-            "lava",
-            "soulFire",
-            "hotFloor"
-        ],
-        "max_level": 2
-    }
+    ]
 }

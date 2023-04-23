@@ -1,16 +1,18 @@
 package foundry.alembic.types;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Function;
 
 public enum AlembicTypeModifier implements StringRepresentable {
-    RESISTANCE("resistance", AlembicDamageType::getResistanceAttribute),
-    SHIELDING("shielding", AlembicDamageType::getShieldAttribute),
-    ABSORPTION("absorption", AlembicDamageType::getAbsorptionAttribute);
+    SHIELDING("shielding", AlembicDamageType::getShieldingAttribute),
+    ABSORPTION("absorption", AlembicDamageType::getAbsorptionAttribute),
+    RESISTANCE("resistance", AlembicDamageType::getResistanceAttribute);
 
     public static final Codec<AlembicTypeModifier> CODEC = StringRepresentable.fromEnum(AlembicTypeModifier::values);
 
@@ -30,8 +32,12 @@ public enum AlembicTypeModifier implements StringRepresentable {
         return damageType.getId().getPath() + "_" + safeName;
     }
 
-    public String getId(String someString) {
-        return someString + "_" + safeName;
+    public ResourceLocation getId(ResourceLocation baseRl) {
+        return new ResourceLocation(baseRl.getNamespace(), baseRl.getPath() + "." + safeName);
+    }
+
+    public String getTranslationId(String baseStr) {
+        return baseStr + "." + safeName;
     }
 
     public static AlembicTypeModifier[] getMatching(String attributeMod) {

@@ -1,8 +1,7 @@
 package foundry.alembic.override;
 
 import foundry.alembic.Alembic;
-import foundry.alembic.damagesource.AlembicDamageSourceIdentifier;
-import net.minecraft.resources.ResourceLocation;
+import foundry.alembic.damagesource.DamageSourceIdentifier;
 import net.minecraft.world.damagesource.DamageSource;
 
 import java.util.Collections;
@@ -10,25 +9,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AlembicOverrideHolder {
-    private static final Map<AlembicDamageSourceIdentifier, AlembicOverride> OVERRIDES = new HashMap<>();
+    private static final Map<DamageSourceIdentifier, AlembicOverride> OVERRIDES = new HashMap<>();
 
-    public static boolean containsKey(AlembicDamageSourceIdentifier sourceIdentifier) {
+    public static boolean containsKey(DamageSourceIdentifier sourceIdentifier) {
         return OVERRIDES.containsKey(sourceIdentifier);
     }
 
-    public static Map<AlembicDamageSourceIdentifier, AlembicOverride> getOverrides() {
+    public static Map<DamageSourceIdentifier, AlembicOverride> getOverrides() {
         return Collections.unmodifiableMap(OVERRIDES);
     }
 
-    public static AlembicOverride get(AlembicDamageSourceIdentifier sourceIdentifier) {
+    public static AlembicOverride get(DamageSourceIdentifier sourceIdentifier) {
         return OVERRIDES.get(sourceIdentifier);
     }
 
-    private static void put(AlembicDamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
+    private static void put(DamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
         OVERRIDES.put(sourceIdentifier, override);
     }
 
-    public static void smartAddOverride(AlembicDamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
+    public static void smartAddOverride(DamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
         Alembic.LOGGER.info("Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId());
         if (containsKey(sourceIdentifier)) {
             if (get(sourceIdentifier).getPriority() < override.getPriority()) {
@@ -45,6 +44,6 @@ public class AlembicOverrideHolder {
     }
 
     public static AlembicOverride getOverridesForSource(DamageSource source) {
-        return OVERRIDES.get(AlembicDamageSourceIdentifier.create(source.msgId));
+        return OVERRIDES.get(DamageSourceIdentifier.create(source.msgId));
     }
 }

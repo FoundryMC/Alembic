@@ -1,0 +1,18 @@
+{
+  "base_attribute_min": 0,
+  "base_attribute_max": 1024.0,
+  "base_attribute_default": 0,
+  "resistance_potion": {
+    "value": 0.1,
+    "operation": "MULTIPLY_BASE",
+    "vanilla_override": true,
+    "immunities": [
+      "onFire",
+      "inFire",
+      "lava",
+      "soulFire",
+      "hotFloor"
+    ],
+    "max_level": 2
+  }
+}

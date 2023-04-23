@@ -1,0 +1,14 @@
+{
+  "base_attribute_min": 0,
+  "base_attribute_max": 1024.0,
+  "base_attribute_default": 0,
+  "resistance_potion": {
+    "value": 0.1,
+    "operation": "MULTIPLY_BASE",
+    "base_duration": 600,
+    "amplification_per_level": 1,
+    "max_amplifier": 2,
+    "color": "#9760FB",
+    "reagent": "minecraft:lapis_lazuli"
+  }
+}

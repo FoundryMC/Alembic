@@ -1,0 +1,15 @@
+{
+    "values": [
+        "alchemical_damage",
+        "arcane_damage",
+        "physical_damage",
+        "fire_damage",
+        "true_damage",
+        "alchemical_reaction",
+        "arcane_spark",
+        "ender_magic",
+        "sculk_hit",
+        "wither_decay",
+        "frostbite"
+    ]
+}

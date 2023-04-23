@@ -1,16 +1,16 @@
 package foundry.alembic.event;
 
-import foundry.alembic.types.tags.AlembicTag;
+import foundry.alembic.util.ComposedData;
 import net.minecraftforge.eventbus.api.Event;
 
 public class AlembicDamageDataModificationEvent extends Event {
-    private AlembicTag.ComposedData data;
+    private ComposedData data;
 
-    public AlembicDamageDataModificationEvent(AlembicTag.ComposedData data) {
+    public AlembicDamageDataModificationEvent(ComposedData data) {
         this.data = data;
     }
 
-    public AlembicTag.ComposedData getData() {
+    public ComposedData getData() {
         return data;
     }
 }

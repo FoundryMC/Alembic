@@ -9,22 +9,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AlembicFlammableProvider implements ICapabilitySerializable<CompoundTag> {
-    private final AlembicFlammable CAP;
+    private final AlembicFlammable backing;
     public AlembicFlammableProvider() {
-        CAP = new AlembicFlammableImpl();
+        backing = new AlembicFlammableImpl();
     }
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return cap == AlembicFlammableHandler.CAPABILITY ? LazyOptional.of(() -> CAP).cast() : LazyOptional.empty();
+        return AlembicFlammableHandler.CAPABILITY.orEmpty(cap, LazyOptional.of(() -> backing));
     }
 
     @Override
     public CompoundTag serializeNBT() {
-        return CAP.toNBT();
+        return backing.toNBT();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        CAP.fromNBT(nbt);
+        backing.fromNBT(nbt);
     }
 }

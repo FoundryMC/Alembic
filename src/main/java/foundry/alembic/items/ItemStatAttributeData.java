@@ -2,7 +2,7 @@ package foundry.alembic.items;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.CodecUtil;
+import foundry.alembic.util.CodecUtil;
 import net.minecraft.core.Registry;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.ai.attributes.Attribute;
