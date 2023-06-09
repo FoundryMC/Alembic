@@ -30,8 +30,19 @@
             },
             "conditions": [
                 {
-                    "condition_type": "alembic:damage_source",
-                    "damage_source": "soulFire"
+                    "condition_type": "alembic:or",
+                    "conditions": [
+                        {
+                            "condition_type": "alembic:damage_source",
+                            "damage_source": "soulFire"
+                        },
+                        {
+                            "condition_type": "alembic:damage_source",
+                            "indirect_entity": {
+                                "held_item": "minecraft:soul_torch"
+                            }
+                        }
+                    ]
                 }
             ]
         },
