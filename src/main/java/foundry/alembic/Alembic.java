@@ -48,7 +48,6 @@ public class Alembic {
         if (ModList.get().isLoaded("tslatentitystatus")) {
             TESCompat.registerClaimant();
         }
-        BrewingRecipeRegistry.getRecipes();
     }
 
     public static ResourceLocation location(String name) {

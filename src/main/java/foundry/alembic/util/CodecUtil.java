@@ -6,11 +6,16 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.*;
 import foundry.alembic.Alembic;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -71,6 +76,31 @@ public class CodecUtil {
                 }
             },
             Function.identity()
+    );
+
+    public static final Codec<ItemStack> ITEM_OR_STACK_CODEC = Codec.either(Registry.ITEM.byNameCodec(), ItemStack.CODEC).xmap(
+            either -> either.map(Item::getDefaultInstance, Function.identity()),
+            stack -> stack.getCount() == 1 && !stack.hasTag() ? Either.left(stack.getItem()) : Either.right(stack)
+    );
+
+    public static final Codec<Ingredient> INGREDIENT_CODEC = Codec.of(
+            new Encoder<>() {
+                @Override
+                public <T> DataResult<T> encode(Ingredient input, DynamicOps<T> ops, T prefix) {
+                    return DataResult.success(JsonOps.INSTANCE.convertTo(ops, input.toJson()));
+                }
+            },
+            new Decoder<>() {
+                @Override
+                public <T> DataResult<Pair<Ingredient, T>> decode(DynamicOps<T> ops, T input) {
+                    return DataResult.success(Pair.of(CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input)), input));
+                }
+            }
+    );
+
+    public static final Codec<Ingredient> INGREDIENT_FROM_EITHER = Codec.either(ITEM_OR_STACK_CODEC, INGREDIENT_CODEC).xmap(
+            either -> either.map(Ingredient::of, Function.identity()),
+            Either::right
     );
 
     public static <T> SetCodec<T> setOf(Codec<T> elementCodec) {

@@ -26,7 +26,7 @@ public class AlembicPotionDataHolder {
                     Codec.INT.optionalFieldOf("amplification_per_level").forGetter(AlembicPotionDataHolder::getAmplifierPerLevelOptional),
                     Codec.INT.optionalFieldOf("max_amplifier").forGetter(AlembicPotionDataHolder::getMaxAmplifierOptional),
                     CodecUtil.COLOR_CODEC.optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
-                    AlembicPotionRecipe.CODEC.optionalFieldOf("recipe").forGetter(AlembicPotionDataHolder::getRecipeOptional)
+                    AlembicPotionRecipe.CODEC.optionalFieldOf("recipe", AlembicPotionRecipe.EMPTY).forGetter(AlembicPotionDataHolder::getRecipe)
             ).apply(instance, AlembicPotionDataHolder::new)
     );
 
@@ -41,7 +41,7 @@ public class AlembicPotionDataHolder {
     private Optional<Integer> amplifierPerLevel;
     private Optional<Integer> maxAmplifier;
     private Optional<Integer> color;
-    private Optional<AlembicPotionRecipe> recipe;
+    private AlembicPotionRecipe recipe;
 
     private UUID uuid;
 
@@ -56,11 +56,11 @@ public class AlembicPotionDataHolder {
         this.amplifierPerLevel = Optional.empty();
         this.maxAmplifier = Optional.empty();
         this.color = Optional.empty();
-        this.recipe = Optional.empty();
+        this.recipe = AlembicPotionRecipe.EMPTY;
         uuid = UUID.randomUUID();
     }
 
-    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, Optional<Boolean> vanillaOverride, Optional<Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<AlembicPotionRecipe> recipe){
+    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, Optional<Boolean> vanillaOverride, Optional<Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, AlembicPotionRecipe recipe){
         this.value = value;
         this.operation = operation;
         this.vanillaOverride = vanillaOverride;
@@ -131,7 +131,7 @@ public class AlembicPotionDataHolder {
         this.color = color;
     }
 
-    public void setRecipe(Optional<AlembicPotionRecipe> recipe){
+    public void setRecipe(AlembicPotionRecipe recipe){
         this.recipe = recipe;
     }
 
@@ -192,11 +192,7 @@ public class AlembicPotionDataHolder {
         return color;
     }
 
-    public AlembicPotionRecipe getRecipe(){
-        return recipe.orElse(null);
-    }
-
-    public Optional<AlembicPotionRecipe> getRecipeOptional(){
+    public AlembicPotionRecipe getRecipe() {
         return recipe;
     }
 

@@ -13,6 +13,7 @@ import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.potion.AlembicMobEffect;
 import foundry.alembic.types.potion.AlembicPotionDataHolder;
+import foundry.alembic.types.potion.AlembicPotionRecipe;
 import foundry.alembic.util.Utils;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -141,17 +142,15 @@ public class AttributeRegistry {
 
     public static void registerBrewingRecipes(AlembicPotionDataHolder dataHolder, ResourceLocation setId, String resistanceId) {
         if (dataHolder.getRecipe() != null) {
-            ItemStack base = dataHolder.getRecipe().getBase();
-            ItemStack reagent = dataHolder.getRecipe().getReagent();
             ResourceLocation potId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
             if(potId == null) {
                 Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);
                 return;
             }
             ItemStack basePot = setPotion(new ItemStack(Items.POTION), potId);
-            if (base != null && reagent != null) {
-                Ingredient baseIngredient = Ingredient.of(base);
-                Ingredient reagentIngredient = Ingredient.of(reagent);
+            if (dataHolder.getRecipe() != AlembicPotionRecipe.EMPTY) {
+                Ingredient baseIngredient = dataHolder.getRecipe().base();
+                Ingredient reagentIngredient = dataHolder.getRecipe().reagent();
                 BrewingRecipeRegistry.addRecipe(baseIngredient, reagentIngredient, basePot);
                 ResourceLocation longPot = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId + "_long");
                 if(longPot == null){
@@ -160,7 +159,7 @@ public class AttributeRegistry {
                 }
                 BrewingRecipeRegistry.addRecipe(Ingredient.of(basePot), Ingredient.of(Items.GLOWSTONE_DUST), setPotion(new ItemStack(Items.POTION), longPot));
                 ItemStack lastPot = basePot;
-                for (int i = 0; 0 < dataHolder.getMaxLevel(); i++) {
+                for (int i = 0; i < dataHolder.getMaxLevel(); i++) {
                     ResourceLocation tempPotId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
                     if(tempPotId == null) {
                         Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);
