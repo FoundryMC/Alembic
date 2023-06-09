@@ -9,6 +9,15 @@
     "amplification_per_level": 1,
     "max_amplifier": 2,
     "color": "#9760FB",
-    "reagent": "minecraft:lapis_lazuli"
+    "recipe": {
+      "reagent": "minecraft:lapis_lazuli",
+      "base": {
+        "id": "minecraft:potion",
+        "Count": 1,
+        "tag": {
+          "Potion": "awkward"
+        }
+      }
+    }
   }
 }

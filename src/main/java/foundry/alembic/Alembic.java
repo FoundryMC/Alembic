@@ -15,6 +15,7 @@ import foundry.alembic.types.tag.condition.TagConditionRegistry;
 import io.github.lukebemish.defaultresources.api.ResourceProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -47,6 +48,7 @@ public class Alembic {
         if (ModList.get().isLoaded("tslatentitystatus")) {
             TESCompat.registerClaimant();
         }
+        BrewingRecipeRegistry.getRecipes();
     }
 
     public static ResourceLocation location(String name) {

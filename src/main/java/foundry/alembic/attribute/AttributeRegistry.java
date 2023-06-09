@@ -14,13 +14,20 @@ import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.potion.AlembicMobEffect;
 import foundry.alembic.types.potion.AlembicPotionDataHolder;
 import foundry.alembic.util.Utils;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -29,6 +36,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class AttributeRegistry {
     private static final Map<String, DeferredRegister<Attribute>> ATTRIBUTE_REGISTRY_MAP = new HashMap<>();
@@ -78,7 +86,8 @@ public class AttributeRegistry {
             DeferredRegister<Attribute> deferredRegister = getAttributeRegister(sanitizedId.getNamespace());
             deferredRegister.register(sanitizedId.getPath(), () -> new AlembicAttribute(sanitizedId.toLanguageKey("attribute"), set.getBase(), set.getMin(), set.getMax()));
             if (set.hasShielding()) register(deferredRegister, sanitizedId, AlembicTypeModifier.SHIELDING, 0, 0, 1024);
-            if (set.hasAbsorption()) register(deferredRegister, sanitizedId, AlembicTypeModifier.ABSORPTION, 0, 0, 1024);
+            if (set.hasAbsorption())
+                register(deferredRegister, sanitizedId, AlembicTypeModifier.ABSORPTION, 0, 0, 1024);
             if (set.hasResistance()) {
                 register(deferredRegister, sanitizedId, AlembicTypeModifier.RESISTANCE, 1, -1024, 1024);
                 if (set.getPotionDataHolder().isPresent()) {
@@ -122,11 +131,52 @@ public class AttributeRegistry {
         RegistryObject<MobEffect> effectObj = mobEffectRegister.register(resistanceId, () -> createMobEffect(attributeSet, dataHolder));
         potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
         potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
-        potionRegister.register(resistanceId + "_strong", () -> new Potion(new MobEffectInstance(effectObj.get(), 1200, 1)));
-        for(int i = 0; i < dataHolder.getMaxLevel(); i++) {
+        for (int i = 0; i < dataHolder.getMaxLevel(); i++) {
             final int real = i;
-            potionRegister.register(resistanceId + "_level_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600*(real+1), real))); // TODO: is this right?
+            potionRegister.register(resistanceId + "_strong_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real))); // TODO: is this right?
         }
+
+        registerBrewingRecipes(dataHolder, setId, resistanceId);
+    }
+
+    public static void registerBrewingRecipes(AlembicPotionDataHolder dataHolder, ResourceLocation setId, String resistanceId) {
+        if (dataHolder.getRecipe() != null) {
+            ItemStack base = dataHolder.getRecipe().getBase();
+            ItemStack reagent = dataHolder.getRecipe().getReagent();
+            ResourceLocation potId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
+            if(potId == null) {
+                Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);
+                return;
+            }
+            ItemStack basePot = setPotion(new ItemStack(Items.POTION), potId);
+            if (base != null && reagent != null) {
+                Ingredient baseIngredient = Ingredient.of(base);
+                Ingredient reagentIngredient = Ingredient.of(reagent);
+                BrewingRecipeRegistry.addRecipe(baseIngredient, reagentIngredient, basePot);
+                ResourceLocation longPot = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId + "_long");
+                if(longPot == null){
+                    Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId + "_long");
+                    return;
+                }
+                BrewingRecipeRegistry.addRecipe(Ingredient.of(basePot), Ingredient.of(Items.GLOWSTONE_DUST), setPotion(new ItemStack(Items.POTION), longPot));
+                ItemStack lastPot = basePot;
+                for (int i = 0; 0 < dataHolder.getMaxLevel(); i++) {
+                    ResourceLocation tempPotId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
+                    if(tempPotId == null) {
+                        Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);
+                        continue;
+                    }
+                    ItemStack pot = setPotion(new ItemStack(Items.POTION), tempPotId);
+                    BrewingRecipeRegistry.addRecipe(Ingredient.of(lastPot), Ingredient.of(Items.REDSTONE), pot);
+                    lastPot = pot;
+                }
+            }
+        }
+    }
+
+    public static ItemStack setPotion(ItemStack pStack, ResourceLocation pLocation) {
+        pStack.getOrCreateTag().putString("Potion", pLocation.toString());
+        return pStack;
     }
 
     private static MobEffect createMobEffect(AttributeSet attributeSet, AlembicPotionDataHolder dataHolder) {

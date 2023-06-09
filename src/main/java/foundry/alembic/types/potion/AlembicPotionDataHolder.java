@@ -26,7 +26,7 @@ public class AlembicPotionDataHolder {
                     Codec.INT.optionalFieldOf("amplification_per_level").forGetter(AlembicPotionDataHolder::getAmplifierPerLevelOptional),
                     Codec.INT.optionalFieldOf("max_amplifier").forGetter(AlembicPotionDataHolder::getMaxAmplifierOptional),
                     CodecUtil.COLOR_CODEC.optionalFieldOf("color").forGetter(AlembicPotionDataHolder::getColorOptional),
-                    ItemStack.CODEC.optionalFieldOf("reagent").forGetter(AlembicPotionDataHolder::getReagentOptional)
+                    AlembicPotionRecipe.CODEC.optionalFieldOf("recipe").forGetter(AlembicPotionDataHolder::getRecipeOptional)
             ).apply(instance, AlembicPotionDataHolder::new)
     );
 
@@ -41,7 +41,7 @@ public class AlembicPotionDataHolder {
     private Optional<Integer> amplifierPerLevel;
     private Optional<Integer> maxAmplifier;
     private Optional<Integer> color;
-    private Optional<ItemStack> reagent;
+    private Optional<AlembicPotionRecipe> recipe;
 
     private UUID uuid;
 
@@ -56,11 +56,11 @@ public class AlembicPotionDataHolder {
         this.amplifierPerLevel = Optional.empty();
         this.maxAmplifier = Optional.empty();
         this.color = Optional.empty();
-        this.reagent = Optional.empty();
+        this.recipe = Optional.empty();
         uuid = UUID.randomUUID();
     }
 
-    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, Optional<Boolean> vanillaOverride, Optional<Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<ItemStack> reagent){
+    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, Optional<Boolean> vanillaOverride, Optional<Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>>> immunities, Optional<Integer> maxLevel, Optional<Integer> baseDuration, Optional<Integer> amplifierPerLevel, Optional<Integer> maxAmplifier, Optional<Integer> color, Optional<AlembicPotionRecipe> recipe){
         this.value = value;
         this.operation = operation;
         this.vanillaOverride = vanillaOverride;
@@ -82,7 +82,7 @@ public class AlembicPotionDataHolder {
         this.amplifierPerLevel = amplifierPerLevel;
         this.maxAmplifier = maxAmplifier;
         this.color = color;
-        this.reagent = reagent;
+        this.recipe = recipe;
         uuid = UUID.randomUUID();
     }
 
@@ -131,8 +131,8 @@ public class AlembicPotionDataHolder {
         this.color = color;
     }
 
-    public void setReagent(Optional<ItemStack> reagent){
-        this.reagent = reagent;
+    public void setRecipe(Optional<AlembicPotionRecipe> recipe){
+        this.recipe = recipe;
     }
 
     public float getValue(){
@@ -192,12 +192,12 @@ public class AlembicPotionDataHolder {
         return color;
     }
 
-    public ItemStack getReagent(){
-        return reagent.orElse(null);
+    public AlembicPotionRecipe getRecipe(){
+        return recipe.orElse(null);
     }
 
-    public Optional<ItemStack> getReagentOptional(){
-        return reagent;
+    public Optional<AlembicPotionRecipe> getRecipeOptional(){
+        return recipe;
     }
 
     AlembicPotionDataHolder copyValues(AlembicPotionDataHolder from){
@@ -210,7 +210,7 @@ public class AlembicPotionDataHolder {
         this.amplifierPerLevel = from.amplifierPerLevel;
         this.maxAmplifier = from.maxAmplifier;
         this.color = from.color;
-        this.reagent = from.reagent;
+        this.recipe = from.recipe;
         return this;
     }
 }

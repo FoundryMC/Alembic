@@ -10,6 +10,15 @@
     "max_amplifier": 2,
     "max_level": 2,
     "color": "#12B88E",
-    "reagent": "minecraft:lapis_lazuli"
+    "recipe": {
+      "reagent": "minecraft:chorus_fruit",
+      "base": {
+        "id": "minecraft:potion",
+        "Count": 1,
+        "tag": {
+          "Potion": "awkward"
+        }
+      }
+    }
   }
 }

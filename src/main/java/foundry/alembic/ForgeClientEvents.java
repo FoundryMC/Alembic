@@ -24,8 +24,10 @@ public class ForgeClientEvents {
     @SubscribeEvent
     public static void onTooltipRender(ItemTooltipEvent event){
         if(!AlembicConfig.modifyTooltips.get()) return;
+        if(event.getItemStack().getItem() instanceof PotionItem || event.getItemStack().getItem() instanceof SuspiciousStewItem) return;
         int target = 0;
         List<Component> toRemove = new ArrayList<>();
+        if(!isValidItem(event.getItemStack().getItem())) return;
         for(Component component : event.getToolTip()){
             if(component.getString().contains("When in")) {
                 target = event.getToolTip().indexOf(component) + 1;
