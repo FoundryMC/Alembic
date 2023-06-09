@@ -44,7 +44,7 @@
       },
       "conditions": [
         {
-          "condition_type": "alembic:or",
+          "condition_type": "alembic:any",
           "conditions": [
             {
               "condition_type": "alembic:damage_source",
@@ -67,7 +67,7 @@
       },
       "conditions": [
         {
-          "condition_type": "alembic:or",
+          "condition_type": "alembic:any",
           "conditions": [
             {
               "condition_type": "alembic:damage_source",
@@ -94,7 +94,7 @@
       },
       "conditions": [
         {
-          "condition_type": "alembic:or",
+          "condition_type": "alembic:any",
           "conditions": [
             {
               "condition_type": "alembic:damage_source",

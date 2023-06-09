@@ -8,20 +8,20 @@ import foundry.alembic.util.ComposedData;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public record AndCondition(List<TagCondition> conditions) implements TagCondition {
-    public static final Codec<AndCondition> CODEC = TagCondition.CODEC.listOf().fieldOf("conditions").xmap(
-            AndCondition::new,
-            AndCondition::conditions
+public record AnyCondition(List<TagCondition> conditions) implements TagCondition {
+    public static final Codec<AnyCondition> CODEC = TagCondition.CODEC.listOf().fieldOf("conditions").xmap(
+            AnyCondition::new,
+            AnyCondition::conditions
     ).codec();
 
     @Override
     public boolean test(ComposedData composedData) {
-        return conditions.stream().allMatch(tagCondition -> tagCondition.test(composedData));
+        return conditions.stream().anyMatch(tagCondition -> tagCondition.test(composedData));
     }
 
     @Nonnull
     @Override
     public TagConditionType<?> getType() {
-        return TagConditionType.AND_CONDITION;
+        return TagConditionType.ANY_CONDITION;
     }
 }
