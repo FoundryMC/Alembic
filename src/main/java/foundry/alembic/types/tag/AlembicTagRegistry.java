@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Collections;
 import java.util.Set;
 
-public class AlembicTagRegistry<T extends AlembicTag> {
+public class AlembicTagRegistry {
     private static final BiMap<ResourceLocation, AlembicTagType<?>> TAGS = HashBiMap.create();
 
     public static final Codec<AlembicTagType<?>> TAG_MAP_CODEC = CodecUtil.ALEMBIC_RL_CODEC.xmap(TAGS::get, TAGS.inverse()::get);

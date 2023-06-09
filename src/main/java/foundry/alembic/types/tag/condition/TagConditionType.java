@@ -19,7 +19,7 @@ public interface TagConditionType<T extends TagCondition> {
     static void bootstrap() {}
 
     private static <T extends TagCondition> TagConditionType<T> register(String id, Codec<T> codec) {
-        TagConditionType type = () -> codec;
+        TagConditionType<T> type = () -> codec;
         TagConditionRegistry.register(Alembic.location(id), type);
         return type;
     }
