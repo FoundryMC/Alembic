@@ -82,6 +82,10 @@ public class AlembicDamageType {
         this.enchantSource = enchantSource;
     }
 
+    public void setResistanceAttribute(RangedAttribute attribute){
+        this.resistanceAttribute = Suppliers.memoize(() -> attribute);
+    }
+
     public RangedAttribute getAttribute() {
         return attribute.get();
     }
