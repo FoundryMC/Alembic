@@ -48,6 +48,7 @@ import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -170,19 +171,29 @@ public class ForgeEvents {
         if (e.getEntity().level.isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
-        if (e.getSource() instanceof IndirectEntityDamageSource || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get()) || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile){
+        if(AlembicConfig.enableDebugPrints.get()){
+            Alembic.LOGGER.info("Handling hurt event for " + e.getEntity().getName().getString() + " with source " + e.getSource().getMsgId() + " and amount " + e.getAmount());
+            Alembic.LOGGER.info("Source is " + e.getSource().getDirectEntity() + " and is projectile? " + (e.getSource().getDirectEntity() instanceof Projectile));
+        }
+        if (e.getSource() instanceof IndirectEntityDamageSource || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
+                || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (e.getSource().getDirectEntity() instanceof Projectile) ){
             noRecurse = false;
             LivingEntity target = e.getEntity();
             float totalDamage = e.getAmount();
             AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(e.getSource());
+            if(AlembicConfig.enableDebugPrints.get()){
+                Alembic.LOGGER.info("Found override for " + e.getSource().getMsgId() + " with damage " + totalDamage + ". %s", override);
+            }
             if (override != null) {
                 handleTypedDamage(target, null, totalDamage, override, e.getSource());
                 //target.hurt(e.getSource(), totalDamage);
                 noRecurse = false;
                 e.setCanceled(true);
+            } else {
+                noRecurse = false;
+                return;
             }
-        }
-        if (e.getSource().getDirectEntity() instanceof LivingEntity || (e.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
+        } else if (e.getSource().getDirectEntity() instanceof LivingEntity || (e.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
             LivingEntity attacker;
             if(e.getSource().getDirectEntity() instanceof AbstractArrow) {
                 attacker = (LivingEntity) ((AbstractArrow) e.getSource().getDirectEntity()).getOwner();
@@ -308,6 +319,9 @@ public class ForgeEvents {
             sendDamagePacket(target, damageType, damage);
             target.gameEvent(GameEvent.ENTITY_DAMAGE);
             target.invulnerableTime = invtime;
+            if(AlembicConfig.enableDebugPrints.get()){
+                Alembic.LOGGER.info("Dealt damage of type " + damageType.getId() + " to " + target.getName().getString() + " for " + damage + " damage.");
+            }
         }
     }
 
@@ -346,7 +360,16 @@ public class ForgeEvents {
             AlembicDamageType damageType = entry.getKey();
             float percentage = entry.getValue();
             float damage = totalDamage * percentage;
+            if(AlembicConfig.enableDebugPrints.get()){
+                Alembic.LOGGER.info("Damage: {} {} {} {} {}", damage, damageType.getId().toString(), totalDamage, percentage, totalDamage * percentage);
+            }
             totalDamage -= damage;
+            if(AlembicConfig.ownerAttributeProjectiles.get() && attacker != null){
+                if(attacker.getAttribute(damageType.getAttribute()) != null){
+                    double attrValue = attacker.getAttribute(damageType.getAttribute()).getValue();
+                    damage += attrValue;
+                }
+            }
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
                 continue;
