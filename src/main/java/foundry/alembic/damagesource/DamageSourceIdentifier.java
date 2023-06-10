@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 public final class DamageSourceIdentifier implements StringRepresentable, Comparable<DamageSourceIdentifier> {
     private static final Interner<DamageSourceIdentifier> INTERNED = Interners.newWeakInterner();
 
+    public static final DamageSourceIdentifier EMPTY = create("alembic:empty");
+
     public static final Codec<DamageSourceIdentifier> CODEC = Codec.STRING.xmap(DamageSourceIdentifier::create, DamageSourceIdentifier::getSerializedName);
     public static final Codec<Either<DefaultWrappedSource, DamageSourceIdentifier>> EITHER_CODEC = Codec.either(DefaultWrappedSource.CODEC, CODEC);
 

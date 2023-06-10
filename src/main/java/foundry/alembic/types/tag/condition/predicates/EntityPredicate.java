@@ -20,82 +20,45 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class EntityPredicate {
+    public static final EntityPredicate EMPTY = new EntityPredicate();
+
+    public static final Codec<TagOrElementPredicate<Entity>> ENTITY_EITHER_PREDICATE = TagOrElementPredicate.codec(Registry.ENTITY_TYPE_REGISTRY, Registry.ENTITY_TYPE::getOptional, (Entity entity, TagKey<EntityType<?>> tagKey) -> entity.getType().is(tagKey));
     public static final Codec<EntityPredicate> RECORD_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    ExtraCodecs.TAG_OR_ELEMENT_ID.optionalFieldOf("entity_type").forGetter(entityPredicate -> Optional.ofNullable(entityPredicate.tagOrElement)),
-                    ForgeRegistries.ITEMS.getCodec().optionalFieldOf("held_item").forGetter(entityPredicate -> Optional.ofNullable(entityPredicate.heldItem))
+                    ENTITY_EITHER_PREDICATE.optionalFieldOf("entity_type", TagOrElementPredicate.alwaysTrue()).forGetter(entityPredicate -> entityPredicate.tagOrElementPredicate),
+                    ItemPredicate.CODEC.optionalFieldOf("held_item", ItemPredicate.EMPTY).forGetter(entityPredicate -> entityPredicate.heldItem)
             ).apply(instance, EntityPredicate::new)
     );
-    public static final Codec<EntityPredicate> CODEC = Codec.either(ExtraCodecs.TAG_OR_ELEMENT_ID, RECORD_CODEC).xmap(
-            either -> {
-                if (either.left().isPresent()) {
-                    return new EntityPredicate(either.left(), Optional.empty());
-                } else {
-                    return either.right().get();
-                }
-            },
+    public static final Codec<EntityPredicate> CODEC = Codec.either(ENTITY_EITHER_PREDICATE, RECORD_CODEC).xmap(
+            either -> either.map(tagOrElementPredicate -> new EntityPredicate(tagOrElementPredicate, ItemPredicate.EMPTY), Function.identity()),
             entityPredicate -> {
                 if (entityPredicate.heldItem != null) {
                     return Either.right(entityPredicate);
                 }
-                return Either.left(entityPredicate.tagOrElement);
+                return Either.left(entityPredicate.tagOrElementPredicate);
             }
     );
 
-    public static final EntityPredicate EMPTY = new EntityPredicate();
+    private final TagOrElementPredicate<Entity> tagOrElementPredicate;
+    private final ItemPredicate heldItem;
+    // TODO: Possibly have an EquipmentPredicate to test all known equipment slots?
 
-    @Nullable
-    private final ExtraCodecs.TagOrElementLocation tagOrElement;
-    @Nullable
-    private final Item heldItem; // TODO: Expand to ItemPredicate. Possibly an EquipmentPredicate to test all known equipment slots?
-    private ToBooleanFunction<EntityType<?>> entityTestFunction = this::resolveTagOrElement;
-
-    public EntityPredicate(@Nonnull Optional<ExtraCodecs.TagOrElementLocation> tagOrElement, @Nonnull Optional<Item> item) {
-        this.tagOrElement = tagOrElement.orElse(null);
-        this.heldItem = item.orElse(null);
+    public EntityPredicate(@Nonnull TagOrElementPredicate<Entity> tagOrElement, @Nonnull ItemPredicate item) {
+        this.tagOrElementPredicate = tagOrElement;
+        this.heldItem = item;
     }
 
     private EntityPredicate() {
-        this.tagOrElement = null;
-        heldItem = null;
+        this.tagOrElementPredicate = TagOrElementPredicate.alwaysTrue();
+        heldItem = ItemPredicate.EMPTY;
     }
 
-    private boolean resolveTagOrElement(EntityType<?> entityType) {
-        if (tagOrElement == null) {
-            entityTestFunction = type -> true;
-            return entityTestFunction.apply(entityType);
-        }
-        if (tagOrElement.tag()) {
-            entityTestFunction = new ToBooleanFunction<>() {
-                TagKey<EntityType<?>> tagKey = TagKey.create(Registry.ENTITY_TYPE_REGISTRY, tagOrElement.id());
-
-                @Override
-                public boolean apply(EntityType<?> entityType) {
-                    return entityType.is(tagKey);
-                }
-            };
-        } else {
-            entityTestFunction = new ToBooleanFunction<>() {
-                EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(tagOrElement.id());
-
-                @Override
-                public boolean apply(EntityType<?> entityType) {
-                    return entityType == type;
-                }
-            };
-        }
-        return entityTestFunction.apply(entityType);
-    }
-
-    public boolean match(@Nullable Entity entity) {
-        if (entity == null) {
+    public boolean matches(@Nullable Entity entity) {
+        if (!tagOrElementPredicate.matches(entity)) {
             return false;
         }
-        if (entityTestFunction.apply(entity.getType())) {
-            return false;
-        }
-        if (heldItem != null && entity instanceof LivingEntity livingEntity) {
-            return livingEntity.getMainHandItem().is(heldItem);
+        if (entity instanceof LivingEntity livingEntity) {
+            return heldItem.matches(livingEntity.getMainHandItem());
         }
         return true;
     }

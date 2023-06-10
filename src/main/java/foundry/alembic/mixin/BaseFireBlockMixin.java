@@ -5,25 +5,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import foundry.alembic.AlembicAPI;
 import foundry.alembic.caps.AlembicFlammableHandler;
 import foundry.alembic.networking.AlembicPacketHandler;
-import foundry.alembic.networking.ClientboundAlembicFireTypePacket;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(BaseFireBlock.class)
 public abstract class BaseFireBlockMixin {
-
-    @Shadow
-    public abstract void entityInside(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity);
 
     @WrapOperation(method = "entityInside", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     private boolean alembic$onEntityInside(Entity instance, DamageSource pSource, float pAmount, Operation<Boolean> original, BlockState pState) {

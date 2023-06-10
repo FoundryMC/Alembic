@@ -30,10 +30,10 @@ public class DamageSourcePredicate {
     }
 
     public boolean matches(DamageSource damageSource) {
-        if (!directEntityPredicate.match(damageSource.getDirectEntity())) {
+        if (!directEntityPredicate.matches(damageSource.getDirectEntity())) {
             return false;
         }
-        if (!indirectEntityPredicate.match(damageSource.getEntity())) {
+        if (!indirectEntityPredicate.matches(damageSource.getEntity())) {
             return false;
         }
         if (sourceId != null && !sourceId.matches(damageSource)) {
