@@ -16,6 +16,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagManager;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
@@ -34,7 +35,7 @@ public class AlembicDamageType {
                             either -> {
                                 if (either.left().isPresent()) {
                                     if (!either.left().get().isFullSet()) {
-                                        return DataResult.error("Attribute set " + AttributeRegistry.ID_TO_SET_BIMAP.inverse().get(either.left().get()) + " must be a full set");
+                                        return DataResult.error(() -> "Attribute set " + AttributeRegistry.ID_TO_SET_BIMAP.inverse().get(either.left().get()) + " must be a full set");
                                     }
                                 }
                                 return DataResult.success(either);
@@ -57,7 +58,6 @@ public class AlembicDamageType {
     private Supplier<RangedAttribute> absorptionAttribute;
     private Supplier<RangedAttribute> resistanceAttribute;
     private boolean hasParticles;
-    private DamageSource damageSource;
     private int color;
     private List<AlembicTag> tags;
     private MobEffect resistanceEffect;
@@ -146,10 +146,6 @@ public class AlembicDamageType {
         return id;
     }
 
-    public DamageSource getDamageSource() {
-        return damageSource;
-    }
-
     public Component getVisualString() {
         MutableComponent mutableComponent = Component.literal("ID: " + id.toString());
         mutableComponent.append(" Base: " + getAttribute().defaultValue);
@@ -180,7 +176,6 @@ public class AlembicDamageType {
 
     void handlePostParse(ResourceLocation id) {
         this.id = id;
-        this.damageSource = new DamageSource(id.toString());
         this.translationString = id.getNamespace() + ".damage." + id.getPath();
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }

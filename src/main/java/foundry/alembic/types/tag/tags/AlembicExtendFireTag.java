@@ -39,7 +39,7 @@ public class AlembicExtendFireTag extends AbstractTag {
         LivingEntity entity = data.get(ComposedDataTypes.TARGET_ENTITY);
         float damage = data.get(ComposedDataTypes.FINAL_DAMAGE);
         DamageSource originalSource = data.get(ComposedDataTypes.ORIGINAL_SOURCE);
-        if(entity.isOnFire() && !ignoredSources.contains(DamageSourceIdentifier.create(originalSource.msgId))){
+        if(entity.isOnFire() && !ignoredSources.contains(DamageSourceIdentifier.create(originalSource.getMsgId()))){
             entity.setSecondsOnFire((entity.getRemainingFireTicks()/20) + (int)Math.ceil((damage*multiplier)));
         }
     }

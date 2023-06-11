@@ -1,6 +1,5 @@
 package foundry.alembic.compat;
 
-import com.mojang.math.Vector3f;
 import foundry.alembic.Alembic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +13,8 @@ import net.tslat.tes.api.TESParticle;
 import net.tslat.tes.core.particle.type.NumericParticle;
 import net.tslat.tes.core.particle.type.TextParticle;
 import net.tslat.tes.core.state.EntityState;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public class TESCompat {
     public static ResourceLocation TES_CLAIMANT = Alembic.location("alembic_claimant");
@@ -33,7 +34,7 @@ public class TESCompat {
             if(data == null) return healthDelta;
             if(!data.contains("damage") || !data.contains("color")) return healthDelta;
             if(data.getFloat("damage") == 0) return healthDelta;
-            Vector3f pos = new Vector3f(Vec3.atCenterOf(entityState.getEntity().getOnPos()));
+            Vector3f pos = new Vector3f(entityState.getEntity().getOnPos().getX() + 0.5f, entityState.getEntity().getOnPos().getY() + 0.5f, entityState.getEntity().getOnPos().getZ() + 0.5f);
             pos.add(0,entityState.getEntity().getBbHeight(),0);
             particleAdder.accept(new NumericParticle(entityState, pos, TESParticle.Animation.POP_OFF, data.getFloat("damage")).withColour(data.getInt("color")));
             return healthDelta + data.getFloat("damage");

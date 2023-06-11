@@ -37,7 +37,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -91,7 +91,7 @@ public class ForgeEvents {
     @SubscribeEvent
     static void onLevelUp(PlayerXpEvent.LevelChange event){
         Player player = event.getEntity();
-        if(player.level.isClientSide) return;
+        if(player.level().isClientSide) return;
         for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(event.getEntity())) {
             RangedAttribute attribute = tag.getAffectedAttribute();
             if (player.getAttributes().hasAttribute(attribute)) {
@@ -154,11 +154,6 @@ public class ForgeEvents {
         });
     }
 
-
-    @SubscribeEvent
-    public static void onLivingSpawn(final LivingSpawnEvent event) {
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void cancelShieldBlock(ShieldBlockEvent event) {
         event.setBlockedDamage(0);
@@ -168,14 +163,14 @@ public class ForgeEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void hurt(final LivingHurtEvent e) {
-        if (e.getEntity().level.isClientSide) return;
+        if (e.getEntity().level().isClientSide) return;
         if (noRecurse) return;
         noRecurse = true;
         if(AlembicConfig.enableDebugPrints.get()){
             Alembic.LOGGER.info("Handling hurt event for " + e.getEntity().getName().getString() + " with source " + e.getSource().getMsgId() + " and amount " + e.getAmount());
             Alembic.LOGGER.info("Source is " + e.getSource().getDirectEntity() + " and is projectile? " + (e.getSource().getDirectEntity() instanceof Projectile));
         }
-        if (e.getSource() instanceof IndirectEntityDamageSource || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
+        if (e.getSource().isIndirect() || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
                 || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (e.getSource().getDirectEntity() instanceof Projectile) ){
             noRecurse = false;
             LivingEntity target = e.getEntity();
@@ -292,7 +287,7 @@ public class ForgeEvents {
             float finalDamage = damage;
             damageType.getTags().forEach(tag -> {
                 ComposedData data = ComposedData.createEmpty()
-                        .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level)
+                        .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level())
                         .add(ComposedDataTypes.TARGET_ENTITY, target)
                         .add(ComposedDataTypes.FINAL_DAMAGE, finalDamage)
                         .add(ComposedDataTypes.ORIGINAL_SOURCE, originalSource)
@@ -313,7 +308,7 @@ public class ForgeEvents {
                 ((Player) target).awardStat(Stats.CUSTOM.get(Stats.DAMAGE_DEALT_ABSORBED), Math.round(f * 10.0F));
             }
             float health = target.getHealth();
-            target.getCombatTracker().recordDamage(DamageSource.GENERIC, health, damage);
+            target.getCombatTracker().recordDamage(target.level().damageSources().generic(), damage);
             target.setHealth(health - damage);
             target.setAbsorptionAmount(target.getAbsorptionAmount() - f2);
             sendDamagePacket(target, damageType, damage);
@@ -327,7 +322,7 @@ public class ForgeEvents {
 
     private static void sendDamagePacket(LivingEntity target, AlembicDamageType damageType, float damage) {
         AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() ->
-                        new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level.dimension())),
+                        new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level().dimension())),
                 new ClientboundAlembicDamagePacket(target.getId(), damageType.getId().toString(), damage, damageType.getColor()));
     }
 
@@ -381,7 +376,7 @@ public class ForgeEvents {
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
         AtomicReference<Float> total = new AtomicReference<>(0f);
         stats.getDamage().forEach((alembicDamageType, multiplier) -> {
-            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
+            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.getMsgId())) return;
             float damage = totalDamage * multiplier;
             if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
                 damage *= 0.25;
@@ -408,8 +403,8 @@ public class ForgeEvents {
         damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
         damage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, alembicDamageType, damage);
         boolean enchantReduce = alembicDamageType.hasEnchantReduction();
-        if(enchantReduce) {
-            int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), DamageSource.mobAttack(attacker));
+        if(enchantReduce && attacker != null){
+            int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), attacker.level().damageSources().mobAttack(attacker));
             if (k > 0) {
                 damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
             }
@@ -432,12 +427,12 @@ public class ForgeEvents {
     }
 
     private static DamageSource src(LivingEntity entity) {
-        return entity instanceof Player p ? DamageSource.playerAttack(p) : DamageSource.mobAttack(entity);
+        return entity instanceof Player p ? entity.level().damageSources().playerAttack(p) : entity.level().damageSources().mobAttack(entity);
     }
 
     @SubscribeEvent
     static void hungerChanged(AlembicFoodChangeEvent event) {
-        if (event.getPlayer().level.isClientSide) return;
+        if (event.getPlayer().level().isClientSide) return;
         for (Map.Entry<AlembicDamageType, AlembicHungerTag> set : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
             AlembicDamageType type = set.getKey();
             AlembicHungerTag tag = set.getValue();

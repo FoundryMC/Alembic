@@ -20,7 +20,7 @@ public class CampfireBlockMixin {
         if (pState.is(Blocks.SOUL_CAMPFIRE)) {
             instance.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("soul"));
             AlembicPacketHandler.sendFirePacket(instance, "soul");
-            return instance.hurt(AlembicAPI.SOUL_FIRE, pAmount);
+            return instance.hurt(AlembicAPI.soulFire(instance), pAmount);
         } else {
             instance.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("normal"));
             AlembicPacketHandler.sendFirePacket(instance, "normal");

@@ -21,15 +21,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ScreenEffectRenderer.class)
 public class ScreenEffectRendererMixin {
 
-    @ModifyVariable(method = "renderFire", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/renderer/texture/TextureAtlas;location()Lnet/minecraft/resources/ResourceLocation;", shift = At.Shift.BEFORE))
-    private static TextureAtlasSprite alembic$renderFire(TextureAtlasSprite textureatlassprite) {
-        Player player = Minecraft.getInstance().player;
-        if(player == null) return textureatlassprite;
-        if(player.getCapability(AlembicFlammableHandler.CAPABILITY, null).isPresent()){
-            if(player.getCapability(AlembicFlammableHandler.CAPABILITY, null).resolve().get().getFireType().equals("soul")){
-                textureatlassprite = RenderHelper.SOUL_FIRE_1.sprite();
-            }
-        }
-        return textureatlassprite;
-    }
+//    @ModifyVariable(method = "renderFire", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/resources/model/Material;sprite()Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;", shift = At.Shift.BEFORE))
+//    private static TextureAtlasSprite alembic$renderFire(Minecraft value) {
+//        Player player = Minecraft.getInstance().player;
+//        if(player == null) return textureatlassprite;
+//        if(player.getCapability(AlembicFlammableHandler.CAPABILITY, null).isPresent()){
+//            if(player.getCapability(AlembicFlammableHandler.CAPABILITY, null).resolve().get().getFireType().equals("soul")){
+//                textureatlassprite = RenderHelper.SOUL_FIRE_1.sprite();
+//            }
+//        }
+//        return textureatlassprite;
+//    }
 }

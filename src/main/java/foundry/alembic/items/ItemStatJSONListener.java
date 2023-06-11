@@ -47,7 +47,7 @@ public class ItemStatJSONListener extends SimpleJsonResourceReloadListener {
             }
             ItemStat stat = result.result().get();
             Item item = stat.item();
-            ResourceLocation itemId = Registry.ITEM.getKey(item);
+            ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(item);
             Alembic.LOGGER.debug("Adding item stat %s to %s".formatted(jsonEntry.getKey(), itemId));
 
             ItemStatHolder.put(item, stat);

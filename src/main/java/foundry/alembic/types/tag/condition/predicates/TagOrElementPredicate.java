@@ -27,7 +27,7 @@ public class TagOrElementPredicate<E> {
                     if (!tagOrElementLocation.tag()) {
                         Optional<T> element = registryResolver.apply(tagOrElementLocation.id());
                         return element.map(t -> DataResult.success(new TagOrElementPredicate<>(tagOrElementLocation, (E e) -> e == t)))
-                                .orElseGet(() -> DataResult.error("Element %s not found!".formatted(tagOrElementLocation.id())));
+                                .orElseGet(() -> DataResult.error(() -> "Element %s not found!".formatted(tagOrElementLocation.id())));
                     }
                     return DataResult.success(new TagOrElementPredicate<>(tagOrElementLocation, new Predicate<E>() {
                         private final TagKey<T> tagKey = TagKey.create(registryKey, tagOrElementLocation.id());

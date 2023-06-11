@@ -10,8 +10,10 @@ import foundry.alembic.types.DamageTypeRegistry;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,14 +21,14 @@ import java.util.Set;
 public class AlembicResistance {
     public static final Codec<AlembicResistance> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Registry.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicResistance::getEntityType),
+                    ForgeRegistries.ENTITY_TYPES.getCodec().fieldOf("type").forGetter(AlembicResistance::getEntityType),
                     Codec.INT.fieldOf("priority").forGetter(AlembicResistance::getPriority),
                     Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
                             map -> {
                                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
                                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                                     if (!DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
-                                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
                                     }
                                     retMap.put(DamageTypeRegistry.getDamageType(entry.getKey()), entry.getValue());
                                 }
@@ -45,7 +47,7 @@ public class AlembicResistance {
                                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
                                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                                     if (!DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
-                                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
                                     }
                                     retMap.put(DamageTypeRegistry.getDamageType(entry.getKey()), entry.getValue());
                                 }

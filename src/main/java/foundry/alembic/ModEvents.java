@@ -33,7 +33,7 @@ public class ModEvents {
     @SubscribeEvent
     static void onRegisterParticles(RegisterParticleProvidersEvent event) {
         AlembicParticleRegistry.PARTICLES.forEach((id, particle) -> {
-            event.register(particle.get(), AlembicParticleType.DamageIndicatorProvider::new);
+            event.registerSpriteSet(particle.get(), AlembicParticleType.DamageIndicatorProvider::new);
         });
     }
 

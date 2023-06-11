@@ -44,6 +44,6 @@ public class AlembicOverrideHolder {
     }
 
     public static AlembicOverride getOverridesForSource(DamageSource source) {
-        return OVERRIDES.get(DamageSourceIdentifier.create(source.msgId));
+        return OVERRIDES.get(DamageSourceIdentifier.create(source.getMsgId()));
     }
 }

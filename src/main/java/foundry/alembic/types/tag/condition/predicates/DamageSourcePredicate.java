@@ -36,10 +36,10 @@ public class DamageSourcePredicate {
         if (!indirectEntityPredicate.matches(damageSource.getEntity())) {
             return false;
         }
-        if (sourceId != null && !sourceId.matches(damageSource)) {
+        if (sourceId != null && !sourceId.matches(damageSource.type())) {
             return false;
         }
-        if (wrappedSource != null && !wrappedSource.getIdentifiers().contains(DamageSourceIdentifier.create(damageSource.msgId))) {
+        if (wrappedSource != null && !wrappedSource.getIdentifiers().contains(DamageSourceIdentifier.create(damageSource.getMsgId()))) {
             return false;
         }
         return true;

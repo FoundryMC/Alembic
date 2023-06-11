@@ -29,9 +29,6 @@ public class DamageTypeRegistry {
         return DAMAGE_TYPES.get(id);
     }
 
-    public static AlembicDamageType getDamageType(DamageSource damageSource) {
-        return DAMAGE_TYPES.values().stream().filter(damageType -> damageType.getDamageSource().equals(damageSource)).findFirst().orElse(null);
-    }
 
     public static AlembicDamageType getDamageType(Attribute attribute) {
         return DAMAGE_TYPES.values().stream().filter(damageType -> damageType.getAttribute().equals(attribute)).findFirst().orElse(null);

@@ -8,7 +8,7 @@
     "base_duration": 600,
     "amplification_per_level": 1,
     "max_amplifier": 2,
-    "max_level": 2,
+    "max_level": 1,
     "color": "#12B88E",
     "recipe": {
       "reagent": "minecraft:chorus_fruit",

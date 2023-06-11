@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.util.CodecUtil;
 import foundry.alembic.util.ToBooleanFunction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +23,7 @@ import java.util.function.Function;
 public class EntityPredicate {
     public static final EntityPredicate EMPTY = new EntityPredicate();
 
-    public static final Codec<TagOrElementPredicate<Entity>> ENTITY_EITHER_PREDICATE = TagOrElementPredicate.codec(Registry.ENTITY_TYPE_REGISTRY, Registry.ENTITY_TYPE::getOptional, (Entity entity, TagKey<EntityType<?>> tagKey) -> entity.getType().is(tagKey));
+    public static final Codec<TagOrElementPredicate<Entity>> ENTITY_EITHER_PREDICATE = TagOrElementPredicate.codec(ForgeRegistries.ENTITY_TYPES.getRegistryKey(), BuiltInRegistries.ENTITY_TYPE::getOptional, (Entity entity, TagKey<EntityType<?>> tagKey) -> entity.getType().is(tagKey));
     public static final Codec<EntityPredicate> RECORD_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ENTITY_EITHER_PREDICATE.optionalFieldOf("entity_type", TagOrElementPredicate.alwaysTrue()).forGetter(entityPredicate -> entityPredicate.tagOrElementPredicate),

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import java.util.Map;
 public record ItemStat(Item item, List<ItemStatAttributeData> attributeData, EquipmentSlot equipmentSlot) {
     public static final Codec<ItemStat> CODEC = RecordCodecBuilder.create(itemStatInstance ->
             itemStatInstance.group(
-                    Registry.ITEM.byNameCodec().fieldOf("id").forGetter(ItemStat::item),
+                    ForgeRegistries.ITEMS.getCodec().fieldOf("id").forGetter(ItemStat::item),
                     ItemStatAttributeData.CODEC.listOf().fieldOf("attributes").forGetter(ItemStat::attributeData),
                     CodecUtil.EQUIPMENT_SLOT_CODEC.fieldOf("equipment_slot").forGetter(ItemStat::equipmentSlot)
             ).apply(itemStatInstance, ItemStat::new)

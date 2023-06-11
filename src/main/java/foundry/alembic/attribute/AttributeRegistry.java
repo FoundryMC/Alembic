@@ -48,7 +48,7 @@ public class AttributeRegistry {
     public static final Codec<AttributeSet> SET_LOOKUP_CODEC = ResourceLocation.CODEC.comapFlatMap(
             resourceLocation -> {
                 if (!ID_TO_SET_BIMAP.containsKey(resourceLocation)) {
-                    return DataResult.error("Attribute set: " + resourceLocation + " does not exist!");
+                    return DataResult.error(() -> "Attribute set: " + resourceLocation + " does not exist!");
                 }
                 return DataResult.success(ID_TO_SET_BIMAP.get(resourceLocation));
             },
@@ -133,8 +133,8 @@ public class AttributeRegistry {
         potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
         potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
         for (int i = 0; i < dataHolder.getMaxLevel(); i++) {
-            final int real = i;
-            potionRegister.register(resistanceId + "_strong_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real))); // TODO: is this right?
+            final int real = i+1;
+            potionRegister.register(resistanceId + "_strong_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * real, real))); // TODO: is this right?
         }
 
         registerBrewingRecipes(dataHolder, setId, resistanceId);

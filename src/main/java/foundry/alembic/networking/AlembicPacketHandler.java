@@ -26,6 +26,6 @@ public class AlembicPacketHandler {
         CompoundTag tag = new CompoundTag();
         tag.putString("fireType", type);
         tag.putInt("entityID", entity.getId());
-        AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level.dimension())), new ClientboundAlembicFireTypePacket(tag));
+        AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level().dimension())), new ClientboundAlembicFireTypePacket(tag));
     }
 }

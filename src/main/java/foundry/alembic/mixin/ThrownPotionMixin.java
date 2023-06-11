@@ -13,6 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ThrownPotionMixin {
     @WrapOperation(method = "applyWater", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", ordinal = 0))
     private boolean alembic$thrownPotionDamage(LivingEntity livingEntity, DamageSource damageSource, float amount, Operation<Boolean> original) {
-        return livingEntity.hurt(AlembicAPI.ALLERGY, amount);
+        return livingEntity.hurt(AlembicAPI.alchemical(livingEntity), amount);
     }
 }

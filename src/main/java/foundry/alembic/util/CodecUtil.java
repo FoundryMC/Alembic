@@ -33,7 +33,7 @@ public class CodecUtil {
                     int color = Integer.decode(s);
                     return DataResult.success(color);
                 } catch (NumberFormatException e) {
-                    return DataResult.error(e.getMessage());
+                    return DataResult.error(() -> e.getMessage());
                 }
             },
             "#%06X"::formatted
@@ -72,13 +72,13 @@ public class CodecUtil {
                 try {
                     return DataResult.success((RangedAttribute) attribute);
                 } catch (ClassCastException e) {
-                    return DataResult.error("The attribute " + ForgeRegistries.ATTRIBUTES.getKey(attribute) + " is not a ranged attribute");
+                    return DataResult.error(() -> "The attribute " + ForgeRegistries.ATTRIBUTES.getKey(attribute) + " is not a ranged attribute");
                 }
             },
             Function.identity()
     );
 
-    public static final Codec<ItemStack> ITEM_OR_STACK_CODEC = Codec.either(Registry.ITEM.byNameCodec(), ItemStack.CODEC).xmap(
+    public static final Codec<ItemStack> ITEM_OR_STACK_CODEC = Codec.either(ForgeRegistries.ITEMS.getCodec(), ItemStack.CODEC).xmap(
             either -> either.map(Item::getDefaultInstance, Function.identity()),
             stack -> stack.getCount() == 1 && !stack.hasTag() ? Either.left(stack.getItem()) : Either.right(stack)
     );
@@ -93,7 +93,7 @@ public class CodecUtil {
             new Decoder<>() {
                 @Override
                 public <T> DataResult<Pair<Ingredient, T>> decode(DynamicOps<T> ops, T input) {
-                    return DataResult.success(Pair.of(CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input)), input));
+                    return DataResult.success(Pair.of(CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input), false), input));
                 }
             }
     );

@@ -21,7 +21,7 @@ public class ImmunityMobEffect extends ExtendedMobEffect {
 
     @Override
     public boolean beforeIncomingAttack(LivingEntity entity, MobEffectInstance effectInstance, DamageSource source, float amount) {
-        return !immunities.contains(DamageSourceIdentifier.create(source.msgId)) && super.beforeIncomingAttack(entity, effectInstance, source, amount);
+        return !immunities.contains(DamageSourceIdentifier.create(source.getMsgId())) && super.beforeIncomingAttack(entity, effectInstance, source, amount);
     }
 
     @Override

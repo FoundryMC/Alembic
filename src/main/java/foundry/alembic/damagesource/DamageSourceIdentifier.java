@@ -4,8 +4,11 @@ import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -28,8 +31,8 @@ public final class DamageSourceIdentifier implements StringRepresentable, Compar
         this.damageSourceId = wrappedName;
     }
 
-    public boolean matches(DamageSource damageSource) {
-        return damageSourceId.equals(damageSource.msgId);
+    public boolean matches(DamageType damageSource) {
+        return damageSourceId.equals(damageSource.msgId());
     }
     public boolean matches(DamageSourceIdentifier damageSource) {
         return this == damageSource;
@@ -70,35 +73,36 @@ public final class DamageSourceIdentifier implements StringRepresentable, Compar
     }
 
     public enum DefaultWrappedSource implements StringRepresentable {
-        DROWN("DROWN", DamageSource.DROWN),
-        FALL("FALL", DamageSource.FALL),
-        PRICKED("PRICKED", DamageSource.CACTUS, DamageSource.SWEET_BERRY_BUSH),
-        FIRE("FIRE", DamageSource.IN_FIRE, DamageSource.ON_FIRE, DamageSource.HOT_FLOOR),
-        LAVA("LAVA", DamageSource.LAVA),
-        SUFFOCATION("SUFFOCATION", DamageSource.IN_WALL),
-        CRAM("CRAM", DamageSource.CRAMMING),
-        STARVE("STARVE", DamageSource.STARVE),
-        IMPACT("IMPACT", DamageSource.FLY_INTO_WALL),
-        OUT_OF_WORLD("OUT_OF_WORLD", DamageSource.OUT_OF_WORLD),
-        GENERIC("GENERIC", DamageSource.GENERIC),
-        MAGIC("MAGIC", DamageSource.MAGIC),
-        WITHER("WITHER", DamageSource.WITHER),
-        CRUSHED("CRUSHED", DamageSource.ANVIL, DamageSource.FALLING_BLOCK),
-        DRAGON_BREATH("DRAGON_BREATH", DamageSource.DRAGON_BREATH),
-        DRIED_OUT("DRY_OUT", DamageSource.DRY_OUT),
-        FREEZE("FREEZE", DamageSource.FREEZE),
-        PIERCED("PIERCED", DamageSource.FALLING_STALACTITE, DamageSource.STALAGMITE),
-        ATTACK("ATTACK", new DamageSource("mob"), new DamageSource("player")),
-        MODDED("MODDED");
+        DROWN("drown", DamageTypes.DROWN),
+        FALL("fall", DamageTypes.FALL),
+        PRICKED("pricked", DamageTypes.CACTUS, DamageTypes.SWEET_BERRY_BUSH),
+        FIRE("fire", DamageTypes.IN_FIRE, DamageTypes.ON_FIRE, DamageTypes.HOT_FLOOR),
+        LAVA("lava", DamageTypes.LAVA),
+        SUFFOCATION("SUFFOCATION", DamageTypes.IN_WALL),
+        CRAM("cram", DamageTypes.CRAMMING),
+        STARVE("starve", DamageTypes.STARVE),
+        IMPACT("impact", DamageTypes.FLY_INTO_WALL),
+        OUT_OF_WORLD("OUT_OF_WORLD", DamageTypes.FELL_OUT_OF_WORLD),
+        GENERIC("generic", DamageTypes.GENERIC),
+        MAGIC("magic", DamageTypes.MAGIC),
+        WITHER("wither", DamageTypes.WITHER),
+        CRUSHED("crushed", DamageTypes.FALLING_ANVIL, DamageTypes.FALLING_BLOCK),
+        DRAGON_BREATH("dragon_breath", DamageTypes.DRAGON_BREATH),
+        DRIED_OUT("dry_out", DamageTypes.DRY_OUT),
+        FREEZE("freeze", DamageTypes.FREEZE),
+        PIERCED("pierced", DamageTypes.FALLING_STALACTITE, DamageTypes.STALAGMITE),
+        ATTACK("attack", DamageTypes.MOB_ATTACK, DamageTypes.PLAYER_ATTACK),
+        MODDED("modded");
 
         public static final Codec<DefaultWrappedSource> CODEC = StringRepresentable.fromEnum(DefaultWrappedSource::values);
 
         private final String safeName;
         private final Set<DamageSourceIdentifier> identifiers;
 
-        DefaultWrappedSource(String safeName, DamageSource... sources) {
+        @SafeVarargs
+        DefaultWrappedSource(String safeName, ResourceKey<DamageType>... sources) {
             this.safeName = safeName;
-            this.identifiers = Arrays.stream(sources).map(source -> DamageSourceIdentifier.create(source.msgId)).collect(Collectors.toSet());
+            this.identifiers = Arrays.stream(sources).map(source -> DamageSourceIdentifier.create(source.location().toString())).collect(Collectors.toSet());
         }
 
         public Set<DamageSourceIdentifier> getIdentifiers() {

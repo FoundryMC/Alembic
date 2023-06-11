@@ -10,13 +10,18 @@ import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.types.tag.condition.TagConditionRegistry;
 import foundry.alembic.types.tag.condition.TagConditionType;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -26,16 +31,29 @@ import java.util.Set;
 
 public class AlembicAPI {
 
-    public static final DamageSource SOUL_FIRE = new DamageSource("soulFire");
-    public static final DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
-    public static final DamageSource EVOKER_FANGS = new DamageSource("evokerFangs");
-    public static final DamageSource GUARDIAN_BEAM = new DamageSource("guardianBeam");
-    public static final DamageSource ALLERGY = new DamageSource("allergy");
-
-    public static DamageSource indirectAlchemical(Entity pSource, @Nullable Entity pIndirectEntity) {
-        return (new IndirectEntityDamageSource("indirectAlchemical", pSource, pIndirectEntity)).bypassArmor().setMagic();
+    public static final ResourceKey<DamageType> SOUL_FIRE = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("soul_fire"));
+    public static DamageSource soulFire(Entity entity){
+        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SOUL_FIRE), entity);
+    }
+    public static final ResourceKey<DamageType> ALCHEMICAL = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("alchemical"));
+    public static DamageSource alchemical(Entity entity){
+        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(ALCHEMICAL), entity);
     }
 
+    public static final ResourceKey<DamageType> EVOKER_FANGS = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("evoker_fangs"));
+    public static DamageSource evokerFangs(Entity entity){
+        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(EVOKER_FANGS), entity);
+    }
+
+    public static final ResourceKey<DamageType> GUARDIAN_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("guardian_beam"));
+    public static DamageSource guardianBeam(Entity entity){
+        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUARDIAN_BEAM), entity);
+    }
+
+    public static final ResourceKey<DamageType> ALLERGY = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("allergy"));
+    public static DamageSource allergy(Entity entity){
+        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(ALLERGY), entity);
+    }
     /**
      * Registration method for alembic tag conditions. Create a tag condition to handle any needed conditional logic,
      * rather than hardcoding conditions in a tag.
@@ -67,11 +85,6 @@ public class AlembicAPI {
     public static AlembicDamageType getDamageType(String damageType) {
         return DamageTypeRegistry.getDamageType(damageType);
     }
-
-    public static AlembicDamageType getDamageType(DamageSource damageSource) {
-        return DamageTypeRegistry.getDamageType(damageSource);
-    }
-
     public static float activatePreEvent(LivingEntity target, LivingEntity attacker, AlembicDamageType damageType, float damage, float resistance) {
         AlembicDamageEvent.Pre event = new AlembicDamageEvent.Pre(target, attacker, damageType, damage, resistance);
         MinecraftForge.EVENT_BUS.post(event);

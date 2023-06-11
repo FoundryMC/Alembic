@@ -36,7 +36,7 @@ public class TestEvents {
     }
 
     private static void applyHungerMod(Player player, int foodLevel) {
-        if (player.level.isClientSide) return;
+        if (player.level().isClientSide) return;
         for(Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()){
             Attribute attribute = entry.getValue().getTypeModifier().getAffectedAttribute(entry.getKey());
             AttributeInstance instance = player.getAttribute(attribute);
