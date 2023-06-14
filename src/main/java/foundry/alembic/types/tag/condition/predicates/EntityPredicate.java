@@ -57,8 +57,11 @@ public class EntityPredicate {
         if (!tagOrElementPredicate.matches(entity)) {
             return false;
         }
-        if (entity instanceof LivingEntity livingEntity) {
-            return heldItem.matches(livingEntity.getMainHandItem());
+        if (heldItem != ItemPredicate.EMPTY) {
+            if (entity instanceof LivingEntity livingEntity) {
+                return heldItem.matches(livingEntity.getMainHandItem());
+            }
+            return false;
         }
         return true;
     }
