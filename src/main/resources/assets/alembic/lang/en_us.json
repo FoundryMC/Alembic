@@ -17,6 +17,7 @@
   "effect.alembic.arcane_damage_shielding": "Arcane Shielding",
   "effect.alembic.fire_damage_shielding": "Fire Shielding",
   "effect.alembic.fire_resistance": "Fire Resistance",
+  
   "alembic:alchemical_damage_resistance": "Alchemical Resistance",
   "alembic:arcane_damage_resistance": "Arcane Resistance",
   "alembic:fire_damage_resistance": "Fire Resistance",
@@ -28,9 +29,11 @@
   "alembic:fire_damage": "Fire Damage",
   "alembic:physical_damage": "Physical Damage",
   "alembic:true_damage": "True Damage",
+  
   "effect.alembic.fire": "Fire",
   "effect.alembic.soul_fire": "Soul Fire",
   "effect.alembic.frostbite": "Frostbite",
+  
   "item.minecraft.potion.effect.alchemical_damage_resistance": "Potion of Alchemical Resistance",
   "item.minecraft.splash_potion.effect.alchemical_damage_resistance": "Splash Potion of Alchemical Resistance",
   "item.minecraft.lingering_potion.effect.alchemical_damage_resistance": "Lingering Potion of Alchemical Resistance",

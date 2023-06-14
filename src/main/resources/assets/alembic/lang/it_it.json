@@ -1,4 +1,6 @@
 {
+  "credits": "Translation by Farcr",
+	
   "attribute.alembic.alchemical_damage": "Danno alchemico",
   "attribute.alembic.alchemical_damage.resistance": "Resistenza alchemica",
   "attribute.alembic.arcane_damage": "Danno arcano",
