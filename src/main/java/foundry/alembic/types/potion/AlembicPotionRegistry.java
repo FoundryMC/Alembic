@@ -79,6 +79,11 @@ public class AlembicPotionRegistry {
                 entity.setTicksFrozen(effectInstance.getDuration());
             }
         }
+
+        @Override
+        public boolean doClientSideEffectTick(MobEffectInstance effectInstance, LivingEntity entity) {
+            return true;
+        }
     }
 
     public static class FireMobEffect extends ExtendedMobEffect {
