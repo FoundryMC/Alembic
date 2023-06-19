@@ -3,13 +3,10 @@ package foundry.alembic.attribute;
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicTypeModifier;
-import foundry.alembic.types.potion.AlembicPotionDataHolder;
+import foundry.alembic.potion.AlembicPotionDataHolder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;

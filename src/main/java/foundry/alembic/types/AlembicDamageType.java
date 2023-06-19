@@ -9,19 +9,15 @@ import foundry.alembic.attribute.AttributeHolder;
 import foundry.alembic.attribute.AttributeRegistry;
 import foundry.alembic.attribute.AttributeSet;
 import foundry.alembic.util.CodecUtil;
-import foundry.alembic.types.potion.AlembicPotionDataHolder;
 import foundry.alembic.types.tag.AlembicTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagManager;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 

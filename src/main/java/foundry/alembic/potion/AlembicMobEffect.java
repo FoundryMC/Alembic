@@ -1,4 +1,4 @@
-package foundry.alembic.types.potion;
+package foundry.alembic.potion;
 
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;

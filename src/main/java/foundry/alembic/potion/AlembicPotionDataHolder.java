@@ -1,4 +1,4 @@
-package foundry.alembic.types.potion;
+package foundry.alembic.potion;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Either;

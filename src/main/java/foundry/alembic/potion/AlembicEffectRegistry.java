@@ -1,23 +1,18 @@
-package foundry.alembic.types.potion;
+package foundry.alembic.potion;
 
 import foundry.alembic.caps.AlembicFlammableHandler;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.alchemy.Potion;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.tslat.effectslib.api.ExtendedMobEffect;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class AlembicPotionRegistry {
+public class AlembicEffectRegistry {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
 
     public static final RegistryObject<MobEffect> FIRE = MOB_EFFECTS.register("fire", FireMobEffect::new);

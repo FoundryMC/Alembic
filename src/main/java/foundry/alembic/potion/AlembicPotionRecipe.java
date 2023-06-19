@@ -1,10 +1,8 @@
-package foundry.alembic.types.potion;
+package foundry.alembic.potion;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.Alembic;
 import foundry.alembic.util.CodecUtil;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public record AlembicPotionRecipe(Ingredient reagent, Ingredient base) {
