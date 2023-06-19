@@ -22,20 +22,13 @@
               "tag_id": "alembic:branch_tag",
               "run": {
                 "tag_id": "alembic:particle_tag",
-                "player_only": true,
                 "particle_options": {
                   "type": "alembic:arcane_damage"
                 },
-                "conditions": [
-                  {
-                    "condition_type": "alembic:damage_source",
-                    "damage_source": "player"
-                  }
-                ]
+                "conditions": "alembic:damage_from_player"
               },
               "else_run": {
                 "tag_id": "alembic:particle_tag",
-                "player_only": false,
                 "particle_speed": 0.35,
                 "particle_options": {
                   "type": "alembic:arcane_spark"

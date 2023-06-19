@@ -11,7 +11,6 @@
       "run": "alembic:particles/ender",
       "else_run": {
         "tag_id": "alembic:particle_tag",
-        "player_only": false,
         "particle_speed": 0.35,
         "particle_options": {
           "type": "alembic:alchemical_reaction"

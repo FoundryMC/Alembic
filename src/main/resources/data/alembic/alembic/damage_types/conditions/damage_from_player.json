@@ -1,0 +1,4 @@
+{
+  "condition_type": "alembic:damage_source",
+  "damage_source": "player"
+}

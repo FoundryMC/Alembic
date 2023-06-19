@@ -11,11 +11,10 @@
       "particle_options": {
         "type": "alembic:true_damage"
       },
-      "player_only": true
+      "conditions": "alembic:damage_from_player"
     },
     {
       "tag_id": "alembic:particle_tag",
-      "player_only": false,
       "particle_options": {
         "type": "alembic:frostbite"
       },
