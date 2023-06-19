@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public class AlembicExtendFireTag extends AbstractTag {
@@ -29,7 +30,7 @@ public class AlembicExtendFireTag extends AbstractTag {
     private final float multiplier;
     private final Set<DamageSourceIdentifier> ignoredSources;
 
-    public AlembicExtendFireTag(Set<TagCondition> conditions, float multiplier, Set<DamageSourceIdentifier> ignoredSources) {
+    public AlembicExtendFireTag(List<TagCondition> conditions, float multiplier, Set<DamageSourceIdentifier> ignoredSources) {
         super(conditions);
         this.multiplier = multiplier;
         this.ignoredSources = ignoredSources;

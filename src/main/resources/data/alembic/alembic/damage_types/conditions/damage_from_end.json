@@ -1,0 +1,17 @@
+{
+  "condition_type": "alembic:any",
+  "conditions": [
+    {
+      "condition_type": "alembic:damage_source",
+      "direct_entity": "minecraft:enderman"
+    },
+    {
+      "condition_type": "alembic:damage_source",
+      "direct_entity": "minecraft:endermite"
+    },
+    {
+      "condition_type": "alembic:damage_source",
+      "damage_source": "DRAGON_BREATH"
+    }
+  ]
+}

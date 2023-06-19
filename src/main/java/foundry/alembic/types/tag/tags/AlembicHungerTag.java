@@ -13,6 +13,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ public class AlembicHungerTag extends AbstractTag {
 
     private final AttributeModifier.Operation operation;
 
-    public AlembicHungerTag(Set<TagCondition> conditions, AlembicTypeModifier attribute, int hungerTrigger, float scaleAmount, UUID uuid, AttributeModifier.Operation operation) {
+    public AlembicHungerTag(List<TagCondition> conditions, AlembicTypeModifier attribute, int hungerTrigger, float scaleAmount, UUID uuid, AttributeModifier.Operation operation) {
         super(conditions);
         this.hungerTrigger = hungerTrigger;
         this.scaleAmount = scaleAmount;

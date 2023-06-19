@@ -7,39 +7,16 @@
   "enchant_source": "mob",
   "tags": [
     {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_speed": 0.35,
-      "particle_options": {
-        "type": "alembic:alchemical_reaction"
-      }
-    },
-    {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_speed": 0.35,
-      "particle_options": {
-        "type": "alembic:ender_magic"
-      },
-      "conditions": [
-        {
-          "condition_type": "alembic:any",
-          "conditions": [
-            {
-              "condition_type": "alembic:damage_source",
-              "direct_entity": "minecraft:enderman"
-            },
-            {
-              "condition_type": "alembic:damage_source",
-              "direct_entity": "minecraft:endermite"
-            },
-            {
-              "condition_type": "alembic:damage_source",
-              "damage_source": "DRAGON_BREATH"
-            }
-          ]
+      "tag_id": "alembic:branch_tag",
+      "run": "alembic:particles/ender",
+      "else_run": {
+        "tag_id": "alembic:particle_tag",
+        "player_only": false,
+        "particle_speed": 0.35,
+        "particle_options": {
+          "type": "alembic:alchemical_reaction"
         }
-      ]
+      }
     },
     {
       "tag_id": "alembic:hunger_tag",

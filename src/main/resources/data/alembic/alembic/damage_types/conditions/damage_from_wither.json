@@ -1,0 +1,17 @@
+{
+  "condition_type": "alembic:any",
+  "conditions": [
+    {
+      "condition_type": "alembic:damage_source",
+      "direct_entity": "minecraft:wither_skeleton"
+    },
+    {
+      "condition_type": "alembic:damage_source",
+      "damage_source": "witherSkull"
+    },
+    {
+      "condition_type": "alembic:damage_source",
+      "damage_source": "WITHER"
+    }
+  ]
+}

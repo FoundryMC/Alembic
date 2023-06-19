@@ -3,6 +3,7 @@ package foundry.alembic.types.tag;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.CodecUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +14,12 @@ import java.util.Set;
 public class AlembicTagRegistry {
     private static final BiMap<ResourceLocation, AlembicTagType<?>> TAGS = HashBiMap.create();
 
-    public static final Codec<AlembicTagType<?>> TAG_MAP_CODEC = CodecUtil.ALEMBIC_RL_CODEC.xmap(TAGS::get, TAGS.inverse()::get);
+    public static final Codec<AlembicTagType<?>> TAG_MAP_CODEC = CodecUtil.ALEMBIC_RL_CODEC.comapFlatMap(resourceLocation -> {
+        if (!TAGS.containsKey(resourceLocation)) {
+            return DataResult.error("Damage type tag %s does not exist!".formatted(resourceLocation));
+        }
+        return DataResult.success(TAGS.get(resourceLocation));
+    }, TAGS.inverse()::get);
 
     public static void init(){
         AlembicTagType.bootstrap();

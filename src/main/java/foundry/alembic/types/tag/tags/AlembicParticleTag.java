@@ -34,7 +34,7 @@ public class AlembicParticleTag extends AbstractTag {
     private final ParticleOptions particleOptions;
     private final boolean playerOnly;
     private final float particleSpeed;
-    public AlembicParticleTag(Set<TagCondition> conditions, ParticleOptions particleOptions, boolean playerOnly, float particleSpeed) {
+    public AlembicParticleTag(List<TagCondition> conditions, ParticleOptions particleOptions, boolean playerOnly, float particleSpeed) {
         super(conditions);
         this.particleOptions = particleOptions;
         this.playerOnly = playerOnly;
@@ -42,7 +42,7 @@ public class AlembicParticleTag extends AbstractTag {
     }
 
     public AlembicParticleTag(ParticleOptions particleOptions, boolean playerOnly) {
-        this(Set.of(), particleOptions, playerOnly, 0.35f);
+        this(List.of(), particleOptions, playerOnly, 0.35f);
     }
 
 

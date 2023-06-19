@@ -9,22 +9,23 @@ import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.util.ComposedData;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
-public class AlembicConditionalTag extends AbstractTag {
-    public static final Codec<AlembicConditionalTag> CODEC = RecordCodecBuilder.create(instance ->
+public class AlembicBranchTag extends AbstractTag {
+    public static final Codec<AlembicBranchTag> CODEC = RecordCodecBuilder.create(instance ->
             AbstractTag.createBase(instance).and(
                     instance.group(
-                            AlembicTag.DISPATCH_CODEC.fieldOf("run").forGetter(sequence -> sequence.run),
-                            AlembicTag.DISPATCH_CODEC.fieldOf("else_run").forGetter(sequence -> sequence.elseRun)
+                            AlembicReferenceTag.REFERENCE_CODEC.fieldOf("run").forGetter(sequence -> sequence.run),
+                            AlembicReferenceTag.REFERENCE_CODEC.fieldOf("else_run").forGetter(sequence -> sequence.elseRun)
                     )
-            ).apply(instance, AlembicConditionalTag::new)
+            ).apply(instance, AlembicBranchTag::new)
     );
 
     private final AlembicTag run;
     private final AlembicTag elseRun;
 
-    public AlembicConditionalTag(Set<TagCondition> conditions, AlembicTag run, AlembicTag elseRun) {
+    public AlembicBranchTag(List<TagCondition> conditions, AlembicTag run, AlembicTag elseRun) {
         super(conditions);
         this.run = run;
         this.elseRun = elseRun;
@@ -44,6 +45,6 @@ public class AlembicConditionalTag extends AbstractTag {
     @NotNull
     @Override
     public AlembicTagType<?> getType() {
-        return AlembicTagType.CONDITIONAL;
+        return AlembicTagType.BRANCH;
     }
 }

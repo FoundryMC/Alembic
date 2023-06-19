@@ -1,0 +1,23 @@
+{
+  "tag_id": "alembic:particle_tag",
+  "player_only": false,
+  "particle_speed": 0.25,
+  "particle_options": {
+    "type": "alembic:sculk_hit"
+  },
+  "conditions": [
+    {
+      "condition_type": "alembic:any",
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "direct_entity": "minecraft:warden"
+        },
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "sonic_boom"
+        }
+      ]
+    }
+  ]
+}

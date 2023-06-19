@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public record AnyCondition(List<TagCondition> conditions) implements TagCondition {
-    public static final Codec<AnyCondition> CODEC = TagCondition.CODEC.listOf().fieldOf("conditions").xmap(
+    public static final Codec<AnyCondition> CODEC = TagCondition.DISPATCH_CODEC.listOf().fieldOf("conditions").xmap(
             AnyCondition::new,
             AnyCondition::conditions
     ).codec();

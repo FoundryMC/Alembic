@@ -11,6 +11,7 @@ import foundry.alembic.util.ComposedData;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
 public class AlembicPerLevelTag extends AbstractTag {
@@ -31,7 +32,7 @@ public class AlembicPerLevelTag extends AbstractTag {
     private final AlembicTypeModifier attrType;
     private RangedAttribute affectedAttribute;
 
-    public AlembicPerLevelTag(Set<TagCondition> conditions, float bonusPerLevel, int levelDifference, float cap, AlembicTypeModifier attrType) {
+    public AlembicPerLevelTag(List<TagCondition> conditions, float bonusPerLevel, int levelDifference, float cap, AlembicTypeModifier attrType) {
         super(conditions);
         this.bonusPerLevel = bonusPerLevel;
         this.levelDifference = levelDifference;

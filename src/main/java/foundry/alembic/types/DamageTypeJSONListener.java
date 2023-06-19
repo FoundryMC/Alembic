@@ -5,8 +5,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
-import foundry.alembic.types.potion.AlembicPotionDataHolder;
-import foundry.alembic.types.potion.AlembicPotionRegistry;
+import foundry.alembic.util.FileReferenceOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -29,21 +28,25 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
-            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+            ResourceLocation id = entry.getKey();
+            if (id.getPath().startsWith("tags/") || id.getPath().startsWith("conditions/")) {
+                continue;
+            }
+            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(FileReferenceOps.create(JsonOps.INSTANCE, rm), entry.getValue());
             if (result.error().isPresent()) {
-                Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
+                Alembic.LOGGER.error("Could not read %s. %s".formatted(id, result.error().get().message()));
                 continue;
             }
             AlembicDamageType type = result.getOrThrow(false, Alembic.LOGGER::error);
-            type.handlePostParse(entry.getKey());
+            type.handlePostParse(id);
 
 
-            if (DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
+            if (DamageTypeRegistry.doesDamageTypeExist(id)) {
                 if (type.getPriority() < DamageTypeRegistry.getDamageType(type.getId()).getPriority()) {
                     Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(type.getId()));
                 }
             } else {
-                DamageTypeRegistry.registerDamageType(entry.getKey(), type);
+                DamageTypeRegistry.registerDamageType(id, type);
             }
         }
     }
