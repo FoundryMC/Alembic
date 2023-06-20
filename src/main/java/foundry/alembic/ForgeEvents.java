@@ -26,6 +26,10 @@ import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -74,11 +78,6 @@ public class ForgeEvents {
 
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
-
-    @SubscribeEvent
-    static void onServerStarting(ServerStartingEvent event) {
-        // do something when the server starts
-    }
 
     @SubscribeEvent
     static void onLevelUp(PlayerXpEvent.LevelChange event){
@@ -156,55 +155,55 @@ public class ForgeEvents {
         event.setBlockedDamage(0);
     }
 
-    private static boolean noRecurse = false; // TODO: this feels dangerous? but I have no proof that it is
+    private static ObjectSet<UUID> recurses = new ObjectOpenHashSet<>(); // TODO: this feels dangerous? but I have no proof that it is
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    static void hurt(final LivingHurtEvent e) {
-        if (e.getEntity().level.isClientSide) return;
-        if (noRecurse) return;
-        noRecurse = true;
-        if(AlembicConfig.enableDebugPrints.get()){
-            Alembic.LOGGER.info("Handling hurt event for " + e.getEntity().getName().getString() + " with source " + e.getSource().getMsgId() + " and amount " + e.getAmount());
-            Alembic.LOGGER.info("Source is " + e.getSource().getDirectEntity() + " and is projectile? " + (e.getSource().getDirectEntity() instanceof Projectile));
-        }
-        if (e.getSource() instanceof IndirectEntityDamageSource || e.getSource().getDirectEntity() == null || (e.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
-                || e.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (e.getSource().getDirectEntity() instanceof Projectile) ){
-            noRecurse = false;
-            LivingEntity target = e.getEntity();
-            float totalDamage = e.getAmount();
-            AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(e.getSource());
-            if(AlembicConfig.enableDebugPrints.get()){
-                Alembic.LOGGER.info("Found override for " + e.getSource().getMsgId() + " with damage " + totalDamage + ". %s", override);
-            }
+    static void hurt(final LivingHurtEvent event) {
+        if (event.getEntity().level.isClientSide) return;
+        if (recurses.contains(event.getEntity().getUUID())) return;
+        recurses.add(event.getEntity().getUUID());
+        Alembic.ifPrintDebug(() -> {
+            Alembic.LOGGER.info("Handling hurt event for " + event.getEntity().getName().getString() + " with source " + event.getSource().getMsgId() + " and amount " + event.getAmount());
+            Alembic.LOGGER.info("Source is " + event.getSource().getDirectEntity() + " and is projectile? " + (event.getSource().getDirectEntity() instanceof Projectile));
+        });
+        if (event.getSource() instanceof IndirectEntityDamageSource || event.getSource().getDirectEntity() == null || (event.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
+                || event.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (event.getSource().getDirectEntity() instanceof Projectile) ){
+            recurses.remove(event.getEntity().getUUID());
+            LivingEntity target = event.getEntity();
+            float totalDamage = event.getAmount();
+            AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(event.getSource());
+            Alembic.ifPrintDebug(() -> {
+                Alembic.LOGGER.info("Found override for " + event.getSource().getMsgId() + " with damage " + totalDamage + ". %s", override);
+            });
             if (override != null) {
-                handleTypedDamage(target, null, totalDamage, override, e.getSource());
+                handleTypedDamage(target, null, totalDamage, override, event.getSource());
                 //target.hurt(e.getSource(), totalDamage);
-                noRecurse = false;
-                e.setCanceled(true);
+                recurses.remove(event.getEntity().getUUID());
+                event.setCanceled(true);
             } else {
-                noRecurse = false;
+                recurses.remove(event.getEntity().getUUID());
                 return;
             }
-        } else if (e.getSource().getDirectEntity() instanceof LivingEntity || (e.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
+        } else if (event.getSource().getDirectEntity() instanceof LivingEntity || (event.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
             LivingEntity attacker;
-            if(e.getSource().getDirectEntity() instanceof AbstractArrow) {
-                attacker = (LivingEntity) ((AbstractArrow) e.getSource().getDirectEntity()).getOwner();
+            if(event.getSource().getDirectEntity() instanceof AbstractArrow) {
+                attacker = (LivingEntity) ((AbstractArrow) event.getSource().getDirectEntity()).getOwner();
             } else {
-                attacker = (LivingEntity) e.getSource().getDirectEntity();
+                attacker = (LivingEntity) event.getSource().getDirectEntity();
             }
             if(attacker == null) {
-                noRecurse = false;
+                recurses.remove(event.getEntity().getUUID());
                 return;
             }
-            LivingEntity target = e.getEntity();
+            LivingEntity target = event.getEntity();
             Multimap<Attribute, AttributeModifier> map = ArrayListMultimap.create();
             if (handleEnchantments(attacker, target, map)) return;
-            float totalDamage = e.getAmount();
+            float totalDamage = event.getAmount();
             AlembicResistance stats = AlembicResistanceHolder.get(attacker.getType());
             boolean entityOverride = stats != null;
             float damageOffset = 0;
             if (entityOverride) {
-                damageOffset = handleTypedDamage(target, attacker, totalDamage, stats, e.getSource());
+                damageOffset = handleTypedDamage(target, attacker, totalDamage, stats, event.getSource());
             }
             totalDamage -= damageOffset;
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
@@ -223,7 +222,7 @@ public class ForgeEvents {
                     if (damage <= 0 || preDamage.isCanceled()) return;
                     damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
 
-                    handleDamageInstance(target, damageType, damage, e.getSource());
+                    handleDamageInstance(target, damageType, damage, event.getSource());
                     AlembicDamageEvent.Post postDamage = new AlembicDamageEvent.Post(target, attacker, damageType, damage, attrValue);
                     MinecraftForge.EVENT_BUS.post(postDamage);
                 }
@@ -244,8 +243,8 @@ public class ForgeEvents {
             });
             attacker.getAttributes();
         }
-        noRecurse = false;
-        e.setCanceled(true);
+        recurses.remove(event.getEntity().getUUID());
+        event.setCanceled(true);
     }
 
     private static boolean handleEnchantments(LivingEntity attacker, LivingEntity target, Multimap<Attribute, AttributeModifier> map) {
@@ -311,9 +310,9 @@ public class ForgeEvents {
             sendDamagePacket(target, damageType, damage);
             target.gameEvent(GameEvent.ENTITY_DAMAGE);
             target.invulnerableTime = invtime;
-            if(AlembicConfig.enableDebugPrints.get()){
+            Alembic.ifPrintDebug(() -> {
                 Alembic.LOGGER.info("Dealt damage of type " + damageType.getId() + " to " + target.getName().getString() + " for " + damage + " damage.");
-            }
+            });
         }
     }
 
@@ -447,7 +446,9 @@ public class ForgeEvents {
                 } else {
                     instance.addTransientModifier(modifier);
                 }
-                player.displayClientMessage(Component.literal("Resistance: " + instance.getValue()), true);
+                Alembic.ifPrintDebug(() -> {
+                    player.displayClientMessage(Component.literal("Resistance: " + instance.getValue()), true);
+                });
             }
         }
     }

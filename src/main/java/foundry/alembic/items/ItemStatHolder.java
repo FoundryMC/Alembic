@@ -1,11 +1,12 @@
 package foundry.alembic.items;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.item.Item;
 
 import java.util.*;
 
 public class ItemStatHolder {
-    private static final Map<Item, ItemStat> ITEM_STATS = new HashMap<>();
+    private static final Map<Item, ItemStat> ITEM_STATS = new Reference2ObjectOpenHashMap<>();
 
     public static ItemStat get(Item item){
         return ITEM_STATS.get(item);
@@ -27,14 +28,11 @@ public class ItemStatHolder {
         return Collections.unmodifiableCollection(ITEM_STATS.keySet());
     }
 
-    public static List<UUID> getUUIDs(Item item){
-        ItemStat itemStat = ITEM_STATS.get(item);
-        List<UUID> uuids = new ArrayList<>();
-        if(itemStat == null) return uuids;
-        for (ItemStatAttributeData data : itemStat.attributeData()) {
-            uuids.add(data.getUUID());
+    public static List<UUID> getUUIDs(Item item) {
+        if (!ITEM_STATS.containsKey(item)) {
+            return List.of();
         }
-        return uuids;
+        return ITEM_STATS.get(item).attributeData().stream().map(ItemStatAttributeData::getUUID).toList();
     }
 }
 

@@ -2,14 +2,14 @@ package foundry.alembic.override;
 
 import foundry.alembic.Alembic;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.damagesource.DamageSource;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class AlembicOverrideHolder {
-    private static final Map<DamageSourceIdentifier, AlembicOverride> OVERRIDES = new HashMap<>();
+    private static final Map<DamageSourceIdentifier, AlembicOverride> OVERRIDES = new Reference2ObjectOpenHashMap<>(); // TODO: may not be possible
 
     public static boolean containsKey(DamageSourceIdentifier sourceIdentifier) {
         return OVERRIDES.containsKey(sourceIdentifier);
@@ -28,7 +28,7 @@ public class AlembicOverrideHolder {
     }
 
     public static void smartAddOverride(DamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
-        Alembic.LOGGER.info("Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId());
+        Alembic.ifPrintDebug(() -> Alembic.LOGGER.info("Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId()));
         if (containsKey(sourceIdentifier)) {
             if (get(sourceIdentifier).getPriority() < override.getPriority()) {
                 Alembic.LOGGER.info("Replacing override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId() + " because it has a higher priority");

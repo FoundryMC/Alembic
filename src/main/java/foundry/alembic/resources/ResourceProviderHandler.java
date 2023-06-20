@@ -24,10 +24,9 @@ public class ResourceProviderHandler {
         for (ResourceLocation rl : typeJsons) {
             Stream<? extends InputStream> stream = ResourceProvider.instance().getResourceStreams("alembic_pack", rl);
             stream.findFirst().ifPresent(inputStream -> {
-                JsonObject obj = Alembic.GSON.fromJson(new BufferedReader(new InputStreamReader(inputStream)), JsonObject.class);
-                retMap.putIfAbsent(rl, obj);
-                try {
-                    inputStream.close();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                    JsonObject obj = Alembic.GSON.getAdapter(JsonObject.class).fromJson(reader);
+                    retMap.putIfAbsent(rl, obj);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

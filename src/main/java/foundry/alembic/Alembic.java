@@ -53,8 +53,8 @@ public class Alembic {
         return new ResourceLocation(MODID, name);
     }
 
-    public void ifDevEnv(Runnable runnable) {
-        if (!FMLLoader.isProduction()) {
+    public static void ifPrintDebug(Runnable runnable) {
+        if (!FMLLoader.isProduction() || AlembicConfig.enableDebugPrints.get()) {
             runnable.run();
         }
     }
