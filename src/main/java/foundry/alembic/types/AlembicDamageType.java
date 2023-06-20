@@ -37,7 +37,6 @@ public class AlembicDamageType {
                             },
                             Function.identity()
                     ).fieldOf("attributes").forGetter(damageType -> damageType.attributesEither),
-                    Codec.BOOL.fieldOf("particles").forGetter(AlembicDamageType::hasParticles),
                     CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor),
                     AlembicTag.DISPATCH_CODEC.listOf().fieldOf("tags").forGetter(AlembicDamageType::getTags),
                     Codec.BOOL.fieldOf("enchant_reduction").forGetter(AlembicDamageType::hasEnchantReduction),
@@ -52,7 +51,6 @@ public class AlembicDamageType {
     private Supplier<RangedAttribute> shieldingAttribute;
     private Supplier<RangedAttribute> absorptionAttribute;
     private Supplier<RangedAttribute> resistanceAttribute;
-    private boolean hasParticles;
     private DamageSource damageSource;
     private int color;
     private List<AlembicTag> tags;
@@ -64,14 +62,13 @@ public class AlembicDamageType {
     private boolean enchantReduction;
     private String enchantSource;
 
-    public AlembicDamageType(int priority, Either<AttributeSet, AttributeHolder> attributesEither, boolean hasParticles, int color, List<AlembicTag> tags, boolean enchantReduction, String enchantSource) {
+    public AlembicDamageType(int priority, Either<AttributeSet, AttributeHolder> attributesEither, int color, List<AlembicTag> tags, boolean enchantReduction, String enchantSource) {
         this.priority = priority;
         this.attributesEither = attributesEither;
-        this.attribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getBaseAttribute, AttributeHolder::getAttribute));
-        this.shieldingAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, attributeSet -> attributeSet.getShieldingAttribute().get(), AttributeHolder::getShieldingAttribute));
-        this.absorptionAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, attributeSet -> attributeSet.getAbsorptionAttribute().get(), AttributeHolder::getAbsorptionAttribute));
-        this.resistanceAttribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, attributeSet -> attributeSet.getResistanceAttribute().get(), AttributeHolder::getResistanceAttribute));
-        this.hasParticles = hasParticles;
+        this.attribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getBaseAttribute, AttributeHolder::attribute));
+        this.shieldingAttribute = Suppliers.memoize(() -> attributesEither.map(attributeSet -> attributeSet.getShieldingAttribute().orElse(null), AttributeHolder::shieldingAttribute));
+        this.absorptionAttribute = Suppliers.memoize(() -> attributesEither.map(attributeSet -> attributeSet.getAbsorptionAttribute().orElse(null), AttributeHolder::absorptionAttribute));
+        this.resistanceAttribute = Suppliers.memoize(() -> attributesEither.map(attributeSet -> attributeSet.getResistanceAttribute().orElse(null), AttributeHolder::resistanceAttribute));
         this.color = color;
         this.tags = tags;
         this.enchantReduction = enchantReduction;
@@ -168,10 +165,6 @@ public class AlembicDamageType {
 
     public int getColor() {
         return color;
-    }
-
-    public boolean hasParticles() {
-        return hasParticles;
     }
 
     void handlePostParse(ResourceLocation id) {
