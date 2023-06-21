@@ -46,10 +46,9 @@ public class AlembicHungerTag extends AbstractTag {
         this.uuid = uuid;
         this.operation = operation;
     }
-    @Override
-    public void onDamage(ComposedData data) {
 
-    }
+    @Override
+    public void onDamage(ComposedData data) {}
 
     @Override
     public @NotNull AlembicTagType<?> getType() {

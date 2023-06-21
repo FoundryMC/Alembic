@@ -13,10 +13,7 @@ public class AlembicGlobalTagPropertyHolder {
     private static final Map<AlembicDamageType, AlembicHungerTag> HUNGER_BONUS = new HashMap<>();
 
     public static void addLevelupBonus(AlembicPerLevelTag perLevelTag) {
-        if (!LEVELUP_BONUS.containsKey(perLevelTag.getLevelDifference())) {
-            LEVELUP_BONUS.put(perLevelTag.getLevelDifference(), new HashSet<>());
-        }
-        LEVELUP_BONUS.get(perLevelTag.getLevelDifference()).add(perLevelTag);
+        LEVELUP_BONUS.computeIfAbsent(perLevelTag.getLevelDifference(), i -> new HashSet<>()).add(perLevelTag);
     }
 
     public static void addHungerBonus(AlembicDamageType type, AlembicHungerTag hungerTag) {

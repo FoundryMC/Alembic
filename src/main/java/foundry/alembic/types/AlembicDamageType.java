@@ -57,8 +57,6 @@ public class AlembicDamageType {
     private MobEffect resistanceEffect;
     private MobEffect absorptionEffect;
 
-    private String translationString;
-
     private boolean enchantReduction;
     private String enchantSource;
 
@@ -111,8 +109,8 @@ public class AlembicDamageType {
         this.enchantSource = enchantSource;
     }
 
-    public String getTranslationString() {
-        return translationString;
+    public String createTranslationString() {
+        return id.getNamespace() + ".damage." + id.getPath();
     }
 
     public void addTag(AlembicTag tag) {
@@ -170,7 +168,6 @@ public class AlembicDamageType {
     void handlePostParse(ResourceLocation id) {
         this.id = id;
         this.damageSource = new DamageSource(id.toString());
-        this.translationString = id.getNamespace() + ".damage." + id.getPath();
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }
 }

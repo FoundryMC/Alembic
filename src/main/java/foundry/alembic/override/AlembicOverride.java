@@ -6,6 +6,7 @@ import foundry.alembic.util.CodecUtil;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeRegistry;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
@@ -48,8 +49,8 @@ public class AlembicOverride {
         this.damages = damages;
     }
 
-    public Map<AlembicDamageType, Float> getDamages() {
-        return Collections.unmodifiableMap(damages);
+    public Object2FloatMap<AlembicDamageType> getDamages() {
+        return Object2FloatMaps.unmodifiable(damages);
     }
 
     public ResourceLocation getId() {
