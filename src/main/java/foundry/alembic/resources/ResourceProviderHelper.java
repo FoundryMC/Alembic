@@ -11,13 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class ResourceProviderHandler {
-
+public class ResourceProviderHelper {
     public static Map<ResourceLocation, JsonElement> readAsJson(String elementPath) {
         Collection<ResourceLocation> typeJsons = ResourceProvider.instance().getResources("alembic_pack", elementPath, id -> id.getPath().endsWith(".json"));
         Map<ResourceLocation, JsonElement> retMap = new LinkedHashMap<>();

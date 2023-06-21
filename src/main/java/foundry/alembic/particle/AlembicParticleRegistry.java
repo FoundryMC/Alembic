@@ -2,10 +2,7 @@ package foundry.alembic.particle;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import foundry.alembic.Alembic;
-import foundry.alembic.AlembicConfig;
-import foundry.alembic.resources.ResourceProviderHandler;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.resources.ResourceProviderHelper;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +23,7 @@ public class AlembicParticleRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus){
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHandler.readAsJson("particles.json").entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("particles.json").entrySet()) {
             JsonArray array = entry.getValue().getAsJsonObject().getAsJsonArray("values");
             for (JsonElement particleName : array) {
                 String particleStr = particleName.getAsString();
