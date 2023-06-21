@@ -17,7 +17,7 @@ public class AlembicPacketHandler {
     );
     private static int id = 0;
 
-    public static void init(){
+    public static void init() { // fixme: 1.20 changes these, rewrite the packets with "Main" consumer
         INSTANCE.registerMessage(id++, ClientboundAlembicDamagePacket.class, ClientboundAlembicDamagePacket::encode, ClientboundAlembicDamagePacket::decode, ClientboundAlembicDamagePacket::handle);
         INSTANCE.registerMessage(id++, ClientboundAlembicFireTypePacket.class, ClientboundAlembicFireTypePacket::encode, ClientboundAlembicFireTypePacket::decode, ClientboundAlembicFireTypePacket::handle);
     }

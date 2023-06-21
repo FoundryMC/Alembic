@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class AlembicFlammableImpl implements AlembicFlammable {
     private String fireType = NORMAL_FIRE;
-    private Int2ObjectFunction<ResourceLocation> textureLoc = DEFAULT_FIRE;
+    private Int2ObjectFunction<ResourceLocation> textureLoc = NORMAL_FIRE_TEXTURES;
 
     @Override
     public String getFireType() {
@@ -16,6 +16,10 @@ public class AlembicFlammableImpl implements AlembicFlammable {
     @Override
     public void setFireType(String type) {
         fireType = type;
+        switch (type) {
+            case "normal" -> setTextureFunction(NORMAL_FIRE_TEXTURES);
+            case "soul" -> setTextureFunction(SOUL_FIRE_TEXTURES);
+        }
     }
 
     @Override

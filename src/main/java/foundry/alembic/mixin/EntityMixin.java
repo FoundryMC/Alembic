@@ -20,29 +20,24 @@ public class EntityMixin{
     @Inject(method = "setRemainingFireTicks", at = @At("HEAD"))
     private void alembic$setRemainingFireTicks(int ticks, CallbackInfo info) {
         Entity entity = (Entity) (Object) this;
-        if(ticks <= 2) return;
         if(entity instanceof LivingEntity le){
-            OverrideHelper.addFireEffect(ticks, le);
-        }
-    }
-
-    @Inject(method = "clearFire", at = @At("HEAD"))
-    private void alembic$clearFire(CallbackInfo info) {
-        Entity entity = (Entity) (Object) this;
-        if(entity instanceof LivingEntity le){
-            OverrideHelper.removeFireEffect(le);
+            if (ticks > 0) {
+                OverrideHelper.addFireEffect(ticks, le);
+            } else {
+                OverrideHelper.removeFireEffect(le);
+            }
         }
     }
 
     @Inject(method = "baseTick", at = @At("TAIL"))
     private void alembic$baseTick(CallbackInfo info) {
-        Entity entity = (Entity) (Object) this;
-        entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> {
-            if(!entity.isOnFire()) {
-                cap.setFireType("normal");
-                AlembicPacketHandler.sendFirePacket(entity, "normal");
-            }
-        });
+//        Entity entity = (Entity) (Object) this;
+//        if(!entity.isOnFire()) {
+//            entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> {
+//                cap.setFireType("normal");
+//                AlembicPacketHandler.sendFirePacket(entity, "normal");
+//            });
+//        }
     }
 
 
