@@ -24,28 +24,4 @@ public class TestEvents {
     @SubscribeEvent
     public static void alembicPost(AlembicDamageEvent.Post event) {
     }
-
-    @SubscribeEvent
-    static void alembicFoodDecrease(AlembicFoodChangeEvent.Decrease event) {
-        applyHungerMod(event.getPlayer(), event.getFoodLevel());
-    }
-
-    @SubscribeEvent
-    static void alembicFoodIncrease(AlembicFoodChangeEvent.Increase event) {
-        applyHungerMod(event.getPlayer(), event.getFoodLevel());
-    }
-
-    private static void applyHungerMod(Player player, int foodLevel) {
-        if (player.level.isClientSide) return;
-        for(Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()){
-            Attribute attribute = entry.getValue().getTypeModifier().getAffectedAttribute(entry.getKey());
-            AttributeInstance instance = player.getAttribute(attribute);
-            if (instance != null) {
-                if (instance.getModifier(entry.getValue().getUUID()) != null) {
-                    instance.removeModifier(entry.getValue().getUUID());
-                }
-                instance.addTransientModifier(new AttributeModifier(entry.getValue().getUUID(), "Alembic hunger", entry.getValue().getScaleAmount()*(Math.floor((21- foodLevel)/(float)entry.getValue().getHungerTrigger())), entry.getValue().getOperation()));
-            }
-        }
-    }
 }
