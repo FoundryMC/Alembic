@@ -31,17 +31,14 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void handleFireTypePacket(ClientboundAlembicFireTypePacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            Level level = Minecraft.getInstance().level;
-            if(level == null) return;
-            Entity entity = level.getEntity(msg.fireType.getInt("entityID"));
-            if(entity != null){
-                entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent((handler) -> {
-                    handler.setFireType(msg.fireType.getString("fireType"));
-                });
-            }
-        });
-        ctx.get().setPacketHandled(true);
+    public static void handleFireTypePacket(ClientboundAlembicFireTypePacket msg) {
+        Level level = Minecraft.getInstance().level;
+        if(level == null) return;
+        Entity entity = level.getEntity(msg.fireType.getInt("entityID"));
+        if(entity != null){
+            entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent((handler) -> {
+                handler.setFireType(msg.fireType.getString("fireType"));
+            });
+        }
     }
 }
