@@ -69,10 +69,10 @@ public class CodecUtil {
 
     public static final Codec<RangedAttribute> RANGED_ATTRIBUTE_REGISTRY_CODEC = ForgeRegistries.ATTRIBUTES.getCodec().comapFlatMap(
             attribute -> {
-                try {
-                    return DataResult.success((RangedAttribute) attribute);
-                } catch (ClassCastException e) {
+                if (!(attribute instanceof RangedAttribute rangedAttribute)) {
                     return DataResult.error("The attribute " + ForgeRegistries.ATTRIBUTES.getKey(attribute) + " is not a ranged attribute");
+                } else {
+                    return DataResult.success(rangedAttribute);
                 }
             },
             Function.identity()
