@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -22,7 +21,7 @@ public class AttributeSet {
                     Codec.BOOL.optionalFieldOf("shielding", true).forGetter(attributeSet -> attributeSet.hasShielding),
                     Codec.BOOL.optionalFieldOf("absorption", true).forGetter(attributeSet -> attributeSet.hasAbsorption),
                     Codec.BOOL.optionalFieldOf("resistance", true).forGetter(attributeSet -> attributeSet.hasResistance),
-                    AlembicPotionDataHolder.CODEC.optionalFieldOf("resistance_potion").forGetter(attributeSet -> Optional.ofNullable(attributeSet.potionDataHolder))
+                    AlembicPotionDataHolder.CODEC.optionalFieldOf("resistance_potion", AlembicPotionDataHolder.EMPTY).forGetter(attributeSet -> attributeSet.potionDataHolder)
             ).apply(instance, AttributeSet::new)
     );
 
@@ -32,7 +31,6 @@ public class AttributeSet {
     private final boolean hasShielding;
     private final boolean hasAbsorption;
     private final boolean hasResistance;
-    @Nullable
     private final AlembicPotionDataHolder potionDataHolder;
     private ResourceLocation id;
 
@@ -45,14 +43,14 @@ public class AttributeSet {
         )
     );
 
-    public AttributeSet(double base, double min, double max, boolean hasShielding, boolean hasAbsorption, boolean hasResistance, Optional<AlembicPotionDataHolder> potionDataHolder) {
+    public AttributeSet(double base, double min, double max, boolean hasShielding, boolean hasAbsorption, boolean hasResistance, AlembicPotionDataHolder potionDataHolder) {
         this.base = base;
         this.min = min;
         this.max = max;
         this.hasShielding = hasShielding;
         this.hasAbsorption = hasAbsorption;
         this.hasResistance = hasResistance;
-        this.potionDataHolder = potionDataHolder.orElse(null);
+        this.potionDataHolder = potionDataHolder;
     }
 
     void setId(ResourceLocation id) {
@@ -64,7 +62,7 @@ public class AttributeSet {
     }
 
     public RangedAttribute getBaseAttribute() {
-        return lazyAttributeHolder.get().getAttribute();
+        return lazyAttributeHolder.get().attribute();
     }
 
     public double getBase() {
@@ -92,19 +90,19 @@ public class AttributeSet {
     }
 
     public Optional<RangedAttribute> getShieldingAttribute() {
-        return Optional.ofNullable(lazyAttributeHolder.get().getShieldingAttribute());
+        return Optional.ofNullable(lazyAttributeHolder.get().shieldingAttribute());
     }
 
     public Optional<RangedAttribute> getAbsorptionAttribute() {
-        return Optional.ofNullable(lazyAttributeHolder.get().getAbsorptionAttribute());
+        return Optional.ofNullable(lazyAttributeHolder.get().absorptionAttribute());
     }
 
     public Optional<RangedAttribute> getResistanceAttribute() {
-        return Optional.ofNullable(lazyAttributeHolder.get().getResistanceAttribute());
+        return Optional.ofNullable(lazyAttributeHolder.get().resistanceAttribute());
     }
 
     public Optional<AlembicPotionDataHolder> getPotionDataHolder() {
-        return Optional.ofNullable(potionDataHolder);
+        return potionDataHolder == AlembicPotionDataHolder.EMPTY ? Optional.empty() : Optional.of(potionDataHolder);
     }
 
     public boolean isFullSet() {
