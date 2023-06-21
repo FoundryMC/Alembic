@@ -27,14 +27,14 @@ public class FoodDataMixin {
 
     @Shadow private float exhaustionLevel;
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/lang/Math;max(II)I", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void alembic$onTick(Player pPlayer, CallbackInfo ci, Difficulty difficulty){
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/lang/Math;max(II)I", ordinal = 0))
+    private void alembic$onTick(Player pPlayer, CallbackInfo ci) {
         MinecraftForge.EVENT_BUS.post(new AlembicFoodChangeEvent.Decrease(pPlayer, foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel));
     }
 
-    @Inject(method = "eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/food/FoodData;eat(IF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void alembic$onEat(Item p_38713_, ItemStack p_38714_, LivingEntity entity, CallbackInfo ci, FoodProperties foodproperties){
-        if(entity instanceof Player pl){
+    @Inject(method = "eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/food/FoodData;eat(IF)V", shift = At.Shift.AFTER))
+    private void alembic$onEat(Item p_38713_, ItemStack p_38714_, LivingEntity entity, CallbackInfo ci) {
+        if (entity instanceof Player pl) {
             MinecraftForge.EVENT_BUS.post(new AlembicFoodChangeEvent.Increase(pl, foodLevel, lastFoodLevel, saturationLevel, exhaustionLevel));
         }
     }
