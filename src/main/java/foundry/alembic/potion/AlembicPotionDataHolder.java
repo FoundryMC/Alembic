@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import java.util.*;
 
 public class AlembicPotionDataHolder {
+    public static final AlembicPotionDataHolder EMPTY = new AlembicPotionDataHolder();
     public static final Codec<AlembicPotionDataHolder> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.FLOAT.fieldOf("value").forGetter(AlembicPotionDataHolder::getValue),
