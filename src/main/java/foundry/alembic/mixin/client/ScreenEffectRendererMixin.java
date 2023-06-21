@@ -1,22 +1,15 @@
 package foundry.alembic.mixin.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import foundry.alembic.caps.AlembicFlammable;
 import foundry.alembic.caps.AlembicFlammableHandler;
-import foundry.alembic.client.ClientPacketHandler;
-import foundry.alembic.client.RenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ScreenEffectRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.ForgeHooksClient;
-import org.spongepowered.asm.mixin.Debug;
+import net.minecraft.world.inventory.InventoryMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ScreenEffectRenderer.class)
 public class ScreenEffectRendererMixin {
@@ -25,11 +18,9 @@ public class ScreenEffectRendererMixin {
     private static TextureAtlasSprite alembic$renderFire(TextureAtlasSprite textureatlassprite) {
         Player player = Minecraft.getInstance().player;
         if(player == null) return textureatlassprite;
-        if(player.getCapability(AlembicFlammableHandler.CAPABILITY, null).isPresent()){
-            if(player.getCapability(AlembicFlammableHandler.CAPABILITY, null).resolve().get().getFireType().equals("soul")){
-                textureatlassprite = RenderHelper.SOUL_FIRE_1.sprite();
-            }
-        }
-        return textureatlassprite;
+        return player.getCapability(AlembicFlammableHandler.CAPABILITY, null)
+                .map(alembicFlammable -> alembicFlammable.getTextureLocation(1))
+                .map(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS))
+                .orElse(textureatlassprite);
     }
 }

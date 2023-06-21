@@ -1,9 +1,12 @@
 package foundry.alembic.caps;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public class AlembicFlammableImpl implements AlembicFlammable {
-    private String fireType = "normal";
+    private String fireType = NORMAL_FIRE;
+    private Int2ObjectFunction<ResourceLocation> textureLoc = DEFAULT_FIRE;
 
     @Override
     public String getFireType() {
@@ -13,6 +16,16 @@ public class AlembicFlammableImpl implements AlembicFlammable {
     @Override
     public void setFireType(String type) {
         fireType = type;
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(int i) {
+        return textureLoc.apply(i);
+    }
+
+    @Override
+    public void setTextureFunction(Int2ObjectFunction<ResourceLocation> texture) {
+        this.textureLoc = texture;
     }
 
     @Override
