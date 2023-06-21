@@ -1,6 +1,6 @@
 package foundry.alembic.mixin;
 
-import foundry.alembic.potion.AlembicEffectRegistry;
+import foundry.alembic.potion.AlembicMobEffectRegistry;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +15,7 @@ public class LivingEntityMixin {
     private void tryAddFrost(CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (entity.isFullyFrozen() && entity instanceof Player player) {
-                player.addEffect(new MobEffectInstance(AlembicEffectRegistry.FROSTBITE.get(), entity.getTicksFrozen(), 0));
+                player.addEffect(new MobEffectInstance(AlembicMobEffectRegistry.FROSTBITE.get(), entity.getTicksFrozen(), 0));
         }
     }
 }

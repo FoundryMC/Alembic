@@ -8,7 +8,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.mobeffects.ImmunityMobEffect;
-import foundry.alembic.resources.ResourceProviderHandler;
+import foundry.alembic.resources.ResourceProviderHelper;
 import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.potion.AlembicMobEffect;
@@ -64,31 +64,31 @@ public class AttributeRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus) {
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHandler.readAsJson("attribute_sets").entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets").entrySet()) {
             DataResult<AttributeSet> setResult = AttributeSet.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (setResult.error().isPresent()) {
                 throw new IllegalStateException(setResult.error().get().message());
             }
             AttributeSet set = setResult.result().get();
-            ResourceLocation sanitizedId = Utils.sanitize(entry.getKey(), "attribute_sets/", ".json");
-            set.setId(sanitizedId);
+            ResourceLocation id = Utils.sanitize(entry.getKey(), "attribute_sets/", ".json"); // TODO: replace with FileToIdConverter
+            set.setId(id);
 
-            if (ID_TO_SET_BIMAP.containsKey(sanitizedId)) {
-                Alembic.LOGGER.error("Attribute set already present " + sanitizedId);
+            if (ID_TO_SET_BIMAP.containsKey(id)) {
+                Alembic.LOGGER.error("Attribute set already present " + id);
                 continue;
             }
 
-            ID_TO_SET_BIMAP.put(sanitizedId, set);
+            ID_TO_SET_BIMAP.put(id, set);
 
-            DeferredRegister<Attribute> deferredRegister = getAttributeRegister(sanitizedId.getNamespace());
-            deferredRegister.register(sanitizedId.getPath(), () -> new AlembicAttribute(sanitizedId.toLanguageKey("attribute"), set.getBase(), set.getMin(), set.getMax()));
-            if (set.hasShielding()) register(deferredRegister, sanitizedId, AlembicTypeModifier.SHIELDING, 0, 0, 1024);
+            DeferredRegister<Attribute> deferredRegister = getAttributeRegister(id.getNamespace());
+            deferredRegister.register(id.getPath(), () -> new AlembicAttribute(id.toLanguageKey("attribute"), set.getBase(), set.getMin(), set.getMax()));
+            if (set.hasShielding()) register(deferredRegister, id, AlembicTypeModifier.SHIELDING, 0, 0, 1024);
             if (set.hasAbsorption())
-                register(deferredRegister, sanitizedId, AlembicTypeModifier.ABSORPTION, 0, 0, 1024);
+                register(deferredRegister, id, AlembicTypeModifier.ABSORPTION, 0, 0, 1024);
             if (set.hasResistance()) {
-                register(deferredRegister, sanitizedId, AlembicTypeModifier.RESISTANCE, 1, -1024, 1024);
+                register(deferredRegister, id, AlembicTypeModifier.RESISTANCE, 1, -1024, 1024);
                 if (set.getPotionDataHolder().isPresent()) {
-                    registerEffectsAndPotions(sanitizedId, set, set.getPotionDataHolder().get());
+                    registerEffectsAndPotions(id, set, set.getPotionDataHolder().get());
                 }
             }
         }

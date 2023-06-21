@@ -12,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.tslat.effectslib.api.ExtendedMobEffect;
 import org.jetbrains.annotations.Nullable;
 
-public class AlembicEffectRegistry {
+public class AlembicMobEffectRegistry {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, "alembic");
 
     public static final RegistryObject<MobEffect> FIRE = MOB_EFFECTS.register("fire", FireMobEffect::new);
