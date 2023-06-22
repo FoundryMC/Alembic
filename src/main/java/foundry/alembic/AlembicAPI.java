@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class AlembicAPI {
 
-    public static final DamageSource SOUL_FIRE = new DamageSource("soulFire");
+    public static final DamageSource SOUL_FIRE = new DamageSource("soulFire").setIsFire();
     public static final DamageSource ALCHEMICAL = new DamageSource("ALCHEMICAL");
     public static final DamageSource EVOKER_FANGS = new DamageSource("evokerFangs");
     public static final DamageSource GUARDIAN_BEAM = new DamageSource("guardianBeam");
