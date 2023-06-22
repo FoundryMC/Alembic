@@ -20,8 +20,8 @@ public class AlembicGlobalTagPropertyHolder {
         HUNGER_BONUS.put(type, hungerTag);
     }
 
-    public static Set<AlembicPerLevelTag> getLevelupBonuses(Player player) {
-        return LEVELUP_BONUS.int2ObjectEntrySet().stream().filter(setEntry -> player.experienceLevel % setEntry.getIntKey() == 0).flatMap(setEntry -> setEntry.getValue().stream()).collect(Collectors.toSet());
+    public static Set<AlembicPerLevelTag> getLevelupBonuses(int experienceLevels) {
+        return LEVELUP_BONUS.int2ObjectEntrySet().stream().filter(setEntry -> experienceLevels % setEntry.getIntKey() == 0).flatMap(setEntry -> setEntry.getValue().stream()).collect(Collectors.toSet());
     }
 
     public static AlembicHungerTag getHungerBonus(AlembicDamageType type) {

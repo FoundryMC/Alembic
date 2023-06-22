@@ -12,15 +12,14 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
 
 public class AlembicPerLevelTag extends AbstractTag {
     public static final Codec<AlembicPerLevelTag> CODEC = RecordCodecBuilder.create(instance ->
             createBase(instance).and(
                     instance.group(
-                            Codec.FLOAT.fieldOf("bonus_per_level").forGetter(alembicPerLevelTag -> alembicPerLevelTag.bonusPerLevel),
-                            Codec.INT.fieldOf("level_difference").forGetter(alembicPerLevelTag -> alembicPerLevelTag.levelDifference),
-                            Codec.FLOAT.fieldOf("max").forGetter(alembicPerLevelTag -> alembicPerLevelTag.cap),
+                            Codec.FLOAT.fieldOf("bonus_per_level").forGetter(AlembicPerLevelTag::getBonus),
+                            Codec.INT.fieldOf("level_difference").forGetter(AlembicPerLevelTag::getLevelDifference),
+                            Codec.FLOAT.fieldOf("max").forGetter(AlembicPerLevelTag::getCap),
                             AlembicTypeModifier.CODEC.fieldOf("modifier_type").forGetter(alembicPerLevelTag -> alembicPerLevelTag.attrType)
                     )
             ).apply(instance, AlembicPerLevelTag::new)
@@ -60,7 +59,7 @@ public class AlembicPerLevelTag extends AbstractTag {
         return affectedAttribute;
     }
 
-    public float getBonusPerLevel() {
+    public float getBonus() {
         return bonusPerLevel;
     }
 
