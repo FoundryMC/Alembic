@@ -15,7 +15,7 @@ public class ModEvents {
     static void onAttributeModification(final EntityAttributeModificationEvent event) {
         for (EntityType<? extends LivingEntity> type : event.getTypes()) {
             for (AttributeSet attributeSet : AttributeRegistry.ID_TO_SET_BIMAP.values()) {
-                event.add(type, attributeSet.getBaseAttribute(), attributeSet.getBaseAttribute().defaultValue);
+                event.add(type, attributeSet.getBaseAttribute());
                 attributeSet.getShieldingAttribute().ifPresent(attribute -> event.add(type, attribute, 0));
                 attributeSet.getResistanceAttribute().ifPresent(attribute -> event.add(type, attribute, 1));
                 attributeSet.getAbsorptionAttribute().ifPresent(attribute -> event.add(type, attribute, 0));

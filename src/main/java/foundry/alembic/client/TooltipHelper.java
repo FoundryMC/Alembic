@@ -2,26 +2,21 @@ package foundry.alembic.client;
 
 import com.mojang.datafixers.util.Pair;
 import foundry.alembic.items.ItemStatHolder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class TooltipHelper {
     public static Pair<Double, Boolean> handleVanillaTooltips(AttributeModifier attributemodifier, ItemStack stack, Player player, Map.Entry<Attribute, AttributeModifier> entry, double d0, boolean flag){
-        if(player != null){
-            List<UUID> uuids = ItemStatHolder.getUUIDs(stack.getItem());
-            if(uuids.isEmpty()) return Pair.of(d0, flag);
-            if(uuids.contains(attributemodifier.getId())){
-                d0 += player.getAttributeBaseValue(entry.getKey());
-                flag = true;
-                return Pair.of(d0, flag);
+        if(player != null || !ItemStatHolder.contains(stack.getItem())) {
+            Set<UUID> uuids = ItemStatHolder.getUUIDs(stack.getItem());
+            if (uuids.contains(attributemodifier.getId())) {
+                return Pair.of(d0 + player.getAttributeBaseValue(entry.getKey()), true);
             }
         }
         return Pair.of(d0, flag);

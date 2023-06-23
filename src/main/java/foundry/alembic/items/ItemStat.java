@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.util.CodecUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -23,7 +24,7 @@ public record ItemStat(Item item, List<ItemStatAttributeData> attributeData, Equ
     );
 
     public Map<Attribute, AttributeModifier> createAttributes() {
-        Map<Attribute, AttributeModifier> modifierMap = new Object2ObjectOpenHashMap<>();
+        Map<Attribute, AttributeModifier> modifierMap = new Reference2ObjectOpenHashMap<>();
         for (ItemStatAttributeData data : attributeData) {
             modifierMap.put(data.getAttribute(), data.createModifier());
         }

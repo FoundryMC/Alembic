@@ -22,12 +22,13 @@ import static net.minecraft.world.item.ItemStack.ATTRIBUTE_MODIFIER_FORMAT;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Alembic.MODID, value = Dist.CLIENT)
 public class ForgeClientEvents {
     @SubscribeEvent
-    public static void onTooltipRender(ItemTooltipEvent event){
+    public static void onTooltipRender(ItemTooltipEvent event) {
         if(!AlembicConfig.modifyTooltips.get()) return;
         if(event.getItemStack().getItem() instanceof PotionItem || event.getItemStack().getItem() instanceof SuspiciousStewItem) return;
         int target = 0;
         List<Component> toRemove = new ArrayList<>();
         if(!isValidItem(event.getItemStack().getItem())) return;
+
         for(Component component : event.getToolTip()){
             if(component.getString().contains("When in")) {
                 target = event.getToolTip().indexOf(component) + 1;
@@ -35,11 +36,15 @@ public class ForgeClientEvents {
             }
             removeAttributeTooltip(event.getItemStack(), toRemove, component);
         }
+
         event.getToolTip().removeAll(toRemove);
+
         if(target != 0){
             int finalTarget = target;
             ItemStat stat = ItemStatHolder.get(event.getItemStack().getItem());
+
             if(stat == null) return;
+
             stat.createAttributes().forEach((key, value) -> {
                 if (event.getEntity() == null) return;
                 if (key.descriptionId.contains("physical_damage")) return;
