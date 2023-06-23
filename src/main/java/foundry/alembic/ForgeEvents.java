@@ -1,7 +1,6 @@
 package foundry.alembic;
 
 import com.google.common.collect.*;
-import com.mojang.datafixers.util.Pair;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
@@ -26,10 +25,7 @@ import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -58,7 +54,6 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -66,7 +61,6 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
 
@@ -79,24 +73,28 @@ public class ForgeEvents {
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
 
-    @SubscribeEvent
-    static void onLevelUp(PlayerXpEvent.LevelChange event){
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    static void onLevelUp(PlayerXpEvent.LevelChange event) {
         Player player = event.getEntity();
         if(player.level.isClientSide) return;
-        for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(event.getEntity())) {
+        for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(player.experienceLevel + event.getLevels())) {
+            // Get the upgrade region
             RangedAttribute attribute = tag.getAffectedAttribute();
-            if (player.getAttributes().hasAttribute(attribute)) {
-                AttributeInstance playerAttribute = player.getAttribute(attribute);
-                playerAttribute.setBaseValue(playerAttribute.getBaseValue()+tag.getBonusPerLevel());
 
-                CompoundTag nbt = player.getPersistentData();
-                if (nbt.contains(attribute.descriptionId)) {
-                    if (nbt.getInt(attribute.descriptionId) < tag.getCap()) {
-                        nbt.putInt(attribute.descriptionId, nbt.getInt(attribute.descriptionId)+1);
-                    }
-                } else {
-                    nbt.putInt(attribute.descriptionId, 1);
+            int playerRegion = getTagDataElement(player, attribute.descriptionId);
+
+            if (player.getAttributes().hasAttribute(attribute)) {
+                AttributeInstance instance = player.getAttribute(attribute);
+                instance.setBaseValue(instance.getBaseValue()+tag.getBonus());
+
+                // Write the number of level-ups for the attribute
+                if (playerRegion < tag.getCap()) {
+                    setTagDataElement(player, attribute.descriptionId, playerRegion+1);
                 }
+
+                Alembic.ifPrintDebug(() -> {
+                    player.displayClientMessage(Component.literal(attribute.descriptionId + " level up bonus: " + (playerRegion+1)), true);
+                });
             }
         }
     }
@@ -117,29 +115,22 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onItemAttributes(ItemAttributeModifierEvent event) {
         if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
-            int level = event.getItemStack().getAllEnchantments().get(Enchantments.FIRE_ASPECT);
+            int level = event.getItemStack().getEnchantmentLevel(Enchantments.FIRE_ASPECT);
             Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
             if(fireDamage == null) return;
             if(!event.getSlotType().equals(EquipmentSlot.MAINHAND)) return;
             event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
-            event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -1*(1+level), AttributeModifier.Operation.ADDITION));
+            event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -(1+level), AttributeModifier.Operation.ADDITION));
         }
         ItemStat stat = ItemStatHolder.get(event.getItemStack().getItem());
         if(stat == null) return;
         stat.createAttributes().forEach((key, value) -> {
             if (stat.equipmentSlot().equals(event.getSlotType())) {
                 if (key.equals(ForgeRegistries.ATTRIBUTES.getValue(Alembic.location("physical_damage")))) {
-                    AtomicReference<Pair<Attribute, AttributeModifier>> toRemove = new AtomicReference<>();
-                    event.getOriginalModifiers().forEach((attribute, attributeModifier) -> {
-                        if (attribute.equals(Attributes.ATTACK_DAMAGE)) {
-                            toRemove.set(Pair.of(attribute, attributeModifier));
-                        }
-                    });
-                    if (toRemove.get() != null)
-                        event.getOriginalModifiers().remove(toRemove.get().getFirst(), toRemove.get().getSecond());
-                    event.getOriginalModifiers().put(Attributes.ATTACK_DAMAGE, value);
+                    event.removeAttribute(Attributes.ATTACK_DAMAGE);
+                    event.addModifier(Attributes.ATTACK_DAMAGE, value);
                 } else {
-                    event.getOriginalModifiers().put(key, value);
+                    event.addModifier(key, value);
                 }
             }
         });
@@ -155,21 +146,27 @@ public class ForgeEvents {
         event.setBlockedDamage(0);
     }
 
-    private static ObjectSet<UUID> recurses = new ObjectOpenHashSet<>(); // TODO: this feels dangerous? but I have no proof that it is
+    private static boolean isBeingDamaged = false;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void hurt(final LivingHurtEvent event) {
-        if (event.getEntity().level.isClientSide) return;
-        if (recurses.contains(event.getEntity().getUUID())) return;
-        recurses.add(event.getEntity().getUUID());
+        LivingEntity target = event.getEntity();
+
+        if (target.level.isClientSide) return;
+        if (isBeingDamaged) {
+            return;
+        }
+
+        isBeingDamaged = true;
+
         Alembic.ifPrintDebug(() -> {
-            Alembic.LOGGER.info("Handling hurt event for " + event.getEntity().getName().getString() + " with source " + event.getSource().getMsgId() + " and amount " + event.getAmount());
-            Alembic.LOGGER.info("Source is " + event.getSource().getDirectEntity() + " and is projectile? " + (event.getSource().getDirectEntity() instanceof Projectile));
+            Alembic.LOGGER.info("Handling hurt event for {} with source {} and amount {}", target.getName().getString(), event.getSource().getMsgId(), event.getAmount());
+            Alembic.LOGGER.info("Source is {} and is projectile? {}", event.getSource().getDirectEntity(), event.getSource().getDirectEntity() instanceof Projectile);
         });
+
         if (event.getSource() instanceof IndirectEntityDamageSource || event.getSource().getDirectEntity() == null || (event.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
-                || event.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (event.getSource().getDirectEntity() instanceof Projectile) ){
-            recurses.remove(event.getEntity().getUUID());
-            LivingEntity target = event.getEntity();
+                || event.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (event.getSource().getDirectEntity() instanceof Projectile)) {
+            isBeingDamaged = false;
             float totalDamage = event.getAmount();
             AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(event.getSource());
             Alembic.ifPrintDebug(() -> {
@@ -178,10 +175,10 @@ public class ForgeEvents {
             if (override != null) {
                 handleTypedDamage(target, null, totalDamage, override, event.getSource());
                 //target.hurt(e.getSource(), totalDamage);
-                recurses.remove(event.getEntity().getUUID());
+                isBeingDamaged = false;
                 event.setCanceled(true);
             } else {
-                recurses.remove(event.getEntity().getUUID());
+                isBeingDamaged = false;
                 return;
             }
         } else if (event.getSource().getDirectEntity() instanceof LivingEntity || (event.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
@@ -192,14 +189,13 @@ public class ForgeEvents {
                 attacker = (LivingEntity) event.getSource().getDirectEntity();
             }
             if(attacker == null) {
-                recurses.remove(event.getEntity().getUUID());
+                isBeingDamaged = false;
                 return;
             }
-            LivingEntity target = event.getEntity();
             Multimap<Attribute, AttributeModifier> map = ArrayListMultimap.create();
             if (handleEnchantments(attacker, target, map)) return;
             float totalDamage = event.getAmount();
-            AlembicResistance stats = AlembicResistanceHolder.get(attacker.getType());
+            AlembicResistance stats = AlembicResistanceHolder.get(target.getType());
             boolean entityOverride = stats != null;
             float damageOffset = 0;
             if (entityOverride) {
@@ -213,8 +209,6 @@ public class ForgeEvents {
                         damage *= 0.25;
                     }
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
-                    if (damageType.getId().equals(Alembic.location("physical_damage")))
-                        attrValue = target.getArmorValue();
                     AlembicDamageEvent.Pre preDamage = new AlembicDamageEvent.Pre(target, attacker, damageType, damage, attrValue);
                     MinecraftForge.EVENT_BUS.post(preDamage);
                     damage = preDamage.getDamage();
@@ -241,9 +235,8 @@ public class ForgeEvents {
                     attributeInstance.removeModifier(TEMP_MOD_UUID2);
                 }
             });
-            attacker.getAttributes();
         }
-        recurses.remove(event.getEntity().getUUID());
+        isBeingDamaged = false;
         event.setCanceled(true);
     }
 
@@ -310,9 +303,9 @@ public class ForgeEvents {
             sendDamagePacket(target, damageType, damage);
             target.gameEvent(GameEvent.ENTITY_DAMAGE);
             target.invulnerableTime = invtime;
-            Alembic.ifPrintDebug(() -> {
+            if (Alembic.isDebugEnabled()) {
                 Alembic.LOGGER.info("Dealt damage of type " + damageType.getId() + " to " + target.getName().getString() + " for " + damage + " damage.");
-            });
+            }
         }
     }
 
@@ -347,22 +340,22 @@ public class ForgeEvents {
     }
 
     private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicOverride override, DamageSource originalSource) {
-        for (Map.Entry<AlembicDamageType, Float> entry : override.getDamages().entrySet()) {
+        for (Object2FloatMap.Entry<AlembicDamageType> entry : override.getDamages().object2FloatEntrySet()) {
             AlembicDamageType damageType = entry.getKey();
-            float percentage = entry.getValue();
+            float percentage = entry.getFloatValue();
             float damage = totalDamage * percentage;
-            if(AlembicConfig.enableDebugPrints.get()){
-                Alembic.LOGGER.info("Damage: {} {} {} {} {}", damage, damageType.getId().toString(), totalDamage, percentage, totalDamage * percentage);
+            if (AlembicConfig.enableDebugPrints.get()) {
+                Alembic.LOGGER.info("Damage: {} Type: {} Total: {} Percentage: {} Final Damage: {}", damage, damageType.getId(), totalDamage, percentage, totalDamage - damage);
             }
             totalDamage -= damage;
-            if(AlembicConfig.ownerAttributeProjectiles.get() && attacker != null){
-                if(attacker.getAttribute(damageType.getAttribute()) != null){
+            if (AlembicConfig.ownerAttributeProjectiles.get() && attacker != null) {
+                if (attacker.getAttribute(damageType.getAttribute()) != null) {
                     double attrValue = attacker.getAttribute(damageType.getAttribute()).getValue();
                     damage += attrValue;
                 }
             }
             if (damage <= 0) {
-                Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
+                Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId());
                 continue;
             }
             damageCalc(target, attacker, damageType, damage, originalSource);
@@ -370,26 +363,25 @@ public class ForgeEvents {
     }
 
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
-        AtomicReference<Float> total = new AtomicReference<>(0f);
-        stats.getDamage().forEach((alembicDamageType, multiplier) -> {
-            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
+        return (float) stats.getDamage().object2FloatEntrySet().stream().mapToDouble(entry -> {
+            AlembicDamageType alembicDamageType = entry.getKey();
+            float multiplier = entry.getFloatValue();
+            if (stats.getIgnoredSources().contains(DamageSourceIdentifier.create(originalSource.msgId))) return 0;
             float damage = totalDamage * multiplier;
             if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
                 damage *= 0.25;
             }
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
-                return;
+                return 0;
             }
-            total.set(total.get() + damage);
             damageCalc(target, attacker, alembicDamageType, damage, originalSource);
-        });
-        return total.get();
+            return damage;
+        }).sum();
     }
 
     private static void damageCalc(LivingEntity target, LivingEntity attacker, AlembicDamageType alembicDamageType, float damage, DamageSource originalSource) {
         float attrValue = target.getAttributes().hasAttribute(alembicDamageType.getResistanceAttribute()) ? (float) target.getAttribute(alembicDamageType.getResistanceAttribute()).getValue() : 0;
-        if (alembicDamageType.getId().equals(Alembic.location("physical_damage"))) attrValue = target.getArmorValue();
         AlembicDamageEvent.Pre preDamage = new AlembicDamageEvent.Pre(target, attacker, alembicDamageType, damage, attrValue);
         MinecraftForge.EVENT_BUS.post(preDamage);
         damage = preDamage.getDamage();
@@ -426,30 +418,65 @@ public class ForgeEvents {
         return entity instanceof Player p ? DamageSource.playerAttack(p) : DamageSource.mobAttack(entity);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST) // We don't want to modify, but we do want to get the final values
     static void hungerChanged(AlembicFoodChangeEvent event) {
         if (event.getPlayer().level.isClientSide) return;
-        for (Map.Entry<AlembicDamageType, AlembicHungerTag> set : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
-            AlembicDamageType type = set.getKey();
-            AlembicHungerTag tag = set.getValue();
-            Player player = event.getPlayer();
-            //if(player.getFoodData().getFoodLevel() >= 20) return;
+
+        Player player = event.getPlayer();
+        int hungerValue = event.getFoodLevel();
+
+        for (Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
+            AlembicDamageType type = entry.getKey();
+            AlembicHungerTag tag = entry.getValue();
+            float affectedFraction = (float)hungerValue / (float)tag.getHungerTrigger();
+            String modifierId = "%s.%s_hunger_mod".formatted(type.createTranslationString(), tag.getTypeModifier());
+
+            int playerRegion = getTagDataElement(player, modifierId);
+            if (playerRegion == (int)affectedFraction && affectedFraction % 1 != 0) {
+                return;
+            }
+            setTagDataElement(player, modifierId, (int)affectedFraction);
+
             RangedAttribute attribute = tag.getTypeModifier().getAffectedAttribute(type);
             AttributeInstance instance = player.getAttribute(attribute);
-            if (instance != null) {
-                int hungerValue = player.getFoodData().getFoodLevel();
-                float scalar = ((20 - hungerValue) % tag.getHungerTrigger() == 0) ? tag.getScaleAmount() : 1 ;
-                AttributeModifier modifier = new AttributeModifier(tag.getUUID(), type.getId().getPath() + tag.getTypeModifier() + "_hunger_mod", scalar, tag.getOperation());
+
+            if (instance != null) { // maybe log warning?
+                float scalar = tag.getScaleAmount() * ((20 / tag.getHungerTrigger()) - (int)affectedFraction);
+
+                AttributeModifier modifier = new AttributeModifier(tag.getUUID(), modifierId, scalar, tag.getOperation());
+
                 if (instance.getModifier(tag.getUUID()) != null) {
                     instance.removeModifier(tag.getUUID());
                     instance.addTransientModifier(modifier);
                 } else {
                     instance.addTransientModifier(modifier);
                 }
+
                 Alembic.ifPrintDebug(() -> {
-                    player.displayClientMessage(Component.literal("Resistance: " + instance.getValue()), true);
+                    player.displayClientMessage(Component.literal(modifierId + " Resistance: " + instance.getValue()), true);
                 });
             }
         }
+    }
+
+    private static int getTagDataElement(Player player, String id) {
+        CompoundTag persistentData = player.getPersistentData();
+        if (!persistentData.contains("AlembicTagData")) {
+            return 0;
+        }
+        CompoundTag tagData = persistentData.getCompound("AlembicTagData");
+        if (!tagData.contains(id)) {
+            return 0;
+        }
+        return tagData.getInt(id);
+    }
+
+    private static void setTagDataElement(Player player, String id, int region) {
+        CompoundTag persistentData = player.getPersistentData();
+        if (!persistentData.contains("AlembicTagData")) {
+            persistentData.put("AlembicTagData", new CompoundTag());
+        }
+        CompoundTag tagData = persistentData.getCompound("AlembicTagData");
+        tagData.putInt(id, region);
     }
 }

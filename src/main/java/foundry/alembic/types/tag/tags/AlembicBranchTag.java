@@ -35,10 +35,8 @@ public class AlembicBranchTag extends AbstractTag {
     public void onDamage(ComposedData data) {
         if (run.testConditions(data)) {
             run.onDamage(data);
-        } else {
-            if (elseRun.testConditions(data)) {
-                elseRun.onDamage(data);
-            }
+        } else if (elseRun.testConditions(data)) {
+            elseRun.onDamage(data);
         }
     }
 
