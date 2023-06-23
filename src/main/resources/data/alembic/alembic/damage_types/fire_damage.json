@@ -7,12 +7,12 @@
     "color": "#F14700",
     "tags": [
         {
-            "tag_id": "alembic:branch_tag",
+            "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
             "else_run": {
-                "tag_id": "alembic:branch_tag",
+                "tag_type": "alembic:branch_tag",
                 "run": {
-                    "tag_id": "alembic:particle_tag",
+                    "tag_type": "alembic:particle_tag",
                     "particle_speed": 0.05,
                     "particle_options": {
                         "type": "minecraft:flame"
@@ -25,7 +25,7 @@
                     ]
                 },
                 "else_run": {
-                    "tag_id": "alembic:particle_tag",
+                    "tag_type": "alembic:particle_tag",
                     "particle_options": {
                         "type": "alembic:fire_damage"
                     },
@@ -34,7 +34,7 @@
             }
         },
         {
-            "tag_id": "alembic:extend_fire_tag",
+            "tag_type": "alembic:extend_fire_tag",
             "multiplier": 0.25,
             "ignored_sources": [
                 "inFire",

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface AlembicTag {
-    Codec<AlembicTag> DISPATCH_CODEC = AlembicTagRegistry.TAG_MAP_CODEC.dispatch("tag_id", alembicTag -> {
+    Codec<AlembicTag> DISPATCH_CODEC = AlembicTagRegistry.TAG_MAP_CODEC.dispatch("tag_type", alembicTag -> {
         if (alembicTag.getType() == null) {
             throw new IllegalStateException("TagType for " + alembicTag.toString() + " is null");
         }

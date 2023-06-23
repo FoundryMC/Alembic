@@ -37,7 +37,7 @@ public class ItemStatJSONListener extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        ItemStatHolder.clear();
+        ItemStatHolder.ITEM_STATS.clear();
         int numStatsLoaded = 0;
         for(Map.Entry<ResourceLocation, JsonElement> jsonEntry : pObject.entrySet()) {
             DataResult<ItemStat> result = ItemStat.CODEC.parse(JsonOps.INSTANCE, jsonEntry.getValue());
@@ -48,9 +48,11 @@ public class ItemStatJSONListener extends SimpleJsonResourceReloadListener {
             ItemStat stat = result.result().get();
             Item item = stat.item();
             ResourceLocation itemId = Registry.ITEM.getKey(item);
-            Alembic.LOGGER.debug("Adding item stat %s to %s".formatted(jsonEntry.getKey(), itemId));
+            Alembic.ifPrintDebug(() -> {
+                Alembic.LOGGER.debug("Adding item stat %s to %s".formatted(jsonEntry.getKey(), itemId));
+            });
 
-            ItemStatHolder.put(item, stat);
+            ItemStatHolder.ITEM_STATS.put(item, stat);
             numStatsLoaded++;
         }
         Alembic.LOGGER.debug("Loaded " + numStatsLoaded + " item stats");

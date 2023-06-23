@@ -7,28 +7,28 @@
   "enchant_source": "mob",
   "tags": [
     {
-      "tag_id": "alembic:branch_tag",
+      "tag_type": "alembic:branch_tag",
       "run": "alembic:particles/ender",
       "else_run": {
-        "tag_id": "alembic:branch_tag",
+        "tag_type": "alembic:branch_tag",
         "run": "alembic:particles/wither",
         "else_run": {
-          "tag_id": "alembic:branch_tag",
+          "tag_type": "alembic:branch_tag",
           "run": "alembic:particles/skulk",
           "else_run": {
-            "tag_id": "alembic:branch_tag",
+            "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
             "else_run": {
-              "tag_id": "alembic:branch_tag",
+              "tag_type": "alembic:branch_tag",
               "run": {
-                "tag_id": "alembic:particle_tag",
+                "tag_type": "alembic:particle_tag",
                 "particle_options": {
                   "type": "alembic:arcane_damage"
                 },
                 "conditions": "alembic:damage_from_player"
               },
               "else_run": {
-                "tag_id": "alembic:particle_tag",
+                "tag_type": "alembic:particle_tag",
                 "particle_speed": 0.35,
                 "particle_options": {
                   "type": "alembic:arcane_spark"
@@ -40,7 +40,7 @@
       }
     },
     {
-      "tag_id": "alembic:per_level_tag",
+      "tag_type": "alembic:per_level_tag",
       "bonus_per_level": 1,
       "max": 10,
       "level_difference": 5,
