@@ -29,7 +29,7 @@ public class TagOrElementPredicate<E> {
                         return element.map(t -> DataResult.success(new TagOrElementPredicate<>(tagOrElementLocation, (E e) -> e == t)))
                                 .orElseGet(() -> DataResult.error("Element %s not found!".formatted(tagOrElementLocation.id())));
                     }
-                    return DataResult.success(new TagOrElementPredicate<>(tagOrElementLocation, new Predicate<E>() {
+                    return DataResult.success(new TagOrElementPredicate<>(tagOrElementLocation, new Predicate<>() {
                         private final TagKey<T> tagKey = TagKey.create(registryKey, tagOrElementLocation.id());
 
                         @Override
