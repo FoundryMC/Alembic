@@ -19,6 +19,7 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -59,6 +60,15 @@ public class CodecUtil {
         } catch (IllegalArgumentException e) {
             return s -> null;
         }
+    }
+
+    public static <A, B> Codec<A> safeDispatch(Codec<B> typeCodec, String typeKey, Function<A, B> getType, Function<B, Codec<? extends A>> getCodec) {
+        return typeCodec.dispatch(typeKey, a -> {
+            if (getType.apply(a) == null) {
+                throw new IllegalStateException("Type for " + a.toString() + " is null");
+            }
+            return getType.apply(a);
+        }, getCodec);
     }
 
     public static final Codec<UUID> STRING_UUID = ExtraCodecs.stringResolverCodec(UUID::toString, UUID::fromString);
@@ -144,6 +154,19 @@ public class CodecUtil {
             }
 
             return builder.build(prefix);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SetCodec<?> setCodec = (SetCodec<?>) o;
+            return Objects.equals(elementCodec, setCodec.elementCodec);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(elementCodec);
         }
     }
 
