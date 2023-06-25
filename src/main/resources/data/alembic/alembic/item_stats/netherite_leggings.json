@@ -1,7 +1,8 @@
 {
   "id": "minecraft:netherite_leggings",
-  "attributes": [
+  "modifiers": [
     {
+      "type": "append",
       "attribute": "alembic:fire_damage.resistance",
       "value": 3,
       "operation": "ADDITION",

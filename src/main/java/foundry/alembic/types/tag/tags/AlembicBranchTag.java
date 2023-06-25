@@ -17,7 +17,7 @@ public class AlembicBranchTag extends AbstractTag {
             AbstractTag.createBase(instance).and(
                     instance.group(
                             AlembicReferenceTag.REFERENCE_CODEC.fieldOf("run").forGetter(sequence -> sequence.run),
-                            AlembicReferenceTag.REFERENCE_CODEC.fieldOf("else_run").forGetter(sequence -> sequence.elseRun)
+                            AlembicReferenceTag.REFERENCE_CODEC.fieldOf("else").forGetter(sequence -> sequence.elseRun)
                     )
             ).apply(instance, AlembicBranchTag::new)
     );

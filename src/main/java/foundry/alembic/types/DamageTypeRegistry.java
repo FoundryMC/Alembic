@@ -11,7 +11,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.*;
 
 public class DamageTypeRegistry {
-    private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
+    static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
     public static final DeferredRegister<MobEffect> RESISTANCE_EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Alembic.MODID);
 
     public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {

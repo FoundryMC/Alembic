@@ -1,9 +1,9 @@
-package foundry.alembic.types.tag.tags;
+package foundry.alembic.types;
 
-import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.tag.tags.AlembicHungerTag;
+import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 public class AlembicGlobalTagPropertyHolder {
     private static final Int2ObjectMap<Set<AlembicPerLevelTag>> LEVELUP_BONUS = new Int2ObjectOpenHashMap<>();
     private static final Map<AlembicDamageType, AlembicHungerTag> HUNGER_BONUS = new HashMap<>();
+
+    static void clearAll() {
+        LEVELUP_BONUS.clear();
+        HUNGER_BONUS.clear();
+    }
 
     public static void addLevelupBonus(AlembicPerLevelTag perLevelTag) {
         LEVELUP_BONUS.computeIfAbsent(perLevelTag.getLevelDifference(), i -> new HashSet<>()).add(perLevelTag);

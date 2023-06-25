@@ -7,8 +7,8 @@ import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.items.ItemStat;
-import foundry.alembic.items.ItemStatHolder;
-import foundry.alembic.items.ItemStatJSONListener;
+import foundry.alembic.items.ItemStatManager;
+import foundry.alembic.items.slots.VanillaSlotType;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
@@ -20,14 +20,16 @@ import foundry.alembic.resistances.ResistanceJsonListener;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeJSONListener;
 import foundry.alembic.types.DamageTypeRegistry;
-import foundry.alembic.types.tag.tags.AlembicGlobalTagPropertyHolder;
+import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
+import foundry.alembic.util.AttributeHelper;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -58,7 +60,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
@@ -68,6 +69,7 @@ import static foundry.alembic.Alembic.MODID;
 public class ForgeEvents {
     public static UUID ALEMBIC_FIRE_RESIST_UUID = UUID.fromString("b3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID ALEMBIC_FIRE_DAMAGE_UUID = UUID.fromString("e3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
+//    public static final UUID ALEMBIC_HUNGER_MOD_UUID = UUID.fromString("e3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b"); // NOW USING UUIDManager
     public static UUID ALEMBIC_NEGATIVE_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
 
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
@@ -80,21 +82,22 @@ public class ForgeEvents {
         for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(player.experienceLevel + event.getLevels())) {
             // Get the upgrade region
             RangedAttribute attribute = tag.getAffectedAttribute();
+            ResourceLocation modifierId = tag.getModifierId();
 
-            int playerRegion = getTagDataElement(player, attribute.descriptionId);
+            int playerRegion = getTagDataElement(player, modifierId.toString());
 
             if (player.getAttributes().hasAttribute(attribute)) {
-                AttributeInstance instance = player.getAttribute(attribute);
-                instance.setBaseValue(instance.getBaseValue()+tag.getBonus());
-
-                // Write the number of level-ups for the attribute
                 if (playerRegion < tag.getCap()) {
-                    setTagDataElement(player, attribute.descriptionId, playerRegion+1);
+                    AttributeInstance instance = player.getAttribute(attribute);
+                    AttributeHelper.addOrModifyModifier(instance, modifierId, tag.getBonus());
+
+                    // Write the number of level-ups for the attribute
+                    setTagDataElement(player, modifierId.toString(), playerRegion+=tag.getBonus());
                 }
 
-                Alembic.ifPrintDebug(() -> {
-                    player.displayClientMessage(Component.literal(attribute.descriptionId + " level up bonus: " + (playerRegion+1)), true);
-                });
+                if (Alembic.isDebugEnabled()) {
+                    player.displayClientMessage(Component.literal(modifierId + ": " + playerRegion), true);
+                }
             }
         }
     }
@@ -105,16 +108,16 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    static void onJsonListener(AddReloadListenerEvent event){
+    static void onJsonListener(AddReloadListenerEvent event) {
         DamageTypeJSONListener.register(event);
         OverrideJSONListener.register(event);
         ResistanceJsonListener.register(event);
-        ItemStatJSONListener.register(event);
+        event.addListener(new ItemStatManager());
     }
 
     @SubscribeEvent
     public static void onItemAttributes(ItemAttributeModifierEvent event) {
-        if(event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
+        if (event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
             int level = event.getItemStack().getEnchantmentLevel(Enchantments.FIRE_ASPECT);
             Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
             if(fireDamage == null) return;
@@ -122,18 +125,10 @@ public class ForgeEvents {
             event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
             event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -(1+level), AttributeModifier.Operation.ADDITION));
         }
-        ItemStat stat = ItemStatHolder.get(event.getItemStack().getItem());
-        if(stat == null) return;
-        stat.createAttributes().forEach((key, value) -> {
-            if (stat.equipmentSlot().equals(event.getSlotType())) {
-                if (key.equals(ForgeRegistries.ATTRIBUTES.getValue(Alembic.location("physical_damage")))) {
-                    event.removeAttribute(Attributes.ATTACK_DAMAGE);
-                    event.addModifier(Attributes.ATTACK_DAMAGE, value);
-                } else {
-                    event.addModifier(key, value);
-                }
-            }
-        });
+        Collection<ItemStat> stats = ItemStatManager.getStats(event.getItemStack().getItem(), new VanillaSlotType(event.getSlotType()));
+
+        if(stats.isEmpty()) return;
+        stats.forEach(itemStat -> itemStat.computeAttributes(event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
     }
 
 

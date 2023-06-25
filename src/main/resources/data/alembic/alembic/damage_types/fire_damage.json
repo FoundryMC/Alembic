@@ -9,7 +9,7 @@
         {
             "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
-            "else_run": {
+            "else": {
                 "tag_type": "alembic:branch_tag",
                 "run": {
                     "tag_type": "alembic:particle_tag",
@@ -24,7 +24,7 @@
                         }
                     ]
                 },
-                "else_run": {
+                "else": {
                     "tag_type": "alembic:particle_tag",
                     "particle_options": {
                         "type": "alembic:fire_damage"

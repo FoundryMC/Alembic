@@ -1,31 +1,36 @@
 package foundry.alembic.items;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import foundry.alembic.items.slots.EquipmentSlotType;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.item.Item;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ItemStatHolder {
-    static final Map<Item, ItemStat> ITEM_STATS = new Reference2ObjectOpenHashMap<>();
+    private final Map<Item, Multimap<EquipmentSlotType, ItemStat>> stats = new Reference2ObjectOpenHashMap<>();
 
-    public static ItemStat get(Item item){
-        return ITEM_STATS.get(item);
-    }
-
-    public static boolean contains(Item item){
-        return ITEM_STATS.containsKey(item);
-    }
-
-    public static Collection<Item> getItems(){
-        return Collections.unmodifiableCollection(ITEM_STATS.keySet());
-    }
-
-    public static Set<UUID> getUUIDs(Item item) {
-        if (!ITEM_STATS.containsKey(item)) {
-            return Set.of();
+    public Collection<ItemStat> get(Item item, EquipmentSlotType slot) {
+        if (!stats.containsKey(item)) {
+            return Collections.emptyList();
         }
-        return ITEM_STATS.get(item).attributeData().stream().map(ItemStatAttributeData::getUUID).collect(Collectors.toSet());
+        Multimap<EquipmentSlotType, ItemStat> map = stats.get(item);
+        return Collections.unmodifiableCollection(map.get(slot));
+    }
+
+    public void add(ItemStat stat) {
+        stat.items().getElements().forEach(item -> {
+            stats.computeIfAbsent(item, item1 -> HashMultimap.create()).put(stat.equipmentSlot(), stat);
+        });
+    }
+
+    public void clear() {
+        stats.clear();
+    }
+
+    public boolean contains(Item item) {
+        return stats.containsKey(item);
     }
 }
 

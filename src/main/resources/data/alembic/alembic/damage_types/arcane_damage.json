@@ -9,16 +9,16 @@
     {
       "tag_type": "alembic:branch_tag",
       "run": "alembic:particles/ender",
-      "else_run": {
+      "else": {
         "tag_type": "alembic:branch_tag",
         "run": "alembic:particles/wither",
-        "else_run": {
+        "else": {
           "tag_type": "alembic:branch_tag",
           "run": "alembic:particles/skulk",
-          "else_run": {
+          "else": {
             "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
-            "else_run": {
+            "else": {
               "tag_type": "alembic:branch_tag",
               "run": {
                 "tag_type": "alembic:particle_tag",
@@ -27,7 +27,7 @@
                 },
                 "conditions": "alembic:damage_from_player"
               },
-              "else_run": {
+              "else": {
                 "tag_type": "alembic:particle_tag",
                 "particle_speed": 0.35,
                 "particle_options": {

@@ -1,7 +1,8 @@
 {
   "id": "minecraft:golden_boots",
-  "attributes": [
+  "modifiers": [
     {
+      "type": "append",
       "attribute": "alembic:arcane_damage.resistance",
       "value": 2,
       "operation": "ADDITION",

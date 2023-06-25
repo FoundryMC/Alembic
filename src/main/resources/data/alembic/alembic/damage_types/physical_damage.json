@@ -1,7 +1,7 @@
 {
   "priority": 1,
   "attributes": {
-    "attribute": "alembic:physical_damage",
+    "attribute": "minecraft:generic.attack_damage",
     "shielding_attribute": "alembic:physical_damage.shielding",
     "absorption_attribute": "alembic:physical_damage.absorption",
     "resistance_attribute": "minecraft:generic.armor"

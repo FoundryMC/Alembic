@@ -1,13 +1,15 @@
 {
   "id": "minecraft:soul_torch",
-  "attributes": [
+  "modifiers": [
     {
+      "type": "append",
       "attribute": "alembic:arcane_damage",
       "value": 0.5,
       "operation": "ADDITION",
       "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"
     },
     {
+      "type": "append",
       "attribute": "alembic:fire_damage",
       "value": 0.5,
       "operation": "ADDITION",

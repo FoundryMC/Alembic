@@ -3,11 +3,14 @@ package foundry.alembic.types.tag.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.util.ComposedData;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,8 +74,14 @@ public class AlembicPerLevelTag extends AbstractTag {
         return cap;
     }
 
+    public ResourceLocation getModifierId() {
+        ResourceLocation attributeId = Registry.ATTRIBUTE.getKey(affectedAttribute);
+        return new ResourceLocation(attributeId.getNamespace(), attributeId.getPath() + ".level_up");
+    }
+
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "Bonus per level: %s, Level difference: %s, Max value: %s, Affected attribute: %s".formatted(bonusPerLevel, levelDifference, cap, affectedAttribute.descriptionId);
+        return this.getClass().getSimpleName() + "Bonus per level: %s, Level difference: %s, Max value: %s, Affected attribute: %s"
+                .formatted(bonusPerLevel, levelDifference, cap, affectedAttribute.descriptionId);
     }
 }

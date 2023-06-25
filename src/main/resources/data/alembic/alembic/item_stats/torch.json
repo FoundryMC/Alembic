@@ -1,7 +1,8 @@
 {
   "id": "minecraft:torch",
-  "attributes": [
+  "modifiers": [
     {
+      "type": "append",
       "attribute": "alembic:fire_damage",
       "value": 1,
       "operation": "ADDITION",

@@ -27,6 +27,8 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
+        DamageTypeRegistry.DAMAGE_TYPES.clear();
+        AlembicGlobalTagPropertyHolder.clearAll();
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             ResourceLocation id = entry.getKey();
             if (id.getPath().startsWith("tags/") || id.getPath().startsWith("conditions/")) {
