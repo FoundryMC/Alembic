@@ -7,17 +7,17 @@ import net.minecraft.core.Registry;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
 public class ItemStatAttributeData {
     public static final Codec<ItemStatAttributeData> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
-                Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(ItemStatAttributeData::getAttribute),
+                ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(ItemStatAttributeData::getAttribute),
                 Codec.FLOAT.fieldOf("value").forGetter(ItemStatAttributeData::getValue),
                 CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(ItemStatAttributeData::getOperation),
                 CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(ItemStatAttributeData::getUUID)
-
         ).apply(instance, ItemStatAttributeData::new)
     );
 

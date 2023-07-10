@@ -62,6 +62,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
 
@@ -134,6 +135,17 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onLivingSpawn(final LivingSpawnEvent event) {
+        if(!event.getLevel().isClientSide()){
+            AlembicResistance stats = AlembicResistanceHolder.get(event.getEntity().getType());
+            if(stats != null){
+                stats.getResistances().forEach((damageType, value) -> {
+                    AttributeInstance resistanceInstance = event.getEntity().getAttribute(damageType.getResistanceAttribute());
+                    if(resistanceInstance != null){
+                        resistanceInstance.setBaseValue(value);
+                    }
+                });
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -198,7 +210,7 @@ public class ForgeEvents {
             }
             totalDamage -= damageOffset;
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
-                if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0) {
+                if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0 && !entityOverride) {
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
                     if(target.isBlocking() && !damageType.getId().getPath().contains("true_damage")) {
                         damage *= 0.25;
@@ -358,21 +370,29 @@ public class ForgeEvents {
     }
 
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
-        return (float) stats.getDamage().object2FloatEntrySet().stream().mapToDouble(entry -> {
-            AlembicDamageType alembicDamageType = entry.getKey();
-            float multiplier = entry.getFloatValue();
-            if (stats.getIgnoredSources().contains(DamageSourceIdentifier.create(originalSource.msgId))) return 0;
-            float damage = totalDamage * multiplier;
+        AtomicReference<Float> total = new AtomicReference<>(0f);
+        stats.getResistances().forEach((alembicDamageType, multiplier) -> {
+            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
+            AttributeInstance i = attacker.getAttribute(alembicDamageType.getAttribute());
+            if (i == null) return;
+            // multiplier is 0-2, 1 is normal damage, 2 is no damage, 0 is double damage. scale the value of i by this
+            if(multiplier < 1){
+                multiplier = 1 + (1 - multiplier);
+            } else {
+                multiplier = 1 - (multiplier - 1);
+            }
+            float damage = (float) (i.getValue() * multiplier);
             if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
                 damage *= 0.25;
             }
-            if (damage <= 0) {
+            if (damage < 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
-                return 0;
+                return;
             }
+            total.set(total.get() + damage);
             damageCalc(target, attacker, alembicDamageType, damage, originalSource);
-            return damage;
-        }).sum();
+        });
+        return total.get();
     }
 
     private static void damageCalc(LivingEntity target, LivingEntity attacker, AlembicDamageType alembicDamageType, float damage, DamageSource originalSource) {
