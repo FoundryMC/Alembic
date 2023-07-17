@@ -135,17 +135,17 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onLivingSpawn(final LivingSpawnEvent event) {
-        if(!event.getLevel().isClientSide()){
-            AlembicResistance stats = AlembicResistanceHolder.get(event.getEntity().getType());
-            if(stats != null){
-                stats.getResistances().forEach((damageType, value) -> {
-                    AttributeInstance resistanceInstance = event.getEntity().getAttribute(damageType.getResistanceAttribute());
-                    if(resistanceInstance != null){
-                        resistanceInstance.setBaseValue(value);
-                    }
-                });
-            }
-        }
+//        if(!event.getLevel().isClientSide()){
+//            AlembicResistance stats = AlembicResistanceHolder.get(event.getEntity().getType());
+//            if(stats != null){
+//                stats.getResistances().forEach((damageType, value) -> {
+//                    AttributeInstance resistanceInstance = event.getEntity().getAttribute(damageType.getResistanceAttribute());
+//                    if(resistanceInstance != null){
+//                        resistanceInstance.setBaseValue(value);
+//                    }
+//                });
+//            }
+//        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -210,6 +210,7 @@ public class ForgeEvents {
             }
             totalDamage -= damageOffset;
             for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
+                if(attacker.getAttribute(damageType.getAttribute()) == null) continue;
                 if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0 && !entityOverride) {
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
                     if(target.isBlocking() && !damageType.getId().getPath().contains("true_damage")) {
@@ -369,6 +370,29 @@ public class ForgeEvents {
         }
     }
 
+    private static AttributeModifier FIRE_WATER_ATT_MOD = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 6, AttributeModifier.Operation.ADDITION);
+
+    @SubscribeEvent
+    public static void livingTick(LivingEvent.LivingTickEvent event){
+        if(!event.getEntity().level.isClientSide){
+            if(event.getEntity().isInWaterOrRain()){
+                // if the entity is in water or rain, increase fire resistance by +6
+                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                if(fireRes == null) return;
+                if(event.getEntity().getAttribute(fireRes) == null) return;
+                if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
+                event.getEntity().getAttribute(fireRes).addPermanentModifier(FIRE_WATER_ATT_MOD);
+            } else {
+                // if the entity is not in water or rain, remove the fire resistance modifier
+                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                if(fireRes == null) return;
+                if(event.getEntity().getAttribute(fireRes) == null) return;
+                if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
+                event.getEntity().getAttribute(fireRes).removeModifier(FIRE_WATER_ATT_MOD);
+            }
+        }
+    }
+
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
         AtomicReference<Float> total = new AtomicReference<>(0f);
         stats.getResistances().forEach((alembicDamageType, multiplier) -> {
@@ -400,6 +424,9 @@ public class ForgeEvents {
         AlembicDamageEvent.Pre preDamage = new AlembicDamageEvent.Pre(target, attacker, alembicDamageType, damage, attrValue);
         MinecraftForge.EVENT_BUS.post(preDamage);
         damage = preDamage.getDamage();
+        if(attacker instanceof Player pe){
+            damage *= pe.getAttackStrengthScale(0.5F);
+        }
         attrValue = preDamage.getResistance();
         if (damage <= 0 || preDamage.isCanceled()) return;
         target.hurtArmor(originalSource, damage);
