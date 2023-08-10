@@ -28,7 +28,7 @@ public class AlembicOverrideHolder {
     }
 
     public static void smartAddOverride(DamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
-        Alembic.ifPrintDebug(() -> Alembic.LOGGER.info("Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId()));
+        Alembic.printInDebug(() -> "Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId());
         if (containsKey(sourceIdentifier)) {
             if (get(sourceIdentifier).getPriority() < override.getPriority()) {
                 Alembic.LOGGER.info("Replacing override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId() + " because it has a higher priority");

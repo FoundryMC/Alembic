@@ -1,25 +1,16 @@
 package foundry.alembic.resistances;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
-import foundry.alembic.override.AlembicOverride;
-import foundry.alembic.override.AlembicOverrideHolder;
-import foundry.alembic.override.OverrideJSONListener;
-import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.DamageTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
-import javax.json.Json;
 import java.util.*;
 
 public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
@@ -29,7 +20,7 @@ public class ResistanceJsonListener extends SimpleJsonResourceReloadListener {
     }
 
     public static void register(AddReloadListenerEvent event){
-        Alembic.LOGGER.debug("Registering ResistanceJSONListener");
+        Alembic.printInDebug(() -> "Registering ResistanceJSONListener");
         event.addListener(new ResistanceJsonListener());
     }
 

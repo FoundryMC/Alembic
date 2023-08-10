@@ -56,13 +56,14 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
+import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static foundry.alembic.Alembic.MODID;
 
@@ -70,7 +71,6 @@ import static foundry.alembic.Alembic.MODID;
 public class ForgeEvents {
     public static UUID ALEMBIC_FIRE_RESIST_UUID = UUID.fromString("b3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID ALEMBIC_FIRE_DAMAGE_UUID = UUID.fromString("e3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
-//    public static final UUID ALEMBIC_HUNGER_MOD_UUID = UUID.fromString("e3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b"); // NOW USING UUIDManager
     public static UUID ALEMBIC_NEGATIVE_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
 
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
@@ -166,19 +166,17 @@ public class ForgeEvents {
 
         isBeingDamaged = true;
 
-        Alembic.ifPrintDebug(() -> {
+        if (Alembic.isDebugEnabled()) {
             Alembic.LOGGER.info("Handling hurt event for {} with source {} and amount {}", target.getName().getString(), event.getSource().getMsgId(), event.getAmount());
             Alembic.LOGGER.info("Source is {} and is projectile? {}", event.getSource().getDirectEntity(), event.getSource().getDirectEntity() instanceof Projectile);
-        });
+        }
 
         if (event.getSource() instanceof IndirectEntityDamageSource || event.getSource().getDirectEntity() == null || (event.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
                 || event.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (event.getSource().getDirectEntity() instanceof Projectile)) {
             isBeingDamaged = false;
             float totalDamage = event.getAmount();
             AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(event.getSource());
-            Alembic.ifPrintDebug(() -> {
-                Alembic.LOGGER.info("Found override for " + event.getSource().getMsgId() + " with damage " + totalDamage + ". %s", override);
-            });
+            Alembic.printInDebug(() -> "Found override for " + event.getSource().getMsgId() + " with damage " + totalDamage + ". " + override);
             if (override != null) {
                 handleTypedDamage(target, null, totalDamage, override, event.getSource());
                 //target.hurt(e.getSource(), totalDamage);
@@ -394,7 +392,7 @@ public class ForgeEvents {
     }
 
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
-        AtomicReference<Float> total = new AtomicReference<>(0f);
+        MutableFloat total = new MutableFloat();
         stats.getResistances().forEach((alembicDamageType, multiplier) -> {
             if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
             AttributeInstance i = attacker.getAttribute(alembicDamageType.getAttribute());
@@ -413,10 +411,10 @@ public class ForgeEvents {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
                 return;
             }
-            total.set(total.get() + damage);
+            total.add(damage);
             damageCalc(target, attacker, alembicDamageType, damage, originalSource);
         });
-        return total.get();
+        return total.getValue();
     }
 
     private static void damageCalc(LivingEntity target, LivingEntity attacker, AlembicDamageType alembicDamageType, float damage, DamageSource originalSource) {
@@ -494,9 +492,9 @@ public class ForgeEvents {
                     instance.addTransientModifier(modifier);
                 }
 
-                Alembic.ifPrintDebug(() -> {
+                if (Alembic.isDebugEnabled()) {
                     player.displayClientMessage(Component.literal(modifierId + " Resistance: " + instance.getValue()), true);
-                });
+                }
             }
         }
     }
@@ -521,4 +519,10 @@ public class ForgeEvents {
         CompoundTag tagData = persistentData.getCompound("AlembicTagData");
         tagData.putInt(id, region);
     }
+
+    // Use to clear DamageTypeRegistry, ItemStatHolder, and AlembicResistanceHolder
+//    @SubscribeEvent
+//    static void clearDatapackElements(final LoggingOut event) {
+//
+//    }
 }

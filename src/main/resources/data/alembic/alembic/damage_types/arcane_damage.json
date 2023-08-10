@@ -1,7 +1,6 @@
 {
   "priority": 1,
   "attributes": "alembic:arcane_damage",
-  "particles": false,
   "color": "#9760FB",
   "enchant_reduction": true,
   "enchant_source": "mob",

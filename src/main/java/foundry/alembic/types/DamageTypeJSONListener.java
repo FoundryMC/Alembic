@@ -21,7 +21,7 @@ public class DamageTypeJSONListener extends SimpleJsonResourceReloadListener {
     }
 
     public static void register(AddReloadListenerEvent event){
-        Alembic.LOGGER.debug("Registering DamageTypeJSONListener");
+        Alembic.printInDebug(() -> "Registering DamageTypeJSONListener");
         event.addListener(new DamageTypeJSONListener());
     }
 

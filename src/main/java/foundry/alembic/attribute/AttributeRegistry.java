@@ -120,20 +120,19 @@ public class AttributeRegistry {
                 effectObj = () -> MobEffects.FIRE_RESISTANCE;
             }
             potionRegister.register("fire_resistance_strong", () -> new Potion(new MobEffectInstance(effectObj.get(), 1200, 1)));
-            return;
+        } else {
+            String resistanceId = setId.getPath() + "_resistance";
+
+            RegistryObject<MobEffect> effectObj = mobEffectRegister.register(resistanceId, () -> createMobEffect(attributeSet, dataHolder));
+            potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
+            potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
+            for (int i = 1; i <= dataHolder.getMaxLevel(); i++) {
+                final int real = i;
+                potionRegister.register(resistanceId + "_strong" + (i > 1 ? "_" + i : ""), () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real))); // TODO: is this right?
+            }
+
+            registerBrewingRecipes(dataHolder, setId, resistanceId);
         }
-
-        String resistanceId = setId.getPath() + "_resistance";
-
-        RegistryObject<MobEffect> effectObj = mobEffectRegister.register(resistanceId, () -> createMobEffect(attributeSet, dataHolder));
-        potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
-        potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
-        for (int i = 0; i < dataHolder.getMaxLevel(); i++) {
-            final int real = i;
-            potionRegister.register(resistanceId + "_strong_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real))); // TODO: is this right?
-        }
-
-        registerBrewingRecipes(dataHolder, setId, resistanceId);
     }
 
     public static void registerBrewingRecipes(AlembicPotionDataHolder dataHolder, ResourceLocation setId, String resistanceId) {

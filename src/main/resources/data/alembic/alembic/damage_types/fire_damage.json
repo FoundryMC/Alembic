@@ -1,7 +1,6 @@
 {
     "priority": 1,
     "attributes": "alembic:fire_damage",
-    "particles": true,
     "enchant_reduction": true,
     "enchant_source": "mob",
     "color": "#F14700",

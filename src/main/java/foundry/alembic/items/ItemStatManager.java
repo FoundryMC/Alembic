@@ -39,9 +39,7 @@ public class ItemStatManager extends SimpleJsonResourceReloadListener {
             }
             ItemStat stat = result.result().get();
             TagOrElements<Item> elements = stat.items();
-            Alembic.ifPrintDebug(() -> {
-                Alembic.LOGGER.debug("Adding items stat %s to %s".formatted(jsonEntry.getKey(), elements));
-            });
+            Alembic.printInDebug(() -> "Adding items stat %s to %s".formatted(jsonEntry.getKey(), elements));
 
             HOLDER.add(stat);
 

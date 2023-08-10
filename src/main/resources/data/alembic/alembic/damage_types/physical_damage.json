@@ -6,7 +6,6 @@
     "absorption_attribute": "alembic:physical_damage.absorption",
     "resistance_attribute": "minecraft:generic.armor"
   },
-  "particles": false,
   "color": "#F10000",
   "enchant_reduction": true,
   "enchant_source": "mob",

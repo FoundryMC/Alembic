@@ -1,7 +1,6 @@
 {
   "priority": 1,
   "attributes": "alembic:alchemical_damage",
-  "particles": true,
   "color": "#12B88E",
   "enchant_reduction": true,
   "enchant_source": "mob",

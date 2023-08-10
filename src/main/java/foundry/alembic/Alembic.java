@@ -27,6 +27,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 @Mod(Alembic.MODID)
 public class Alembic {
@@ -43,16 +44,18 @@ public class Alembic {
         }
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        AlembicMobEffectRegistry.MOB_EFFECTS.register(modEventBus);
+
         AttributeRegistry.initAndRegister(modEventBus);
         AlembicParticleRegistry.initAndRegister(modEventBus);
+
         TagConditionRegistry.init();
         AlembicTagRegistry.init();
+        DamageTypeRegistry.init();
 
         ForgeConfigSpec spec = AlembicConfig.makeConfig(new ForgeConfigSpec.Builder());
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, spec);
 
-        AlembicMobEffectRegistry.MOB_EFFECTS.register(modEventBus);
-        DamageTypeRegistry.init();
         AlembicPacketHandler.init();
 
         MinecraftForge.EVENT_BUS.addListener(this::saveCache);
@@ -70,9 +73,9 @@ public class Alembic {
         return new ResourceLocation(MODID, name);
     }
 
-    public static void ifPrintDebug(Runnable runnable) {
+    public static void printInDebug(Supplier<String> stringSupplier) {
         if (AlembicConfig.enableDebugPrints.get()) {
-            runnable.run();
+            Alembic.LOGGER.debug(stringSupplier.get());
         }
     }
 
@@ -80,7 +83,7 @@ public class Alembic {
         return AlembicConfig.enableDebugPrints.get();
     }
 
-    private void saveCache(ServerStoppingEvent event) {
+    private void saveCache(final ServerStoppingEvent event) {
         try {
             UUIDManager.saveCache();
         } catch (IOException e) {

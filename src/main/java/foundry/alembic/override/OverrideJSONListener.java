@@ -31,7 +31,7 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
     }
 
     public static void register(AddReloadListenerEvent event){
-        Alembic.LOGGER.debug("Registering OverrideJSONListener");
+        Alembic.printInDebug(() -> "Registering OverrideJSONListener");
         event.addListener(new OverrideJSONListener());
     }
 
