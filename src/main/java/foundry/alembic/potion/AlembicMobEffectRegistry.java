@@ -1,8 +1,8 @@
 package foundry.alembic.potion;
 
 import foundry.alembic.caps.AlembicFlammable;
-import foundry.alembic.potion.mobeffects.FireMobEffect;
-import foundry.alembic.potion.mobeffects.FrostbiteMobEffect;
+import foundry.alembic.mobeffects.FireMobEffect;
+import foundry.alembic.mobeffects.FrostbiteMobEffect;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraftforge.registries.DeferredRegister;

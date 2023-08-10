@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.ForgeEvents;
 import foundry.alembic.mobeffects.ImmunityMobEffect;
 import foundry.alembic.resources.ResourceProviderHelper;
 import foundry.alembic.types.AlembicAttribute;
@@ -21,6 +22,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
@@ -115,7 +117,8 @@ public class AttributeRegistry {
         if (setId.getPath().contains("fire_damage")) {
             Supplier<MobEffect> effectObj;
             if (!dataHolder.getImmunities().isEmpty()) {
-                effectObj = mobEffectRegister.register("fire_resistance", () -> new ImmunityMobEffect(MobEffectCategory.BENEFICIAL, dataHolder.getColor(), dataHolder.getImmunities()));
+                effectObj = mobEffectRegister.register("fire_resistance", () -> new ImmunityMobEffect(MobEffectCategory.BENEFICIAL, dataHolder.getColor(), dataHolder.getImmunities())
+                        .addAttributeModifier(attributeSet.getResistanceAttribute().get(), ForgeEvents.ALEMBIC_FIRE_RESIST_UUID.toString(), 0.1, AttributeModifier.Operation.MULTIPLY_TOTAL));
             } else {
                 effectObj = () -> MobEffects.FIRE_RESISTANCE;
             }
@@ -126,9 +129,9 @@ public class AttributeRegistry {
             RegistryObject<MobEffect> effectObj = mobEffectRegister.register(resistanceId, () -> createMobEffect(attributeSet, dataHolder));
             potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
             potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
-            for (int i = 1; i <= dataHolder.getMaxLevel(); i++) {
+            for (int i = 2; i <= dataHolder.getMaxLevel(); i++) {
                 final int real = i;
-                potionRegister.register(resistanceId + "_strong" + (i > 1 ? "_" + i : ""), () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real))); // TODO: is this right?
+                potionRegister.register(resistanceId + "_strong" + (i > 2 ? "_" + i : ""), () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real-1))); // TODO: is this right?
             }
 
             registerBrewingRecipes(dataHolder, setId, resistanceId);
@@ -136,7 +139,7 @@ public class AttributeRegistry {
     }
 
     public static void registerBrewingRecipes(AlembicPotionDataHolder dataHolder, ResourceLocation setId, String resistanceId) {
-        if (dataHolder.getRecipe() != null) {
+        if (dataHolder.getRecipe() != AlembicPotionRecipe.EMPTY) {
             ResourceLocation potId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
             if(potId == null) {
                 Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);

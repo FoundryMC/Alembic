@@ -324,7 +324,7 @@ public class ForgeEvents {
     @SubscribeEvent
     static void onEffect(MobEffectEvent event){
         if (event.getEffectInstance() == null) return;
-        AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 *(1+ event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
+        AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 * (1 + event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
         if (event instanceof MobEffectEvent.Added) {
             if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
                 Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
@@ -335,7 +335,6 @@ public class ForgeEvents {
             }
         }
         if (event instanceof MobEffectEvent.Remove) {
-            if(event.getEffectInstance() == null)return;
             if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
                 Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
                 if(fireRes == null) return;

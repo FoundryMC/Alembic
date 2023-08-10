@@ -2,12 +2,15 @@ package foundry.alembic;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import foundry.alembic.attribute.AttributeRegistry;
 import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatManager;
 import foundry.alembic.items.slots.VanillaSlotType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -25,6 +28,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import static net.minecraft.world.item.ItemStack.ATTRIBUTE_MODIFIER_FORMAT;
 
@@ -34,9 +38,13 @@ public class ForgeClientEvents {
     public static void onTooltipRender(ItemTooltipEvent event) {
         if(!AlembicConfig.modifyTooltips.get()) return;
         ItemStack stack = event.getItemStack();
+        List<Component> tooltip = event.getToolTip();
         if(!isValidItem(stack.getItem())) {
-            if (isVanillaFireResistancePotion(stack)) {
-                // TODO: #4 on notion
+            if (isVanillaFireResistancePotion(stack) && AttributeRegistry.ID_TO_SET_BIMAP.containsKey(Alembic.location("fire_damage"))) {
+                Attribute attribute = AttributeRegistry.ID_TO_SET_BIMAP.get(Alembic.location("fire_damage")).getResistanceAttribute().get();
+                tooltip.add(CommonComponents.EMPTY);
+                tooltip.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
+                tooltip.add(Component.translatable("attribute.modifier.plus." + AttributeModifier.Operation.MULTIPLY_TOTAL.toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(10), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
             }
             return;
         }
@@ -74,7 +82,7 @@ public class ForgeClientEvents {
                 d0 += player.getAttributeBaseValue(key);
                 d0 += stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(key).stream().mapToDouble(AttributeModifier::getAmount).sum();
                 d0 = TooltipHelper.getMod(value, d0);
-                event.getToolTip().add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + value.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(key.getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
+                tooltip.add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + value.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(key.getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
             });
         }
 

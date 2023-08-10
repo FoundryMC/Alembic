@@ -1,4 +1,4 @@
-package foundry.alembic.potion.mobeffects;
+package foundry.alembic.mobeffects;
 
 import foundry.alembic.caps.AlembicFlammableHandler;
 import net.minecraft.world.effect.MobEffectCategory;
