@@ -36,7 +36,7 @@ public class ForgeClientEvents {
         ItemStack stack = event.getItemStack();
         if(!isValidItem(stack.getItem())) {
             if (isVanillaFireResistancePotion(stack)) {
-                PotionUtils.addPotionTooltip();
+                // TODO: #4 on notion
             }
             return;
         }
