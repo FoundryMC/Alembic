@@ -64,12 +64,8 @@ public class AlembicAPI {
         return type;
     }
 
-    public static AlembicDamageType getDamageType(String damageType) {
-        return DamageTypeRegistry.getDamageType(damageType);
-    }
-
-    public static AlembicDamageType getDamageType(DamageSource damageSource) {
-        return DamageTypeRegistry.getDamageType(damageSource);
+    public static AlembicDamageType getDamageType(ResourceLocation id) {
+        return DamageTypeRegistry.getDamageType(id);
     }
 
     public static float activatePreEvent(LivingEntity target, LivingEntity attacker, AlembicDamageType damageType, float damage, float resistance) {
