@@ -4,6 +4,7 @@ import foundry.alembic.Alembic;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.damagesource.DamageSource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
@@ -13,6 +14,10 @@ public class AlembicOverrideHolder {
 
     public static boolean containsKey(DamageSourceIdentifier sourceIdentifier) {
         return OVERRIDES.containsKey(sourceIdentifier);
+    }
+
+    public static boolean containsKey(DamageSource damageSource) {
+        return containsKey(DamageSourceIdentifier.create(damageSource.msgId));
     }
 
     public static Map<DamageSourceIdentifier, AlembicOverride> getOverrides() {
@@ -43,6 +48,7 @@ public class AlembicOverrideHolder {
         OVERRIDES.clear();
     }
 
+    @Nullable
     public static AlembicOverride getOverridesForSource(DamageSource source) {
         return OVERRIDES.get(DamageSourceIdentifier.create(source.msgId));
     }
