@@ -23,6 +23,10 @@ public class ItemStatManager extends SimpleJsonResourceReloadListener {
         return HOLDER.get(item, equipmentSlotType);
     }
 
+    public static boolean hasStats(Item item) {
+        return HOLDER.contains(item);
+    }
+
     public ItemStatManager() {
         super(DamageTypeJSONListener.GSON, "alembic/item_stats");
     }
