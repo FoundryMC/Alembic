@@ -216,28 +216,19 @@ public class ForgeEvents {
         AlembicOverrideHolder.getOverridesForSource(event.getDamageSource()).getDamagePercents()
                 .forEach((alembicDamageType, aFloat) -> {
                     float damagePart = event.getBlockedDamage() * aFloat;
-                    ItemStack shield = entity.getUseItem();
 
-                    EquipmentSlot slot = entity.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
                     RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
                     AttributeInstance instance = entity.getAttribute(resistanceAttribute);
                     if (instance == null) {
                         return;
                     }
 
-                    Collection<AttributeModifier> modifiers = shield.getAttributeModifiers(slot).get(resistanceAttribute);
+                    damagePart -= (float) instance.getValue();
 
-                    instance.setBaseValue(damagePart);
-                    // This is damagePart + damagePart (with modifiers), so damagePart must be removed again
-                    float damageWithModifiers = (float) instance.getValue();
-                    instance.setBaseValue(0);
-
-                    damagePart = damageWithModifiers - damagePart;
-
-                    finalDamage.add(damagePart);
+                    finalDamage.add(Math.max(damagePart, 0));
 
         });
-        event.setBlockedDamage(finalDamage.getValue());
+        event.setBlockedDamage(event.getBlockedDamage() - finalDamage.getValue());
     }
 
     private static boolean isBeingDamaged = false;
