@@ -131,7 +131,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.13'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.21'
 
     jarJar(implementation(fg.deobf("ignored:defaultresources-forge:1.19.2-0.3.0"))) {
         jarJar.ranged(it, "[0.3.0,)")
