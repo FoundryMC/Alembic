@@ -6,11 +6,11 @@ import foundry.alembic.attribute.AttributeRegistry;
 import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatManager;
+import foundry.alembic.items.ModifierApplication;
 import foundry.alembic.items.slots.VanillaSlotType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -72,7 +72,7 @@ public class ForgeClientEvents {
             Multimap<Attribute, AttributeModifier> modifiableMap = HashMultimap.create(stack.getAttributeModifiers(EquipmentSlot.MAINHAND));
 
             stats.forEach(stat -> {
-                stat.computeAttributes(modifiableMap, modifiableMap::put, modifiableMap::removeAll);
+                stat.computeAttributes(ModifierApplication.INSTANT, modifiableMap, modifiableMap::put, modifiableMap::removeAll);
             });
 
             int finalTarget = target;

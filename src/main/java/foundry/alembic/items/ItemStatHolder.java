@@ -21,7 +21,8 @@ public class ItemStatHolder {
 
     public void add(ItemStat stat) {
         stat.items().getElements().forEach(item -> {
-            stats.computeIfAbsent(item, item1 -> HashMultimap.create()).put(stat.equipmentSlot(), stat);
+            Multimap<EquipmentSlotType, ItemStat> multimap = stats.computeIfAbsent(item, item1 -> HashMultimap.create());
+            stat.equipmentSlots().forEach(equipmentSlotType -> multimap.put(equipmentSlotType, stat));
         });
     }
 

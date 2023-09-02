@@ -1,9 +1,11 @@
 package foundry.alembic.items;
 
 import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.items.slots.EquipmentSlotType;
+import foundry.alembic.util.CodecUtil;
 import foundry.alembic.util.TagOrElements;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -12,19 +14,29 @@ import net.minecraft.world.item.Item;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeData, EquipmentSlotType equipmentSlot) {
+public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeData, Set<EquipmentSlotType> equipmentSlots) {
     public static final Codec<ItemStat> CODEC = RecordCodecBuilder.create(itemStatInstance ->
             itemStatInstance.group(
                     TagOrElements.codec(Registry.ITEM).fieldOf("id").forGetter(ItemStat::items),
                     ItemModifier.DISPATCH_CODEC.listOf().fieldOf("modifiers").forGetter(ItemStat::attributeData),
-                    EquipmentSlotType.CODEC.fieldOf("equipment_slot").forGetter(ItemStat::equipmentSlot)
+                    Codec.either(EquipmentSlotType.CODEC, CodecUtil.setOf(EquipmentSlotType.CODEC)).fieldOf("equipment_slot")
+                            .xmap(
+                                    either -> either.map(Set::of, Function.identity()),
+                                    slots -> slots.size() == 1 ? Either.left(slots.iterator().next()) : Either.right(slots)
+                            ).forGetter(ItemStat::equipmentSlots)
             ).apply(itemStatInstance, ItemStat::new)
     );
 
-    public void computeAttributes(Multimap<Attribute, AttributeModifier> originalModifiers,
+    public List<ItemModifier> getItemModifiers() {
+        return attributeData;
+    }
+
+    public void computeAttributes(ModifierApplication applicationType, Multimap<Attribute, AttributeModifier> originalModifiers,
                                   BiPredicate<Attribute, AttributeModifier> onPut,
                                   Consumer<Attribute> onRemove) {
         AttributeContainer container = new AttributeContainer() {
@@ -50,7 +62,9 @@ public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeDa
         };
 
         for (ItemModifier data : attributeData) {
-            data.compute(container);
+            if (data.getApplication() == applicationType) {
+                data.compute(container);
+            }
         }
     }
 

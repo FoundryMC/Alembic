@@ -6,8 +6,11 @@ import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.event.AlembicFoodChangeEvent;
+import foundry.alembic.items.ItemModifier;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatManager;
+import foundry.alembic.items.ModifierApplication;
+import foundry.alembic.items.modifiers.AppendItemModifier;
 import foundry.alembic.items.slots.VanillaSlotType;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
@@ -26,6 +29,7 @@ import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
 import foundry.alembic.util.AttributeHelper;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
+import foundry.alembic.util.Utils;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -46,6 +50,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -56,7 +61,6 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -118,20 +122,72 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onItemAttributes(ItemAttributeModifierEvent event) {
-        if (event.getItemStack().getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
-            int level = event.getItemStack().getEnchantmentLevel(Enchantments.FIRE_ASPECT);
+        ItemStack stack = event.getItemStack();
+        // TODO: note/1
+        if (stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
+            int level = stack.getEnchantmentLevel(Enchantments.FIRE_ASPECT);
             Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
             if(fireDamage == null) return;
             if(!event.getSlotType().equals(EquipmentSlot.MAINHAND)) return;
             event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
             event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -(1+level), AttributeModifier.Operation.ADDITION));
         }
-        Collection<ItemStat> stats = ItemStatManager.getStats(event.getItemStack().getItem(), new VanillaSlotType(event.getSlotType()));
 
-        if(stats.isEmpty()) return;
-        stats.forEach(itemStat -> itemStat.computeAttributes(event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
+        if (!ItemStatManager.hasStats(stack.getItem())) {
+            return;
+        }
+        // TODO: if curios compat is implemented, make sure to do something for it
+        ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(event.getSlotType()))
+                .forEach(itemStat -> itemStat.computeAttributes(ModifierApplication.INSTANT, event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
     }
 
+    @SubscribeEvent
+    static void applyUsedAttributes(LivingEntityUseItemEvent.Start event) {
+        ItemStack stack = event.getItem();
+        if (!ItemStatManager.hasStats(stack.getItem())) {
+            return;
+        }
+
+        LivingEntity entity = event.getEntity();
+        EquipmentSlot slot = Utils.equipmentFromHand(entity.getUsedItemHand());
+        for (ItemStat stat : ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(slot))) {
+            for (ItemModifier modifier : stat.getItemModifiers()) {
+                if (modifier.getApplication() == ModifierApplication.USED && modifier instanceof AppendItemModifier appendItemModifier) {
+                    AttributeMap map = entity.getAttributes();
+                    if (map.hasAttribute(appendItemModifier.getAttribute())) {
+                        AttributeModifier attributeModifier = new AttributeModifier(
+                                appendItemModifier.getUUID(),
+                                appendItemModifier.getAttribute().descriptionId,
+                                appendItemModifier.getValue(),
+                                appendItemModifier.getOperation()
+                        );
+                        map.getInstance(appendItemModifier.getAttribute()).addTransientModifier(attributeModifier);
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    static void removeUsedAttributes(LivingEntityUseItemEvent.Stop event) {
+        ItemStack stack = event.getItem();
+        if (!ItemStatManager.hasStats(stack.getItem())) {
+            return;
+        }
+
+        LivingEntity entity = event.getEntity();
+        EquipmentSlot slot = Utils.equipmentFromHand(entity.getUsedItemHand());
+        for (ItemStat stat : ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(slot))) {
+            for (ItemModifier modifier : stat.getItemModifiers()) {
+                if (modifier.getApplication() == ModifierApplication.USED && modifier instanceof AppendItemModifier appendItemModifier) {
+                    AttributeMap map = entity.getAttributes();
+                    if (map.hasAttribute(appendItemModifier.getAttribute())) {
+                        map.getInstance(appendItemModifier.getAttribute()).removeModifier(appendItemModifier.getUUID());
+                    }
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onLivingSpawn(final LivingSpawnEvent event) {
@@ -150,11 +206,43 @@ public class ForgeEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void cancelShieldBlock(ShieldBlockEvent event) {
-        event.setBlockedDamage(0);
+        if (!AlembicOverrideHolder.containsKey(event.getDamageSource())) {
+            return;
+        }
+        LivingEntity entity = event.getEntity();
+        MutableFloat finalDamage = new MutableFloat();
+
+        // Need to partition damage to each damage type, then block whatever amount from each, and sum up to put back into the event.
+        AlembicOverrideHolder.getOverridesForSource(event.getDamageSource()).getDamagePercents()
+                .forEach((alembicDamageType, aFloat) -> {
+                    float damagePart = event.getBlockedDamage() * aFloat;
+                    ItemStack shield = entity.getUseItem();
+
+                    EquipmentSlot slot = entity.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+                    RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
+                    AttributeInstance instance = entity.getAttribute(resistanceAttribute);
+                    if (instance == null) {
+                        return;
+                    }
+
+                    Collection<AttributeModifier> modifiers = shield.getAttributeModifiers(slot).get(resistanceAttribute);
+
+                    instance.setBaseValue(damagePart);
+                    // This is damagePart + damagePart (with modifiers), so damagePart must be removed again
+                    float damageWithModifiers = (float) instance.getValue();
+                    instance.setBaseValue(0);
+
+                    damagePart = damageWithModifiers - damagePart;
+
+                    finalDamage.add(damagePart);
+
+        });
+        event.setBlockedDamage(finalDamage.getValue());
     }
 
     private static boolean isBeingDamaged = false;
 
+    // TODO: note/2
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void hurt(final LivingHurtEvent event) {
         LivingEntity target = event.getEntity();
@@ -345,7 +433,7 @@ public class ForgeEvents {
     }
 
     private static void handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicOverride override, DamageSource originalSource) {
-        for (Object2FloatMap.Entry<AlembicDamageType> entry : override.getDamages().object2FloatEntrySet()) {
+        for (Object2FloatMap.Entry<AlembicDamageType> entry : override.getDamagePercents().object2FloatEntrySet()) {
             AlembicDamageType damageType = entry.getKey();
             float percentage = entry.getFloatValue();
             float damage = totalDamage * percentage;

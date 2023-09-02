@@ -121,6 +121,10 @@ public class AlembicDamageType {
         return this.tags;
     }
 
+    public void runTags() {
+
+    }
+
     public void clearTags() {
         this.tags.clear();
     }
