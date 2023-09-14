@@ -17,6 +17,13 @@
       }
     },
     {
+      "tag_type": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:alchemical_damage"
+      },
+      "conditions": "alembic:damage_from_player"
+    },
+    {
       "tag_type": "alembic:hunger_tag",
       "modifier_type": "resistance",
       "hunger_amount": 8,

@@ -18,24 +18,21 @@
             "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
             "else": {
-              "tag_type": "alembic:branch_tag",
-              "run": {
-                "tag_type": "alembic:particle_tag",
-                "particle_options": {
-                  "type": "alembic:arcane_damage"
-                },
-                "conditions": "alembic:damage_from_player"
+              "tag_type": "alembic:particle_tag",
+              "particle_options": {
+                "type": "alembic:arcane_damage"
               },
-              "else": {
-                "tag_type": "alembic:particle_tag",
-                "particle_speed": 0.35,
-                "particle_options": {
-                  "type": "alembic:arcane_spark"
-                }
-              }
+              "conditions": "alembic:damage_from_player"
             }
           }
         }
+      }
+    },
+    {
+      "tag_type": "alembic:particle_tag",
+      "particle_speed": 0.35,
+      "particle_options": {
+        "type": "alembic:arcane_spark"
       }
     },
     {

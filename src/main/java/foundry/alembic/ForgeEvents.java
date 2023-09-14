@@ -278,7 +278,7 @@ public class ForgeEvents {
             }
             Multimap<Attribute, AttributeModifier> map = ArrayListMultimap.create();
             if (handleEnchantments(attacker, target, map)) return;
-            float totalDamage = event.getAmount();
+            float totalDamage = event.getAmount() - 0.001f;
             AlembicResistance stats = AlembicResistanceHolder.get(target.getType());
             boolean entityOverride = stats != null;
             float damageOffset = 0;
@@ -308,8 +308,8 @@ public class ForgeEvents {
             }
             int time = target.invulnerableTime;
             target.invulnerableTime = 0;
-            if (totalDamage > 0.001) {
-                target.hurt(src(attacker), totalDamage);
+            if (totalDamage + 0.001f >= 0.001) {
+                target.hurt(src(attacker), totalDamage + 0.001f);
             }
             target.invulnerableTime = time;
             attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
