@@ -87,8 +87,6 @@ public class AttributeSet {
         return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeAttributeId(getId())), Holder::value);
     }
 
-    public Optional<Potion> get
-
     private ResourceLocation getId() {
         return AttributeSetRegistry.getId(this);
     }

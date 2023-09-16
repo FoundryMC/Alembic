@@ -36,7 +36,7 @@ public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeDa
         return attributeData;
     }
 
-    public void computeAttributes(ModifierApplication applicationType, Multimap<Attribute, AttributeModifier> originalModifiers,
+    public void computeAttributes(Multimap<Attribute, AttributeModifier> originalModifiers,
                                   BiPredicate<Attribute, AttributeModifier> onPut,
                                   Consumer<Attribute> onRemove) {
         AttributeContainer container = new AttributeContainer() {
@@ -62,9 +62,7 @@ public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeDa
         };
 
         for (ItemModifier data : attributeData) {
-            if (data.getApplication() == applicationType) {
-                data.compute(container);
-            }
+            data.compute(container);
         }
     }
 

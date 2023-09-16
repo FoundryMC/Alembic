@@ -60,7 +60,9 @@ public class AppendItemModifier implements ItemModifier {
 
     @Override
     public void compute(ItemStat.AttributeContainer container) {
-        container.put(attribute, new AttributeModifier(uuid, attribute.descriptionId, value, operation));
+        if (application == ModifierApplication.INSTANT) {
+            container.put(attribute, new AttributeModifier(uuid, attribute.descriptionId, value, operation));
+        }
     }
 
     @Override

@@ -73,7 +73,7 @@ public class ForgeClientEvents {
             Multimap<Attribute, AttributeModifier> modifiableMap = HashMultimap.create(stack.getAttributeModifiers(EquipmentSlot.MAINHAND));
 
             stats.forEach(stat -> {
-                stat.computeAttributes(ModifierApplication.INSTANT, modifiableMap, modifiableMap::put, modifiableMap::removeAll);
+                stat.computeAttributes(modifiableMap, modifiableMap::put, modifiableMap::removeAll);
             });
 
             int finalTarget = target;

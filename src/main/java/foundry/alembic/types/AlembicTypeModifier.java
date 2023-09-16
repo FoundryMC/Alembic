@@ -1,6 +1,7 @@
 package foundry.alembic.types;
 
 import com.mojang.serialization.Codec;
+import foundry.alembic.potion.PotionModifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -29,6 +30,10 @@ public enum AlembicTypeModifier implements StringRepresentable {
 
     public ResourceLocation computePotionId(ResourceLocation attributeSetId) {
         return new ResourceLocation(attributeSetId.getNamespace(), attributeSetId.getPath() + "_" + safeName);
+    }
+
+    public ResourceLocation computePotionId(ResourceLocation attributeSetId, PotionModifier potionModifier) {
+        return new ResourceLocation(attributeSetId.getNamespace(), potionModifier.getSerializedName() + "_" + attributeSetId.getPath() + "_" + safeName);
     }
 
     public ResourceLocation computeAttributeId(ResourceLocation baseRl) {

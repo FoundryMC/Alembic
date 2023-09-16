@@ -134,7 +134,7 @@ public class ForgeEvents {
         }
         // TODO: if curios compat is implemented, make sure to do something for it
         ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(event.getSlotType()))
-                .forEach(itemStat -> itemStat.computeAttributes(ModifierApplication.INSTANT, event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
+                .forEach(itemStat -> itemStat.computeAttributes(event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
     }
 
     @SubscribeEvent
