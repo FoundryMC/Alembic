@@ -27,6 +27,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -79,7 +81,7 @@ public class AttributeSetRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus) {
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets").entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets", jsonElement -> CraftingHelper.processConditions(jsonElement.getAsJsonObject(), "forge:conditions", ICondition.IContext.TAGS_INVALID)).entrySet()) {
             DataResult<AttributeSet> setResult = AttributeSet.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (setResult.error().isPresent()) {
                 throw new IllegalStateException("Error loading {" + entry.getKey() + "}: " + setResult.error().get().message());

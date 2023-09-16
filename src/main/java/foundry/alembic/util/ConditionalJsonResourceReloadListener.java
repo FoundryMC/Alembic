@@ -36,7 +36,7 @@ public abstract class ConditionalJsonResourceReloadListener extends SimplePrepar
 
         // TODO: 1.20 replace with FileToIdConverter
         for (Map.Entry<ResourceLocation, Resource> entry : pResourceManager.listResources(directory, resourceLocation -> resourceLocation.getPath().endsWith(".json")).entrySet()) {
-            ResourceLocation id = Utils.sanitize(entry.getKey(), directory, ".json");
+            ResourceLocation id = Utils.sanitize(entry.getKey(), directory + "/", ".json");
             Resource resource = entry.getValue();
 
             try (BufferedReader reader = resource.openAsReader()) {
