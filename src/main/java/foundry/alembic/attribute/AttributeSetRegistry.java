@@ -7,13 +7,12 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.ForgeEvents;
-import foundry.alembic.mobeffects.ImmunityMobEffect;
+import foundry.alembic.mobeffect.mobeffects.ImmunityMobEffect;
 import foundry.alembic.resources.ResourceProviderHelper;
 import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicTypeModifier;
-import foundry.alembic.potion.AlembicMobEffect;
+import foundry.alembic.mobeffect.AlembicMobEffect;
 import foundry.alembic.potion.AlembicPotionDataHolder;
-import foundry.alembic.potion.AlembicPotionRecipe;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
@@ -23,10 +22,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -37,11 +33,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class AttributeSetRegistry {
     private static final BiMap<ResourceLocation, AttributeSet> ID_TO_SET_BIMAP = HashBiMap.create();
@@ -159,47 +153,7 @@ public class AttributeSetRegistry {
                 final int real = i;
                 potionRegister.register(resistanceId + "_strong" + (i > 2 ? "_" + i : ""), () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real-1))); // TODO: is this right?
             }
-
-            registerBrewingRecipes(dataHolder, setId, resistanceId);
         }
-    }
-
-    public static void registerBrewingRecipes(AlembicPotionDataHolder dataHolder, ResourceLocation setId, String resistanceId) {
-        if (dataHolder.getRecipe() != AlembicPotionRecipe.EMPTY) {
-            ResourceLocation potId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
-            if(potId == null) {
-                Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);
-                return;
-            }
-            ItemStack basePot = setPotion(new ItemStack(Items.POTION), potId);
-            if (dataHolder.getRecipe() != AlembicPotionRecipe.EMPTY) {
-                Ingredient baseIngredient = dataHolder.getRecipe().base();
-                Ingredient reagentIngredient = dataHolder.getRecipe().reagent();
-                BrewingRecipeRegistry.addRecipe(baseIngredient, reagentIngredient, basePot);
-                ResourceLocation longPot = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId + "_long");
-                if(longPot == null){
-                    Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId + "_long");
-                    return;
-                }
-                BrewingRecipeRegistry.addRecipe(Ingredient.of(basePot), Ingredient.of(Items.GLOWSTONE_DUST), setPotion(new ItemStack(Items.POTION), longPot));
-                ItemStack lastPot = basePot;
-                for (int i = 0; i < dataHolder.getMaxLevel(); i++) {
-                    ResourceLocation tempPotId = ResourceLocation.tryParse(setId.getNamespace() + ":" + resistanceId);
-                    if(tempPotId == null) {
-                        Alembic.LOGGER.error("Failed to parse potion id " + setId.getNamespace() + ":" + resistanceId);
-                        continue;
-                    }
-                    ItemStack pot = setPotion(new ItemStack(Items.POTION), tempPotId);
-                    BrewingRecipeRegistry.addRecipe(Ingredient.of(lastPot), Ingredient.of(Items.REDSTONE), pot);
-                    lastPot = pot;
-                }
-            }
-        }
-    }
-
-    public static ItemStack setPotion(ItemStack pStack, ResourceLocation pLocation) {
-        pStack.getOrCreateTag().putString("Potion", pLocation.toString());
-        return pStack;
     }
 
     private static MobEffect createMobEffect(AttributeSet attributeSet, AlembicPotionDataHolder dataHolder) {

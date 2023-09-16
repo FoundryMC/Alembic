@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.item.alchemy.Potion;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 
@@ -64,7 +66,8 @@ public class AttributeSet {
         return resistance.left();
     }
 
-    Optional<AlembicPotionDataHolder> getPotionDataHolder() {
+    @ApiStatus.Internal
+    public Optional<AlembicPotionDataHolder> getPotionDataHolder() {
         return potionDataHolder == AlembicPotionDataHolder.EMPTY ? Optional.empty() : Optional.of(potionDataHolder);
     }
 
@@ -73,16 +76,18 @@ public class AttributeSet {
     }
 
     public RangedAttribute getShieldingAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.SHIELDING.computeId(getId())), Holder::value);
+        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.SHIELDING.computeAttributeId(getId())), Holder::value);
     }
 
     public RangedAttribute getAbsorptionAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.ABSORPTION.computeId(getId())), Holder::value);
+        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.ABSORPTION.computeAttributeId(getId())), Holder::value);
     }
 
     public RangedAttribute getResistanceAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeId(getId())), Holder::value);
+        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeAttributeId(getId())), Holder::value);
     }
+
+    public Optional<Potion> get
 
     private ResourceLocation getId() {
         return AttributeSetRegistry.getId(this);

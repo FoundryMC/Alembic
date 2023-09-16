@@ -1,4 +1,4 @@
-package foundry.alembic.mobeffects;
+package foundry.alembic.mobeffect.mobeffects;
 
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;

@@ -13,29 +13,33 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.UUID;
 
-public class AppendItemModifier extends ItemModifier {
+public class AppendItemModifier implements ItemModifier {
     public static final Codec<AppendItemModifier> CODEC = RecordCodecBuilder.create(instance ->
-            base(instance).and(
-                    instance.group(
-                            Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(AppendItemModifier::getAttribute),
-                            Codec.FLOAT.fieldOf("value").forGetter(AppendItemModifier::getValue),
-                            CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(AppendItemModifier::getOperation),
-                            CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(AppendItemModifier::getUUID)
-                    )
+            instance.group(
+                    ModifierApplication.CODEC.optionalFieldOf("application", ModifierApplication.INSTANT).forGetter(appendItemModifier -> appendItemModifier.application),
+                    Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(AppendItemModifier::getAttribute),
+                    Codec.FLOAT.fieldOf("value").forGetter(AppendItemModifier::getValue),
+                    CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(AppendItemModifier::getOperation),
+                    CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(AppendItemModifier::getUUID)
             ).apply(instance, AppendItemModifier::new)
     );
 
+    private final ModifierApplication application;
     private final Attribute attribute;
     private final float value;
     private final AttributeModifier.Operation operation;
     private final UUID uuid;
 
     public AppendItemModifier(ModifierApplication application, Attribute attribute, float value, AttributeModifier.Operation operation, UUID uuid) {
-        super(application);
+        this.application = application;
         this.attribute = attribute;
         this.value = value;
         this.operation = operation;
         this.uuid = uuid;
+    }
+
+    public ModifierApplication getApplication() {
+        return application;
     }
 
     public Attribute getAttribute() {

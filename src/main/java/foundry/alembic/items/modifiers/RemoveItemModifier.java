@@ -9,17 +9,14 @@ import foundry.alembic.items.ModifierApplication;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 
-public class RemoveItemModifier extends ItemModifier {
-    public static final Codec<RemoveItemModifier> CODEC = RecordCodecBuilder.create(instance ->
-            base(instance).and(
-                    Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(removeItemModifier -> removeItemModifier.attribute)
-            ).apply(instance, RemoveItemModifier::new)
-    );
+public class RemoveItemModifier implements ItemModifier {
+    public static final Codec<RemoveItemModifier> CODEC = Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute")
+            .xmap(RemoveItemModifier::new, removeItemModifier -> removeItemModifier.attribute)
+            .codec();
 
     private final Attribute attribute;
 
-    public RemoveItemModifier(ModifierApplication application, Attribute attribute) {
-        super(application);
+    public RemoveItemModifier(Attribute attribute) {
         this.attribute = attribute;
     }
 

@@ -1,4 +1,4 @@
-package foundry.alembic.mobeffects;
+package foundry.alembic.mobeffect.mobeffects;
 
 import foundry.alembic.damagesource.DamageSourceIdentifier;
 import net.minecraft.world.damagesource.DamageSource;

@@ -27,11 +27,11 @@ public enum AlembicTypeModifier implements StringRepresentable {
         return attributeFunction.apply(damageType);
     }
 
-    public String computeId(AlembicDamageType damageType) {
-        return damageType.getId().getPath() + "_" + safeName;
+    public ResourceLocation computePotionId(ResourceLocation attributeSetId) {
+        return new ResourceLocation(attributeSetId.getNamespace(), attributeSetId.getPath() + "_" + safeName);
     }
 
-    public ResourceLocation computeId(ResourceLocation baseRl) {
+    public ResourceLocation computeAttributeId(ResourceLocation baseRl) {
         return new ResourceLocation(baseRl.getNamespace(), baseRl.getPath() + "." + safeName);
     }
 

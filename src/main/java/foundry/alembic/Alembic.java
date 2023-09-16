@@ -7,7 +7,7 @@ import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.compat.TESCompat;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.particle.AlembicParticleRegistry;
-import foundry.alembic.potion.AlembicMobEffectRegistry;
+import foundry.alembic.mobeffect.AlembicMobEffectRegistry;
 import foundry.alembic.types.tag.AlembicTagRegistry;
 import foundry.alembic.types.tag.condition.TagConditionRegistry;
 import io.github.lukebemish.defaultresources.api.ResourceProvider;

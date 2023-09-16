@@ -3,6 +3,7 @@ package foundry.alembic.potion;
 import foundry.alembic.caps.AlembicFlammable;
 import foundry.alembic.caps.AlembicFlammableHandler;
 import foundry.alembic.mixin.MobEffectInstanceAccessor;
+import foundry.alembic.mobeffect.AlembicMobEffectRegistry;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;

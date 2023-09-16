@@ -1,6 +1,6 @@
 package foundry.alembic.mixin;
 
-import foundry.alembic.potion.AlembicMobEffectRegistry;
+import foundry.alembic.mobeffect.AlembicMobEffectRegistry;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;

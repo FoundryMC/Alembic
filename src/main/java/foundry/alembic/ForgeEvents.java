@@ -148,7 +148,7 @@ public class ForgeEvents {
         EquipmentSlot slot = Utils.equipmentFromHand(entity.getUsedItemHand());
         for (ItemStat stat : ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(slot))) {
             for (ItemModifier modifier : stat.getItemModifiers()) {
-                if (modifier.getApplication() == ModifierApplication.USED && modifier instanceof AppendItemModifier appendItemModifier) {
+                if (modifier instanceof AppendItemModifier appendItemModifier && appendItemModifier.getApplication() == ModifierApplication.USED) {
                     AttributeMap map = entity.getAttributes();
                     if (map.hasAttribute(appendItemModifier.getAttribute())) {
                         AttributeModifier attributeModifier = new AttributeModifier(

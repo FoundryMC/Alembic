@@ -42,7 +42,7 @@ public class AlembicPotionDataHolder {
 
     private UUID uuid;
 
-    public AlembicPotionDataHolder(){
+    public AlembicPotionDataHolder() {
         this.value = 0;
         this.operation = AttributeModifier.Operation.ADDITION;
         this.vanillaOverride = false;
@@ -64,14 +64,8 @@ public class AlembicPotionDataHolder {
         this.immunitiesEither = immunities;
         ImmutableSet.Builder<DamageSourceIdentifier> setBuilder = ImmutableSet.builder();
         for (Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier> either : immunities) {
-            if (either.left().isPresent()) {
-                DamageSourceIdentifier.DefaultWrappedSource wrappedSource = either.left().get();
-                for (DamageSourceIdentifier identifier : wrappedSource.getIdentifiers()) {
-                    setBuilder.add(identifier);
-                }
-            } else {
-                setBuilder.add(either.right().get());
-            }
+            either.ifLeft(defaultWrappedSource -> setBuilder.addAll(defaultWrappedSource.getIdentifiers()))
+                  .ifRight(setBuilder::add);
         }
         this.immunities = setBuilder.build();
         this.maxLevel = maxLevel;
@@ -83,53 +77,12 @@ public class AlembicPotionDataHolder {
         uuid = UUID.randomUUID();
     }
 
-    public void setOperation(AttributeModifier.Operation operation){
-        this.operation = operation;
-    }
-
     public AttributeModifier.Operation getOperation(){
         return operation;
     }
 
     public UUID getUUID(){
         return uuid;
-    }
-
-    public void setValue(float value){
-        this.value = value;
-    }
-
-    public void setVanillaOverride(boolean vanillaOverride){
-        this.vanillaOverride = vanillaOverride;
-    }
-
-    public void setImmunities(Set<DamageSourceIdentifier> immunities){
-        this.immunities = immunities;
-    }
-
-    public void setMaxLevel(int maxLevel){
-        this.maxLevel = maxLevel;
-    }
-
-    public void setBaseDuration(int baseDuration){
-        this.baseDuration = baseDuration;
-    }
-
-
-    public void setAmplifierPerLevel(int amplifierPerLevel){
-        this.amplifierPerLevel = amplifierPerLevel;
-    }
-
-    public void setMaxAmplifier(int maxAmplifier){
-        this.maxAmplifier = maxAmplifier;
-    }
-
-    public void setColor(int color){
-        this.color = color;
-    }
-
-    public void setRecipe(AlembicPotionRecipe recipe){
-        this.recipe = recipe;
     }
 
     public float getValue(){
@@ -148,11 +101,9 @@ public class AlembicPotionDataHolder {
         return maxLevel;
     }
 
-
     public int getBaseDuration(){
         return baseDuration;
     }
-
 
     public int getAmplifierPerLevel(){
         return amplifierPerLevel;
@@ -168,19 +119,5 @@ public class AlembicPotionDataHolder {
 
     public AlembicPotionRecipe getRecipe() {
         return recipe;
-    }
-
-    AlembicPotionDataHolder copyValues(AlembicPotionDataHolder from) {
-        this.value = from.value;
-        this.operation = from.operation;
-        this.vanillaOverride = from.vanillaOverride;
-        this.immunities = from.immunities;
-        this.maxLevel = from.maxLevel;
-        this.baseDuration = from.baseDuration;
-        this.amplifierPerLevel = from.amplifierPerLevel;
-        this.maxAmplifier = from.maxAmplifier;
-        this.color = from.color;
-        this.recipe = from.recipe;
-        return this;
     }
 }
