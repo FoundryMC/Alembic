@@ -97,9 +97,13 @@ public class ForgeClientEvents {
         if (!component.toString().contains("alembic")) {
             return false;
         }
-        if (stack.isEnchanted() && stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
-            return !component.toString().contains("fire_damage");
+        if (stack.isEnchanted()) {
+            if (stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
+                return !component.toString().contains("fire_damage");
+            }
+            return true;
         }
+
         return true;
     }
 

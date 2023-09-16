@@ -305,8 +305,8 @@ public class ForgeEvents {
             }
             int time = target.invulnerableTime;
             target.invulnerableTime = 0;
-            if (totalDamage > 0.001) {
-                target.hurt(src(attacker), totalDamage);
+            if (totalDamage + 0.001f >= 0.001) {
+                target.hurt(src(attacker), totalDamage + 0.001f);
             }
             target.invulnerableTime = time;
             attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
