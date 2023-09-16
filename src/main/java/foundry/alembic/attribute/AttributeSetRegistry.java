@@ -21,7 +21,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -53,7 +52,6 @@ public class AttributeSetRegistry {
         return ID_TO_SET_BIMAP.get(id);
     }
 
-    @Nullable
     public static ResourceLocation getId(AttributeSet attributeSet) {
         return ID_TO_SET_BIMAP.inverse().get(attributeSet);
     }
@@ -142,16 +140,22 @@ public class AttributeSetRegistry {
             } else {
                 effectObj = () -> MobEffects.FIRE_RESISTANCE;
             }
-            potionRegister.register("fire_resistance_strong", () -> new Potion(new MobEffectInstance(effectObj.get(), 1200, 1)));
+            potionRegister.register("strong_fire_resistance", () -> new Potion(new MobEffectInstance(effectObj.get(), 1200, 1)));
         } else {
             String resistanceId = setId.getPath() + "_resistance";
 
             RegistryObject<MobEffect> effectObj = mobEffectRegister.register(resistanceId, () -> createMobEffect(attributeSet, dataHolder));
             potionRegister.register(resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 0)));
-            potionRegister.register(resistanceId + "_long", () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
-            for (int i = 2; i <= dataHolder.getMaxLevel(); i++) {
-                final int real = i;
-                potionRegister.register(resistanceId + "_strong" + (i > 2 ? "_" + i : ""), () -> new Potion(new MobEffectInstance(effectObj.get(), 3600 * (real + 1), real-1))); // TODO: is this right?
+            potionRegister.register("long_" + resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 9600, 0)));
+            if (dataHolder.getMaxStrengthLevel() > 1) {
+                potionRegister.register("strong_" + resistanceId, () -> new Potion(new MobEffectInstance(effectObj.get(), 3600, 1)));
+                int lastAmplifier = 1;
+                for (int i = 2; i < dataHolder.getMaxStrengthLevel(); i++) {
+                    final int level = i + 1;
+                    final int amplifier = lastAmplifier + dataHolder.getAmplifierPerLevel();
+                    potionRegister.register("strong_" + resistanceId + "_" + i, () -> new Potion(new MobEffectInstance(effectObj.get(), dataHolder.getBaseDuration() * level, Math.max(dataHolder.getMaxAmplifier(), amplifier)))); // TODO: is this right?
+                    lastAmplifier = amplifier;
+                }
             }
         }
     }
