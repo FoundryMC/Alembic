@@ -1,6 +1,5 @@
 {
   "priority": 1,
-  "attributes": "alembic:arcane_damage",
   "color": "#9760FB",
   "enchant_reduction": true,
   "enchant_source": "mob",
@@ -18,25 +17,22 @@
             "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
             "else": {
-              "tag_type": "alembic:branch_tag",
-              "run": {
-                "tag_type": "alembic:particle_tag",
-                "particle_options": {
-                  "type": "alembic:arcane_damage"
-                },
-                "conditions": "alembic:damage_from_player"
-              },
-              "else": {
-                "tag_type": "alembic:particle_tag",
-                "particle_speed": 0.35,
-                "particle_options": {
-                  "type": "alembic:arcane_spark"
-                }
+              "tag_type": "alembic:particle_tag",
+              "particle_speed": 0.35,
+              "particle_options": {
+                "type": "alembic:arcane_spark"
               }
             }
           }
         }
       }
+    },
+    {
+      "tag_type": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:arcane_damage"
+      },
+      "conditions": "alembic:damage_from_player"
     },
     {
       "tag_type": "alembic:per_level_tag",

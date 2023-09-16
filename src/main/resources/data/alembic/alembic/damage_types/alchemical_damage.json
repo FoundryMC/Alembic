@@ -1,6 +1,5 @@
 {
   "priority": 1,
-  "attributes": "alembic:alchemical_damage",
   "color": "#12B88E",
   "enchant_reduction": true,
   "enchant_source": "mob",
@@ -15,6 +14,13 @@
           "type": "alembic:alchemical_reaction"
         }
       }
+    },
+    {
+      "tag_type": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:alchemical_damage"
+      },
+      "conditions": "alembic:damage_from_player"
     },
     {
       "tag_type": "alembic:hunger_tag",
