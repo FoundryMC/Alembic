@@ -6,7 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import foundry.alembic.types.DamageTypeJSONListener;
+import foundry.alembic.types.DamageTypeManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 
@@ -33,7 +33,7 @@ public abstract class FileReferenceCodec<T> implements Codec<T> {
             @Override
             protected <E> E parseFile(Resource resource) {
                 try (BufferedReader reader = resource.openAsReader()) {
-                    JsonElement element = DamageTypeJSONListener.GSON.getAdapter(JsonObject.class).fromJson(reader);
+                    JsonElement element = Utils.GSON.getAdapter(JsonObject.class).fromJson(reader);
                     return (E)element;
                 } catch (IOException e) {
 

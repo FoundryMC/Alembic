@@ -6,7 +6,6 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 import java.util.function.Function;
 
 public enum AlembicTypeModifier implements StringRepresentable {
@@ -28,11 +27,11 @@ public enum AlembicTypeModifier implements StringRepresentable {
         return attributeFunction.apply(damageType);
     }
 
-    public String getId(AlembicDamageType damageType) {
+    public String computeId(AlembicDamageType damageType) {
         return damageType.getId().getPath() + "_" + safeName;
     }
 
-    public ResourceLocation getId(ResourceLocation baseRl) {
+    public ResourceLocation computeId(ResourceLocation baseRl) {
         return new ResourceLocation(baseRl.getNamespace(), baseRl.getPath() + "." + safeName);
     }
 

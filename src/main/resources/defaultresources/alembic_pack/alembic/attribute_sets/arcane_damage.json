@@ -1,7 +1,24 @@
 {
-  "base_attribute_min": 0,
-  "base_attribute_max": 1024.0,
-  "base_attribute_default": 0,
+  "damage_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "shielding_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "absorption_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "resistance_attribute": {
+    "base": 1,
+    "min": -1024,
+    "max": 1024
+  },
   "resistance_potion": {
     "value": 0.1,
     "operation": "MULTIPLY_BASE",

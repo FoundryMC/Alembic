@@ -1,6 +1,5 @@
 {
   "priority": 1,
-  "attributes": "alembic:true_damage",
   "enchant_reduction": false,
   "enchant_source": "mob",
   "color": "#FFFFFF",

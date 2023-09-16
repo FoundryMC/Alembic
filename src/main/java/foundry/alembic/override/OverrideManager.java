@@ -1,6 +1,5 @@
 package foundry.alembic.override;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -9,15 +8,19 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
+import foundry.alembic.util.Utils;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraft.world.damagesource.DamageSource;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Map;
 
-public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
+public class OverrideManager extends SimpleJsonResourceReloadListener {
     private static final Codec<OverrideStorage> STORAGE_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("priority").forGetter(OverrideStorage::priority),
@@ -25,19 +28,56 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
             ).apply(instance, OverrideStorage::new)
     );
 
-    private static final Gson GSON = new Gson();
-    public OverrideJSONListener() {
-        super(GSON, "alembic/overrides");
+    private static final Map<DamageSourceIdentifier, AlembicOverride> OVERRIDES = new Reference2ObjectOpenHashMap<>();
+
+    public OverrideManager() {
+        super(Utils.GSON, "alembic/overrides");
     }
 
-    public static void register(AddReloadListenerEvent event){
-        Alembic.printInDebug(() -> "Registering OverrideJSONListener");
-        event.addListener(new OverrideJSONListener());
+    public static boolean containsKey(DamageSourceIdentifier sourceIdentifier) {
+        return OVERRIDES.containsKey(sourceIdentifier);
+    }
+
+    public static boolean containsKey(DamageSource damageSource) {
+        return containsKey(DamageSourceIdentifier.create(damageSource.msgId));
+    }
+
+    public static Map<DamageSourceIdentifier, AlembicOverride> getOverrides() {
+        return Collections.unmodifiableMap(OVERRIDES);
+    }
+
+    public static AlembicOverride get(DamageSourceIdentifier sourceIdentifier) {
+        return OVERRIDES.get(sourceIdentifier);
+    }
+
+    private static void put(DamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
+        OVERRIDES.put(sourceIdentifier, override);
+    }
+
+    public static void smartAddOverride(DamageSourceIdentifier sourceIdentifier, AlembicOverride override) {
+        Alembic.printInDebug(() -> "Adding override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId());
+        if (containsKey(sourceIdentifier)) {
+            if (get(sourceIdentifier).getPriority() < override.getPriority()) {
+                Alembic.LOGGER.info("Replacing override for " + sourceIdentifier.getSerializedName() + " with override " + override.getId() + " because it has a higher priority");
+                put(sourceIdentifier, override);
+            }
+        } else {
+            put(sourceIdentifier, override);
+        }
+    }
+
+    static void clearOverrides() {
+        OVERRIDES.clear();
+    }
+
+    @Nullable
+    public static AlembicOverride getOverridesForSource(DamageSource source) {
+        return OVERRIDES.get(DamageSourceIdentifier.create(source.msgId));
     }
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> jsonMap, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        AlembicOverrideHolder.clearOverrides();
+        clearOverrides();
         for (Map.Entry<ResourceLocation, JsonElement> dataEntry : jsonMap.entrySet()) {
             DataResult<OverrideStorage> dataResult = STORAGE_CODEC.parse(JsonOps.INSTANCE, dataEntry.getValue());
             if (dataResult.error().isPresent()) {
@@ -54,15 +94,15 @@ public class OverrideJSONListener extends SimpleJsonResourceReloadListener {
 
                 if (parsedEntry.getKey().left().isPresent()) {
                     for (DamageSourceIdentifier id : parsedEntry.getKey().left().get().getIdentifiers()) {
-                        AlembicOverrideHolder.smartAddOverride(id, override);
+                        smartAddOverride(id, override);
                     }
                 } else {
-                    AlembicOverrideHolder.smartAddOverride(parsedEntry.getKey().right().get(), override);
+                    smartAddOverride(parsedEntry.getKey().right().get(), override);
                 }
             }
         }
         // write the map to a human-readable string
-        String logPut = AlembicOverrideHolder.getOverrides().entrySet().stream().map(entry -> entry.getKey().toString() + " -> " + entry.getValue().toString()).reduce((s, s2) -> s + ", " + s2).orElse("Empty");
+        String logPut = getOverrides().entrySet().stream().map(entry -> entry.getKey().toString() + " -> " + entry.getValue().toString()).reduce((s, s2) -> s + ", " + s2).orElse("Empty");
         Alembic.LOGGER.debug("Loaded overrides: %s".formatted(logPut));
     }
 

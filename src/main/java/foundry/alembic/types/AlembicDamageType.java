@@ -1,12 +1,8 @@
 package foundry.alembic.types;
 
-import com.google.common.base.Suppliers;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.attribute.AttributeHolder;
-import foundry.alembic.attribute.AttributeRegistry;
+import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.attribute.AttributeSet;
 import foundry.alembic.util.CodecUtil;
 import foundry.alembic.types.tag.AlembicTag;
@@ -18,25 +14,11 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 
 public class AlembicDamageType {
     public static final Codec<AlembicDamageType> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("priority").forGetter(AlembicDamageType::getPriority),
-                    Codec.either(AttributeRegistry.SET_LOOKUP_CODEC, AttributeHolder.CODEC).comapFlatMap(
-                            either -> {
-                                if (either.left().isPresent()) {
-                                    if (!either.left().get().isFullSet()) {
-                                        return DataResult.error("Attribute set " + AttributeRegistry.ID_TO_SET_BIMAP.inverse().get(either.left().get()) + " must be a full set");
-                                    }
-                                }
-                                return DataResult.success(either);
-                            },
-                            Function.identity()
-                    ).fieldOf("attributes").forGetter(damageType -> damageType.attributesEither),
                     CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor),
                     AlembicTag.DISPATCH_CODEC.listOf().fieldOf("tags").forGetter(AlembicDamageType::getTags),
                     Codec.BOOL.fieldOf("enchant_reduction").forGetter(AlembicDamageType::hasEnchantReduction),
@@ -46,11 +28,7 @@ public class AlembicDamageType {
 
     private int priority;
     private ResourceLocation id;
-    private final Either<AttributeSet, AttributeHolder> attributesEither;
-    private Supplier<RangedAttribute> attribute;
-    private Supplier<RangedAttribute> shieldingAttribute;
-    private Supplier<RangedAttribute> absorptionAttribute;
-    private Supplier<RangedAttribute> resistanceAttribute;
+    private AttributeSet attributeSet;
     private DamageSource damageSource;
     private int color;
     private List<AlembicTag> tags;
@@ -60,37 +38,28 @@ public class AlembicDamageType {
     private boolean enchantReduction;
     private String enchantSource;
 
-    public AlembicDamageType(int priority, Either<AttributeSet, AttributeHolder> attributesEither, int color, List<AlembicTag> tags, boolean enchantReduction, String enchantSource) {
+    public AlembicDamageType(int priority, int color, List<AlembicTag> tags, boolean enchantReduction, String enchantSource) {
         this.priority = priority;
-        this.attributesEither = attributesEither;
-        this.attribute = Suppliers.memoize(() -> CodecUtil.resolveEither(attributesEither, AttributeSet::getBaseAttribute, AttributeHolder::attribute));
-        this.shieldingAttribute = Suppliers.memoize(() -> attributesEither.map(attributeSet -> attributeSet.getShieldingAttribute().orElse(null), AttributeHolder::shieldingAttribute));
-        this.absorptionAttribute = Suppliers.memoize(() -> attributesEither.map(attributeSet -> attributeSet.getAbsorptionAttribute().orElse(null), AttributeHolder::absorptionAttribute));
-        this.resistanceAttribute = Suppliers.memoize(() -> attributesEither.map(attributeSet -> attributeSet.getResistanceAttribute().orElse(null), AttributeHolder::resistanceAttribute));
         this.color = color;
         this.tags = tags;
         this.enchantReduction = enchantReduction;
         this.enchantSource = enchantSource;
     }
 
-    public void setResistanceAttribute(RangedAttribute attribute){
-        this.resistanceAttribute = Suppliers.memoize(() -> attribute);
-    }
-
     public RangedAttribute getAttribute() {
-        return attribute.get();
+        return attributeSet.getDamageAttribute();
     }
 
     public RangedAttribute getShieldingAttribute() {
-        return shieldingAttribute.get();
+        return attributeSet.getShieldingAttribute();
     }
 
     public RangedAttribute getAbsorptionAttribute() {
-        return absorptionAttribute.get();
+        return attributeSet.getAbsorptionAttribute();
     }
 
     public RangedAttribute getResistanceAttribute() {
-        return resistanceAttribute.get();
+        return attributeSet.getResistanceAttribute();
     }
 
     public boolean hasEnchantReduction() {
@@ -121,9 +90,9 @@ public class AlembicDamageType {
         return this.tags;
     }
 
-    public void runTags() {
-
-    }
+//    public void runTags() {
+//
+//    }
 
     public void clearTags() {
         this.tags.clear();
@@ -172,6 +141,7 @@ public class AlembicDamageType {
     void handlePostParse(ResourceLocation id) {
         this.id = id;
         this.damageSource = new DamageSource(id.toString());
+        this.attributeSet = AttributeSetRegistry.getValue(id);
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }
 }

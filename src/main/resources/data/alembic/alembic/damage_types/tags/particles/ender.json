@@ -1,6 +1,5 @@
 {
   "tag_type": "alembic:particle_tag",
-  "player_only": false,
   "particle_speed": 0.35,
   "particle_options": {
     "type": "alembic:ender_magic"

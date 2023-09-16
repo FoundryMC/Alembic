@@ -5,8 +5,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.items.slots.EquipmentSlotType;
-import foundry.alembic.types.DamageTypeJSONListener;
+import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.util.TagOrElements;
+import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -28,7 +29,7 @@ public class ItemStatManager extends SimpleJsonResourceReloadListener {
     }
 
     public ItemStatManager() {
-        super(DamageTypeJSONListener.GSON, "alembic/item_stats");
+        super(Utils.GSON, "alembic/item_stats");
     }
 
     @Override
@@ -49,6 +50,8 @@ public class ItemStatManager extends SimpleJsonResourceReloadListener {
 
             numStatsLoaded++;
         }
-        Alembic.LOGGER.debug("Loaded " + numStatsLoaded + " items stats");
+        if (Alembic.isDebugEnabled()) {
+            Alembic.LOGGER.debug("Loaded " + numStatsLoaded + " items stats");
+        }
     }
 }

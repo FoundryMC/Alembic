@@ -3,7 +3,6 @@ package foundry.alembic.attribute;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
@@ -32,26 +31,38 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class AttributeRegistry {
+public class AttributeSetRegistry {
+    private static final BiMap<ResourceLocation, AttributeSet> ID_TO_SET_BIMAP = HashBiMap.create();
+
     private static final Map<String, DeferredRegister<Attribute>> ATTRIBUTE_REGISTRY_MAP = new HashMap<>();
     private static final Map<String, DeferredRegister<Potion>> POTION_REGISTRY_MAP = new HashMap<>();
     private static final Map<String, DeferredRegister<MobEffect>> MOB_EFFECT_REGISTRY_MAP = new HashMap<>();
-    public static final BiMap<ResourceLocation, AttributeSet> ID_TO_SET_BIMAP = HashBiMap.create();
 
-    public static final Codec<AttributeSet> SET_LOOKUP_CODEC = ResourceLocation.CODEC.comapFlatMap(
-            resourceLocation -> {
-                if (!ID_TO_SET_BIMAP.containsKey(resourceLocation)) {
-                    return DataResult.error("Attribute set: " + resourceLocation + " does not exist!");
-                }
-                return DataResult.success(ID_TO_SET_BIMAP.get(resourceLocation));
-            },
-            ID_TO_SET_BIMAP.inverse()::get
-    );
+    public static Collection<AttributeSet> getValues() {
+        return Collections.unmodifiableCollection(ID_TO_SET_BIMAP.values());
+    }
+
+    @Nullable
+    public static AttributeSet getValue(ResourceLocation id) {
+        return ID_TO_SET_BIMAP.get(id);
+    }
+
+    @Nullable
+    public static ResourceLocation getId(AttributeSet attributeSet) {
+        return ID_TO_SET_BIMAP.inverse().get(attributeSet);
+    }
+
+    public static boolean exists(ResourceLocation id) {
+        return ID_TO_SET_BIMAP.containsKey(id);
+    }
 
     private static DeferredRegister<Attribute> getAttributeRegister(String resourceId) {
         return ATTRIBUTE_REGISTRY_MAP.computeIfAbsent(resourceId, s -> DeferredRegister.create(ForgeRegistries.Keys.ATTRIBUTES, s));
@@ -69,11 +80,10 @@ public class AttributeRegistry {
         for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets").entrySet()) {
             DataResult<AttributeSet> setResult = AttributeSet.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (setResult.error().isPresent()) {
-                throw new IllegalStateException(setResult.error().get().message());
+                throw new IllegalStateException("Error loading {" + entry.getKey() + "}: " + setResult.error().get().message());
             }
             AttributeSet set = setResult.result().get();
             ResourceLocation id = Utils.sanitize(entry.getKey(), "attribute_sets/", ".json"); // TODO: replace with FileToIdConverter
-            set.setId(id);
 
             if (ID_TO_SET_BIMAP.containsKey(id)) {
                 Alembic.LOGGER.error("Attribute set already present " + id);
@@ -83,16 +93,28 @@ public class AttributeRegistry {
             ID_TO_SET_BIMAP.put(id, set);
 
             DeferredRegister<Attribute> deferredRegister = getAttributeRegister(id.getNamespace());
-            deferredRegister.register(id.getPath(), () -> new AlembicAttribute(id.toLanguageKey("attribute"), set.getBase(), set.getMin(), set.getMax()));
-            if (set.hasShielding()) register(deferredRegister, id, AlembicTypeModifier.SHIELDING, 0, 0, 1024);
-            if (set.hasAbsorption())
-                register(deferredRegister, id, AlembicTypeModifier.ABSORPTION, 0, 0, 1024);
-            if (set.hasResistance()) {
-                register(deferredRegister, id, AlembicTypeModifier.RESISTANCE, 1, -1024, 1024);
-                if (set.getPotionDataHolder().isPresent()) {
-                    registerEffectsAndPotions(id, set, set.getPotionDataHolder().get());
-                }
-            }
+            set.getDamageData().ifPresent(data -> {
+                deferredRegister.register(id.getPath(), () -> createFromData(id.toLanguageKey("attribute"), data));
+            });
+            set.getShieldingData().ifPresent(data -> {
+                String regId = AlembicTypeModifier.SHIELDING.getTranslationId(id.getPath());
+                String descId = AlembicTypeModifier.SHIELDING.getTranslationId(id.toLanguageKey("attribute"));
+                deferredRegister.register(regId, () -> createFromData(descId, data));
+            });
+            set.getAbsorptionData().ifPresent(data -> {
+                String regId = AlembicTypeModifier.ABSORPTION.getTranslationId(id.getPath());
+                String descId = AlembicTypeModifier.ABSORPTION.getTranslationId(id.toLanguageKey("attribute"));
+                deferredRegister.register(regId, () -> createFromData(descId, data));
+            });
+            set.getAbsorptionData().ifPresent(data -> {
+                String regId = AlembicTypeModifier.RESISTANCE.getTranslationId(id.getPath());
+                String descId = AlembicTypeModifier.RESISTANCE.getTranslationId(id.toLanguageKey("attribute"));
+                deferredRegister.register(regId, () -> createFromData(descId, data));
+            });
+
+            set.getPotionDataHolder().ifPresent(alembicPotionDataHolder -> {
+                registerEffectsAndPotions(id, set, alembicPotionDataHolder);
+            });
         }
 
         for (DeferredRegister<Attribute> register : ATTRIBUTE_REGISTRY_MAP.values()) {
@@ -106,8 +128,8 @@ public class AttributeRegistry {
         }
     }
 
-    private static void register(DeferredRegister<Attribute> register, ResourceLocation id, AlembicTypeModifier modifier, double base, double min, double max) {
-        register.register(modifier.getTranslationId(id.getPath()), () -> new AlembicAttribute(modifier.getTranslationId(id.toLanguageKey("attribute")), base, min, max));
+    private static AlembicAttribute createFromData(String descId, RangedAttributeData data) {
+        return new AlembicAttribute(descId, data.base(), data.min(), data.max());
     }
 
     private static void registerEffectsAndPotions(ResourceLocation setId, AttributeSet attributeSet, AlembicPotionDataHolder dataHolder) {
@@ -118,7 +140,7 @@ public class AttributeRegistry {
             Supplier<MobEffect> effectObj;
             if (!dataHolder.getImmunities().isEmpty()) {
                 effectObj = mobEffectRegister.register("fire_resistance", () -> new ImmunityMobEffect(MobEffectCategory.BENEFICIAL, dataHolder.getColor(), dataHolder.getImmunities())
-                        .addAttributeModifier(attributeSet.getResistanceAttribute().get(), ForgeEvents.ALEMBIC_FIRE_RESIST_UUID.toString(), 0.1, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                        .addAttributeModifier(attributeSet.getResistanceAttribute(), ForgeEvents.ALEMBIC_FIRE_RESIST_UUID.toString(), 0.1, AttributeModifier.Operation.MULTIPLY_TOTAL));
             } else {
                 effectObj = () -> MobEffects.FIRE_RESISTANCE;
             }
@@ -179,8 +201,8 @@ public class AttributeRegistry {
     private static MobEffect createMobEffect(AttributeSet attributeSet, AlembicPotionDataHolder dataHolder) {
         if (!dataHolder.getImmunities().isEmpty()) {
             return new ImmunityMobEffect(MobEffectCategory.BENEFICIAL, dataHolder.getColor(), dataHolder.getImmunities())
-                    .addAttributeModifier(attributeSet.getResistanceAttribute().get(), dataHolder.getUUID().toString(), dataHolder.getValue(), dataHolder.getOperation());
+                    .addAttributeModifier(attributeSet.getResistanceAttribute(), dataHolder.getUUID().toString(), dataHolder.getValue(), dataHolder.getOperation());
         }
-        return new AlembicMobEffect(attributeSet.getResistanceAttribute().get(), dataHolder);
+        return new AlembicMobEffect(attributeSet.getResistanceAttribute(), dataHolder);
     }
 }

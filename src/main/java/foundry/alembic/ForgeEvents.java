@@ -15,14 +15,11 @@ import foundry.alembic.items.slots.VanillaSlotType;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
-import foundry.alembic.override.AlembicOverrideHolder;
-import foundry.alembic.override.OverrideJSONListener;
+import foundry.alembic.override.OverrideManager;
 import foundry.alembic.resistances.AlembicResistance;
-import foundry.alembic.resistances.AlembicResistanceHolder;
-import foundry.alembic.resistances.ResistanceJsonListener;
+import foundry.alembic.resistances.ResistanceManager;
 import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.DamageTypeJSONListener;
-import foundry.alembic.types.DamageTypeRegistry;
+import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
@@ -93,8 +90,7 @@ public class ForgeEvents {
 
             if (player.getAttributes().hasAttribute(attribute)) {
                 if (playerRegion < tag.getCap()) {
-                    AttributeInstance instance = player.getAttribute(attribute);
-                    AttributeHelper.addOrModifyModifier(instance, modifierId, tag.getBonus());
+                    AttributeHelper.addOrModifyModifier(player, attribute, modifierId, tag.getBonus());
 
                     // Write the number of level-ups for the attribute
                     setTagDataElement(player, modifierId.toString(), playerRegion+=tag.getBonus());
@@ -114,9 +110,9 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void onJsonListener(AddReloadListenerEvent event) {
-        DamageTypeJSONListener.register(event);
-        OverrideJSONListener.register(event);
-        ResistanceJsonListener.register(event);
+        event.addListener(new DamageTypeManager());
+        event.addListener(new OverrideManager());
+        event.addListener(new ResistanceManager());
         event.addListener(new ItemStatManager());
     }
 
@@ -126,7 +122,7 @@ public class ForgeEvents {
         // TODO: note/1
         if (stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
             int level = stack.getEnchantmentLevel(Enchantments.FIRE_ASPECT);
-            Attribute fireDamage = DamageTypeRegistry.getDamageType("fire_damage").getAttribute();
+            Attribute fireDamage = DamageTypeManager.getDamageType("fire_damage").getAttribute();
             if(fireDamage == null) return;
             if(!event.getSlotType().equals(EquipmentSlot.MAINHAND)) return;
             event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
@@ -206,14 +202,14 @@ public class ForgeEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void cancelShieldBlock(ShieldBlockEvent event) {
-        if (!AlembicOverrideHolder.containsKey(event.getDamageSource())) {
+        if (!OverrideManager.containsKey(event.getDamageSource())) {
             return;
         }
         LivingEntity entity = event.getEntity();
         MutableFloat finalDamage = new MutableFloat();
 
         // Need to partition damage to each damage type, then block whatever amount from each, and sum up to put back into the event.
-        AlembicOverrideHolder.getOverridesForSource(event.getDamageSource()).getDamagePercents()
+        OverrideManager.getOverridesForSource(event.getDamageSource()).getDamagePercents()
                 .forEach((alembicDamageType, aFloat) -> {
                     float damagePart = event.getBlockedDamage() * aFloat;
 
@@ -243,21 +239,22 @@ public class ForgeEvents {
             return;
         }
 
+        DamageSource originalDamageSource = event.getSource();
         isBeingDamaged = true;
 
         if (Alembic.isDebugEnabled()) {
-            Alembic.LOGGER.info("Handling hurt event for {} with source {} and amount {}", target.getName().getString(), event.getSource().getMsgId(), event.getAmount());
-            Alembic.LOGGER.info("Source is {} and is projectile? {}", event.getSource().getDirectEntity(), event.getSource().getDirectEntity() instanceof Projectile);
+            Alembic.LOGGER.info("Handling hurt event for {} with source {} and amount {}", target.getName().getString(), originalDamageSource.getMsgId(), event.getAmount());
+            Alembic.LOGGER.info("Source is {} and is projectile? {}", originalDamageSource.getDirectEntity(), originalDamageSource.getDirectEntity() instanceof Projectile);
         }
 
-        if (event.getSource() instanceof IndirectEntityDamageSource || event.getSource().getDirectEntity() == null || (event.getSource().getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
-                || event.getSource().getDirectEntity() instanceof AbstractHurtingProjectile || (event.getSource().getDirectEntity() instanceof Projectile)) {
+        if (originalDamageSource instanceof IndirectEntityDamageSource || originalDamageSource.getDirectEntity() == null || (originalDamageSource.getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
+                || originalDamageSource.getDirectEntity() instanceof AbstractHurtingProjectile || (originalDamageSource.getDirectEntity() instanceof Projectile)) {
             isBeingDamaged = false;
             float totalDamage = event.getAmount();
-            AlembicOverride override = AlembicOverrideHolder.getOverridesForSource(event.getSource());
-            Alembic.printInDebug(() -> "Found override for " + event.getSource().getMsgId() + " with damage " + totalDamage + ". " + override);
+            AlembicOverride override = OverrideManager.getOverridesForSource(originalDamageSource);
+            Alembic.printInDebug(() -> "Found override for " + originalDamageSource.getMsgId() + " with damage " + totalDamage + ". " + override);
             if (override != null) {
-                handleTypedDamage(target, null, totalDamage, override, event.getSource());
+                handleTypedDamage(target, null, totalDamage, override, originalDamageSource);
                 //target.hurt(e.getSource(), totalDamage);
                 isBeingDamaged = false;
                 event.setCanceled(true);
@@ -265,12 +262,12 @@ public class ForgeEvents {
                 isBeingDamaged = false;
                 return;
             }
-        } else if (event.getSource().getDirectEntity() instanceof LivingEntity || (event.getSource().getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
+        } else if (originalDamageSource.getDirectEntity() instanceof LivingEntity || (originalDamageSource.getDirectEntity() instanceof AbstractArrow && AlembicConfig.ownerAttributeProjectiles.get())) {
             LivingEntity attacker;
-            if(event.getSource().getDirectEntity() instanceof AbstractArrow) {
-                attacker = (LivingEntity) ((AbstractArrow) event.getSource().getDirectEntity()).getOwner();
+            if(originalDamageSource.getDirectEntity() instanceof AbstractArrow) {
+                attacker = (LivingEntity) ((AbstractArrow) originalDamageSource.getDirectEntity()).getOwner();
             } else {
-                attacker = (LivingEntity) event.getSource().getDirectEntity();
+                attacker = (LivingEntity) originalDamageSource.getDirectEntity();
             }
             if(attacker == null) {
                 isBeingDamaged = false;
@@ -279,14 +276,14 @@ public class ForgeEvents {
             Multimap<Attribute, AttributeModifier> map = ArrayListMultimap.create();
             if (handleEnchantments(attacker, target, map)) return;
             float totalDamage = event.getAmount();
-            AlembicResistance stats = AlembicResistanceHolder.get(target.getType());
+            AlembicResistance stats = ResistanceManager.get(target.getType());
             boolean entityOverride = stats != null;
             float damageOffset = 0;
             if (entityOverride) {
-                damageOffset = handleTypedDamage(target, attacker, totalDamage, stats, event.getSource());
+                damageOffset = handleTypedDamage(target, attacker, totalDamage, stats, originalDamageSource);
             }
             totalDamage -= damageOffset;
-            for (AlembicDamageType damageType : DamageTypeRegistry.getDamageTypes()) {
+            for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
                 if(attacker.getAttribute(damageType.getAttribute()) == null) continue;
                 if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0 && !entityOverride) {
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
@@ -301,7 +298,7 @@ public class ForgeEvents {
                     if (damage <= 0 || preDamage.isCanceled()) return;
                     damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
 
-                    handleDamageInstance(target, damageType, damage, event.getSource());
+                    handleDamageInstance(target, damageType, damage, originalDamageSource);
                     AlembicDamageEvent.Post postDamage = new AlembicDamageEvent.Post(target, attacker, damageType, damage, attrValue);
                     MinecraftForge.EVENT_BUS.post(postDamage);
                 }
@@ -329,7 +326,7 @@ public class ForgeEvents {
         for(Map.Entry<Enchantment, Integer> entry : attacker.getItemInHand(InteractionHand.MAIN_HAND).getAllEnchantments().entrySet()){
             if(entry.getKey().equals(Enchantments.BANE_OF_ARTHROPODS)){
                 if(target.getMobType() == MobType.ARTHROPOD){
-                    Attribute alchDamage = DamageTypeRegistry.getDamageType("arcane_damage").getAttribute();
+                    Attribute alchDamage = DamageTypeManager.getDamageType("arcane_damage").getAttribute();
                     if(alchDamage == null) return true;
                     AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID, "Bane of Arthropods", entry.getValue(), AttributeModifier.Operation.ADDITION);
                     attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
@@ -337,7 +334,7 @@ public class ForgeEvents {
                 }
             } else if (entry.getKey().equals(Enchantments.SMITE)){
                 if(target.getMobType() == MobType.UNDEAD){
-                    Attribute alchDamage = DamageTypeRegistry.getDamageType("arcane_damage").getAttribute();
+                    Attribute alchDamage = DamageTypeManager.getDamageType("arcane_damage").getAttribute();
                     if(alchDamage == null) return true;
                     AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID2, "Smite", entry.getValue(), AttributeModifier.Operation.ADDITION);
                     attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
@@ -345,7 +342,7 @@ public class ForgeEvents {
                 }
             } else if (entry.getKey().equals(Enchantments.IMPALING)){
                 if(target.isInWaterOrRain()){
-                    Attribute alchDamage = DamageTypeRegistry.getDamageType("arcane_damage").getAttribute();
+                    Attribute alchDamage = DamageTypeManager.getDamageType("arcane_damage").getAttribute();
                     if(alchDamage == null) return true;
                     AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID, "Impaling", entry.getValue(), AttributeModifier.Operation.ADDITION);
                     attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
@@ -406,7 +403,7 @@ public class ForgeEvents {
         AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 * (1 + event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
         if (event instanceof MobEffectEvent.Added) {
             if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
-                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(attmod.getId()) != null) return;
@@ -415,7 +412,7 @@ public class ForgeEvents {
         }
         if (event instanceof MobEffectEvent.Remove) {
             if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
-                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 event.getEntity().getAttribute(fireRes).removeModifier(attmod);
@@ -453,14 +450,14 @@ public class ForgeEvents {
         if(!event.getEntity().level.isClientSide){
             if(event.getEntity().isInWaterOrRain()){
                 // if the entity is in water or rain, increase fire resistance by +6
-                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
                 event.getEntity().getAttribute(fireRes).addPermanentModifier(FIRE_WATER_ATT_MOD);
             } else {
                 // if the entity is not in water or rain, remove the fire resistance modifier
-                Attribute fireRes = DamageTypeRegistry.getDamageType("fire_damage").getResistanceAttribute();
+                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
@@ -528,9 +525,9 @@ public class ForgeEvents {
         MinecraftForge.EVENT_BUS.post(postDamage);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    static void attack(final LivingAttackEvent e) {
-    }
+//    @SubscribeEvent(priority = EventPriority.LOWEST)
+//    static void attack(final LivingAttackEvent e) {
+//    }
 
     private static DamageSource src(LivingEntity entity) {
         return entity instanceof Player p ? DamageSource.playerAttack(p) : DamageSource.mobAttack(entity);

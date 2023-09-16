@@ -2,7 +2,7 @@ package foundry.alembic;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import foundry.alembic.attribute.AttributeRegistry;
+import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.client.TooltipHelper;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatManager;
@@ -40,8 +40,9 @@ public class ForgeClientEvents {
         ItemStack stack = event.getItemStack();
         List<Component> tooltip = event.getToolTip();
         if(!isValidItem(stack.getItem())) {
-            if (isVanillaFireResistancePotion(stack) && AttributeRegistry.ID_TO_SET_BIMAP.containsKey(Alembic.location("fire_damage"))) {
-                Attribute attribute = AttributeRegistry.ID_TO_SET_BIMAP.get(Alembic.location("fire_damage")).getResistanceAttribute().get();
+            // TODO: AttributeSetRegistry needs to be the same on both client and server, so we should probably do some kind of networking for that.
+            if (isVanillaFireResistancePotion(stack) && AttributeSetRegistry.exists(Alembic.location("fire_damage"))) {
+                Attribute attribute = AttributeSetRegistry.getValue(Alembic.location("fire_damage")).getResistanceAttribute();
                 tooltip.add(CommonComponents.EMPTY);
                 tooltip.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
                 tooltip.add(Component.translatable("attribute.modifier.plus." + AttributeModifier.Operation.MULTIPLY_TOTAL.toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(10), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
@@ -93,13 +94,13 @@ public class ForgeClientEvents {
     }
 
     private static boolean shouldRemoveComponent(ItemStack stack, Component component) {
-        if (component.toString().contains("alembic")) {
-            return true;
+        if (!component.toString().contains("alembic")) {
+            return false;
         }
         if (stack.isEnchanted() && stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
             return !component.toString().contains("fire_damage");
         }
-        return false;
+        return true;
     }
 
     private static boolean isValidItem(Item item) {
@@ -108,6 +109,6 @@ public class ForgeClientEvents {
 
     private static boolean isVanillaFireResistancePotion(ItemStack stack) {
         Potion potion;
-        return stack.getItem() == Items.POTION && ((potion = PotionUtils.getPotion(stack)) == Potions.FIRE_RESISTANCE || potion == Potions.LONG_FIRE_RESISTANCE);
+        return (stack.is(Items.POTION) || stack.is(Items.SPLASH_POTION) || stack.is(Items.LINGERING_POTION)) && ((potion = PotionUtils.getPotion(stack)) == Potions.FIRE_RESISTANCE || potion == Potions.LONG_FIRE_RESISTANCE);
     }
 }
