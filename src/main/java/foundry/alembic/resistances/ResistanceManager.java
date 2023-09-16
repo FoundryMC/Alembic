@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.util.ConditionalJsonResourceReloadListener;
 import foundry.alembic.util.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -11,14 +12,15 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 
 import java.util.*;
 
-public class ResistanceManager extends SimpleJsonResourceReloadListener {
+public class ResistanceManager extends ConditionalJsonResourceReloadListener {
     private static final Map<EntityType<?>, AlembicResistance> RESISTANCE_MAP = new Reference2ObjectOpenHashMap<>();
 
-    public ResistanceManager() {
-        super(Utils.GSON, "alembic/resistances");
+    public ResistanceManager(ICondition.IContext conditionContext) {
+        super(conditionContext, Utils.GSON, "alembic/resistances");
     }
 
     public static Collection<AlembicResistance> getValuesView() {

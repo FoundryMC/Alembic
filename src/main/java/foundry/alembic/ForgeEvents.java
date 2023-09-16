@@ -110,10 +110,10 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void onJsonListener(AddReloadListenerEvent event) {
-        event.addListener(new DamageTypeManager());
-        event.addListener(new OverrideManager());
-        event.addListener(new ResistanceManager());
-        event.addListener(new ItemStatManager());
+        event.addListener(new DamageTypeManager(event.getConditionContext()));
+        event.addListener(new OverrideManager(event.getConditionContext()));
+        event.addListener(new ResistanceManager(event.getConditionContext()));
+        event.addListener(new ItemStatManager(event.getConditionContext()));
     }
 
     @SubscribeEvent

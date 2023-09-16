@@ -6,6 +6,7 @@ import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.items.slots.EquipmentSlotType;
 import foundry.alembic.types.DamageTypeManager;
+import foundry.alembic.util.ConditionalJsonResourceReloadListener;
 import foundry.alembic.util.TagOrElements;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -13,11 +14,12 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 
 import java.util.Collection;
 import java.util.Map;
 
-public class ItemStatManager extends SimpleJsonResourceReloadListener {
+public class ItemStatManager extends ConditionalJsonResourceReloadListener {
     private static final ItemStatHolder HOLDER = new ItemStatHolder();
 
     public static Collection<ItemStat> getStats(Item item, EquipmentSlotType equipmentSlotType) {
@@ -28,8 +30,8 @@ public class ItemStatManager extends SimpleJsonResourceReloadListener {
         return HOLDER.contains(item);
     }
 
-    public ItemStatManager() {
-        super(Utils.GSON, "alembic/item_stats");
+    public ItemStatManager(ICondition.IContext conditionContext) {
+        super(conditionContext, Utils.GSON, "alembic/item_stats");
     }
 
     @Override

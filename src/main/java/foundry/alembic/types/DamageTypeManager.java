@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.util.ConditionalJsonResourceReloadListener;
 import foundry.alembic.util.FileReferenceOps;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +13,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -19,13 +21,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DamageTypeManager extends SimpleJsonResourceReloadListener {
+public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
 
     public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = ResourceLocation.CODEC.xmap(DAMAGE_TYPES::get, AlembicDamageType::getId);
 
-    public DamageTypeManager() {
-        super(Utils.GSON, "alembic/damage_types");
+    public DamageTypeManager(ICondition.IContext conditionContext) {
+        super(conditionContext, Utils.GSON, "alembic/damage_types");
     }
 
     public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {

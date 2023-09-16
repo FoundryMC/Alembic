@@ -8,6 +8,7 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
+import foundry.alembic.util.ConditionalJsonResourceReloadListener;
 import foundry.alembic.util.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -15,12 +16,13 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
 
-public class OverrideManager extends SimpleJsonResourceReloadListener {
+public class OverrideManager extends ConditionalJsonResourceReloadListener {
     private static final Codec<OverrideStorage> STORAGE_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Codec.INT.fieldOf("priority").forGetter(OverrideStorage::priority),
@@ -30,8 +32,8 @@ public class OverrideManager extends SimpleJsonResourceReloadListener {
 
     private static final Map<DamageSourceIdentifier, AlembicOverride> OVERRIDES = new Reference2ObjectOpenHashMap<>();
 
-    public OverrideManager() {
-        super(Utils.GSON, "alembic/overrides");
+    public OverrideManager(ICondition.IContext conditionContext) {
+        super(conditionContext, Utils.GSON, "alembic/overrides");
     }
 
     public static boolean containsKey(DamageSourceIdentifier sourceIdentifier) {
