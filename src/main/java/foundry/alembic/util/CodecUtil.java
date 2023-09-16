@@ -1,6 +1,8 @@
 package foundry.alembic.util;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
@@ -103,14 +105,34 @@ public class CodecUtil {
             new Decoder<>() {
                 @Override
                 public <T> DataResult<Pair<Ingredient, T>> decode(DynamicOps<T> ops, T input) {
-                    return DataResult.success(Pair.of(CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input)), input));
+                    try {
+                        Ingredient ingredient = CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input));
+                        return DataResult.success(Pair.of(ingredient, input));
+                    } catch (JsonSyntaxException e) {
+                        return DataResult.error("Failed to decode ingredient" + e.getMessage());
+                    }
                 }
             }
     );
 
-    public static final Codec<Ingredient> INGREDIENT_FROM_EITHER = Codec.either(ITEM_OR_STACK_CODEC, INGREDIENT_CODEC).xmap(
+    public static final Codec<Ingredient> INGREDIENT_FROM_EITHER = Codec.either(Registry.ITEM.byNameCodec(), INGREDIENT_CODEC).xmap(
             either -> either.map(Ingredient::of, Function.identity()),
             Either::right
+    );
+
+    public static final Codec<JsonElement> JSON_CODEC = Codec.of(
+            new Encoder<>() {
+                @Override
+                public <T> DataResult<T> encode(JsonElement input, DynamicOps<T> ops, T prefix) {
+                    return DataResult.success(JsonOps.INSTANCE.convertTo(ops, input));
+                }
+            },
+            new Decoder<>() {
+                @Override
+                public <T> DataResult<Pair<JsonElement, T>> decode(DynamicOps<T> ops, T input) {
+                    return DataResult.success(Pair.of(ops.convertTo(JsonOps.INSTANCE, input), input));
+                }
+            }
     );
 
     public static <T> SetCodec<T> setOf(Codec<T> elementCodec) {

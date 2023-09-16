@@ -30,10 +30,11 @@
     "recipe": {
       "reagent": "minecraft:lapis_lazuli",
       "base": {
-        "id": "minecraft:potion",
-        "Count": 1,
-        "tag": {
-          "Potion": "awkward"
+        "type": "forge:nbt",
+        "item": "minecraft:potion",
+        "count": 1,
+        "nbt": {
+          "Potion": "minecraft:awkward"
         }
       }
     }
