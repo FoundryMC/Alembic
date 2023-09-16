@@ -2,43 +2,43 @@ package foundry.alembic.items.modifiers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.items.ItemModifier;
 import foundry.alembic.items.ItemModifierType;
 import foundry.alembic.items.ItemStat;
-import foundry.alembic.items.ModifierApplication;
+import foundry.alembic.util.CodecUtil;
 import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
-import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
-import java.util.function.Function;
+import java.util.UUID;
 
-public class ReplaceItemModifier extends ItemModifier {
+public final class ReplaceItemModifier implements ItemModifier {
     public static final Codec<ReplaceItemModifier> CODEC = RecordCodecBuilder.create(instance ->
-            base(instance).and(
-                    instance.group(
-                            Registry.ATTRIBUTE.byNameCodec().fieldOf("target").forGetter(replaceItemModifier -> replaceItemModifier.target),
-                            Codec.unboundedMap(Registry.ATTRIBUTE.byNameCodec(), Codec.FLOAT).fieldOf("replacements").xmap(
-                                    map -> (Reference2FloatMap<Attribute>)new Reference2FloatOpenHashMap<>(map),
-                                    Function.identity()
-                            ).forGetter(replaceItemModifier -> replaceItemModifier.map)
-                    )
+            instance.group(
+                    Registry.ATTRIBUTE.byNameCodec().fieldOf("target").forGetter(replaceItemModifier -> replaceItemModifier.target),
+                    Codec.FLOAT.fieldOf("value").forGetter(replaceItemModifier -> replaceItemModifier.value),
+                    CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(replaceItemModifier -> replaceItemModifier.operation),
+                    CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(replaceItemModifier -> replaceItemModifier.uuid)
             ).apply(instance, ReplaceItemModifier::new)
     );
 
     private final Attribute target;
-    private final Reference2FloatMap<Attribute> map;
+    private final float value;
+    private final AttributeModifier.Operation operation;
+    private final UUID uuid;
 
-    public ReplaceItemModifier(ModifierApplication application, Attribute target, Reference2FloatMap<Attribute> map) {
-        super(application);
+    public ReplaceItemModifier(Attribute target, float value, AttributeModifier.Operation operation, UUID uuid) {
         this.target = target;
-        this.map = map;
+        this.value = value;
+        this.operation = operation;
+        this.uuid = uuid;
     }
 
     @Override
     public void compute(ItemStat.AttributeContainer container) {
         if (container.contains(target)) {
-            // TODO: impl
+            container.remove(target);
+            container.put(target, new AttributeModifier(uuid, target.descriptionId, value, operation));
         }
     }
 

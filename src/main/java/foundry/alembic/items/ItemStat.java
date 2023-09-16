@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.items.modifiers.ItemModifier;
 import foundry.alembic.items.slots.EquipmentSlotType;
 import foundry.alembic.util.CodecUtil;
 import foundry.alembic.util.TagOrElements;

@@ -6,7 +6,7 @@ import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.event.AlembicFoodChangeEvent;
-import foundry.alembic.items.ItemModifier;
+import foundry.alembic.items.modifiers.ItemModifier;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatManager;
 import foundry.alembic.items.ModifierApplication;

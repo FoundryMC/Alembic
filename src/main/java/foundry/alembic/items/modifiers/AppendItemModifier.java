@@ -2,7 +2,6 @@ package foundry.alembic.items.modifiers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.items.ItemModifier;
 import foundry.alembic.items.ItemModifierType;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ModifierApplication;
@@ -13,7 +12,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.UUID;
 
-public class AppendItemModifier implements ItemModifier {
+public final class AppendItemModifier implements ItemModifier {
     public static final Codec<AppendItemModifier> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ModifierApplication.CODEC.optionalFieldOf("application", ModifierApplication.INSTANT).forGetter(appendItemModifier -> appendItemModifier.application),
