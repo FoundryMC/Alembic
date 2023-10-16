@@ -9,7 +9,8 @@ public interface AlembicTagType<T extends AlembicTag> {
     AlembicTagType<AlembicExtendFireTag> EXTEND_FIRE = register("extend_fire_tag", AlembicExtendFireTag.CODEC);
     AlembicTagType<AlembicPerLevelTag> LEVEL_UP = register("per_level_tag", AlembicPerLevelTag.CODEC);
     AlembicTagType<AlembicHungerTag> HUNGER = register("hunger_tag", AlembicHungerTag.CODEC);
-    // TODO: TagReference tag. Allows users to put tags in 'damage_types/tags' and reference them by resource location
+    AlembicTagType<AlembicBranchTag> BRANCH = register("branch_tag", AlembicBranchTag.CODEC);
+    AlembicTagType<AlembicReferenceTag> REFERENCE = register("reference_tag", AlembicReferenceTag.CODEC);
 
     Codec<T> getCodec();
 

@@ -1,48 +1,29 @@
 {
   "priority": 1,
-  "attributes": "alembic:alchemical_damage",
-  "particles": true,
   "color": "#12B88E",
   "enchant_reduction": true,
   "enchant_source": "mob",
   "tags": [
     {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_speed": 0.35,
-      "particle_options": {
-        "type": "alembic:alchemical_reaction"
+      "tag_type": "alembic:branch_tag",
+      "run": "alembic:particles/ender",
+      "else": {
+        "tag_type": "alembic:particle_tag",
+        "particle_speed": 0.35,
+        "particle_options": {
+          "type": "alembic:alchemical_reaction"
+        }
       }
     },
     {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
-      "particle_speed": 0.35,
+      "tag_type": "alembic:particle_tag",
       "particle_options": {
-        "type": "alembic:ender_magic"
+        "type": "alembic:alchemical_damage"
       },
-      "conditions": [
-        {
-          "condition_type": "alembic:any",
-          "conditions": [
-            {
-              "condition_type": "alembic:damage_source",
-              "direct_entity": "minecraft:enderman"
-            },
-            {
-              "condition_type": "alembic:damage_source",
-              "direct_entity": "minecraft:endermite"
-            },
-            {
-              "condition_type": "alembic:damage_source",
-              "damage_source": "DRAGON_BREATH"
-            }
-          ]
-        }
-      ]
+      "conditions": "alembic:damage_from_player"
     },
     {
-      "tag_id": "alembic:hunger_tag",
+      "tag_type": "alembic:hunger_tag",
       "modifier_type": "resistance",
       "hunger_amount": 8,
       "amount": -1,

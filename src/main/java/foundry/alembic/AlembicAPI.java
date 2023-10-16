@@ -3,7 +3,7 @@ package foundry.alembic;
 import com.mojang.serialization.Codec;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.DamageTypeRegistry;
+import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.tag.AlembicTag;
 import foundry.alembic.types.tag.AlembicTagRegistry;
 import foundry.alembic.types.tag.AlembicTagType;
@@ -24,10 +24,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class AlembicAPI {
 
@@ -81,10 +77,10 @@ public class AlembicAPI {
         AlembicTagRegistry.register(id, type);
         return type;
     }
-
-    public static AlembicDamageType getDamageType(String damageType) {
-        return DamageTypeRegistry.getDamageType(damageType);
+    public static AlembicDamageType getDamageType(ResourceLocation id) {
+        return DamageTypeManager.getDamageType(id);
     }
+
     public static float activatePreEvent(LivingEntity target, LivingEntity attacker, AlembicDamageType damageType, float damage, float resistance) {
         AlembicDamageEvent.Pre event = new AlembicDamageEvent.Pre(target, attacker, damageType, damage, resistance);
         MinecraftForge.EVENT_BUS.post(event);

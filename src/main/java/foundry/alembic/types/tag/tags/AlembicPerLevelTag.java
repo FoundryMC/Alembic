@@ -3,23 +3,26 @@ package foundry.alembic.types.tag.tags;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.util.ComposedData;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
+import java.util.List;
 
 public class AlembicPerLevelTag extends AbstractTag {
     public static final Codec<AlembicPerLevelTag> CODEC = RecordCodecBuilder.create(instance ->
             createBase(instance).and(
                     instance.group(
-                            Codec.FLOAT.fieldOf("bonus_per_level").forGetter(alembicPerLevelTag -> alembicPerLevelTag.bonusPerLevel),
-                            Codec.INT.fieldOf("level_difference").forGetter(alembicPerLevelTag -> alembicPerLevelTag.levelDifference),
-                            Codec.FLOAT.fieldOf("max").forGetter(alembicPerLevelTag -> alembicPerLevelTag.cap),
+                            Codec.FLOAT.fieldOf("bonus_per_level").forGetter(AlembicPerLevelTag::getBonus),
+                            Codec.INT.fieldOf("level_difference").forGetter(AlembicPerLevelTag::getLevelDifference),
+                            Codec.FLOAT.fieldOf("max").forGetter(AlembicPerLevelTag::getCap),
                             AlembicTypeModifier.CODEC.fieldOf("modifier_type").forGetter(alembicPerLevelTag -> alembicPerLevelTag.attrType)
                     )
             ).apply(instance, AlembicPerLevelTag::new)
@@ -31,7 +34,7 @@ public class AlembicPerLevelTag extends AbstractTag {
     private final AlembicTypeModifier attrType;
     private RangedAttribute affectedAttribute;
 
-    public AlembicPerLevelTag(Set<TagCondition> conditions, float bonusPerLevel, int levelDifference, float cap, AlembicTypeModifier attrType) {
+    public AlembicPerLevelTag(List<TagCondition> conditions, float bonusPerLevel, int levelDifference, float cap, AlembicTypeModifier attrType) {
         super(conditions);
         this.bonusPerLevel = bonusPerLevel;
         this.levelDifference = levelDifference;
@@ -59,7 +62,7 @@ public class AlembicPerLevelTag extends AbstractTag {
         return affectedAttribute;
     }
 
-    public float getBonusPerLevel() {
+    public float getBonus() {
         return bonusPerLevel;
     }
 
@@ -71,8 +74,14 @@ public class AlembicPerLevelTag extends AbstractTag {
         return cap;
     }
 
+    public ResourceLocation getModifierId() {
+        ResourceLocation attributeId = Registry.ATTRIBUTE.getKey(affectedAttribute);
+        return new ResourceLocation(attributeId.getNamespace(), attributeId.getPath() + ".level_up");
+    }
+
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "Bonus per level: %s, Level difference: %s, Max value: %s, Affected attribute: %s".formatted(bonusPerLevel, levelDifference, cap, affectedAttribute.descriptionId);
+        return this.getClass().getSimpleName() + "Bonus per level: %s, Level difference: %s, Max value: %s, Affected attribute: %s"
+                .formatted(bonusPerLevel, levelDifference, cap, affectedAttribute.descriptionId);
     }
 }

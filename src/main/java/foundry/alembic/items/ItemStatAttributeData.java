@@ -17,8 +17,7 @@ public class ItemStatAttributeData {
                 ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(ItemStatAttributeData::getAttribute),
                 Codec.FLOAT.fieldOf("value").forGetter(ItemStatAttributeData::getValue),
                 CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(ItemStatAttributeData::getOperation),
-                ExtraCodecs.stringResolverCodec(UUID::toString, UUID::fromString).fieldOf("uuid").forGetter(ItemStatAttributeData::getUUID)
-
+                CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(ItemStatAttributeData::getUUID)
         ).apply(instance, ItemStatAttributeData::new)
     );
 

@@ -1,53 +1,35 @@
 {
     "priority": 1,
-    "attributes": "alembic:fire_damage",
-    "particles": true,
     "enchant_reduction": true,
     "enchant_source": "mob",
     "color": "#F14700",
     "tags": [
         {
-            "tag_id": "alembic:particle_tag",
-            "player_only": true,
+            "tag_type": "alembic:branch_tag",
+            "run": "alembic:particles/soul_fire",
+            "else": {
+                "tag_type": "alembic:particle_tag",
+                "particle_speed": 0.05,
+                "particle_options": {
+                    "type": "minecraft:flame"
+                },
+                "conditions": [
+                    {
+                        "condition_type": "alembic:damage_source",
+                        "damage_source": "FIRE"
+                    }
+                ]
+            }
+        },
+        {
+            "tag_type": "alembic:particle_tag",
             "particle_options": {
                 "type": "alembic:fire_damage"
-            }
-        },
-        {
-            "tag_id": "alembic:particle_tag",
-            "player_only": false,
-            "particle_speed": 0.05,
-            "particle_options": {
-                "type": "minecraft:flame"
-            }
-        },
-        {
-            "tag_id": "alembic:particle_tag",
-            "player_only": false,
-            "particle_speed": 0.05,
-            "particle_options": {
-                "type": "minecraft:soul_fire_flame"
             },
-            "conditions": [
-                {
-                    "condition_type": "alembic:any",
-                    "conditions": [
-                        {
-                            "condition_type": "alembic:damage_source",
-                            "damage_source": "soulFire"
-                        },
-                        {
-                            "condition_type": "alembic:damage_source",
-                            "indirect_entity": {
-                                "held_item": "minecraft:soul_torch"
-                            }
-                        }
-                    ]
-                }
-            ]
+            "conditions": "alembic:damage_from_player"
         },
         {
-            "tag_id": "alembic:extend_fire_tag",
+            "tag_type": "alembic:extend_fire_tag",
             "multiplier": 0.25,
             "ignored_sources": [
                 "inFire",

@@ -25,7 +25,7 @@ java {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.20'
+    mappings channel: 'parchment', version: '2022.11.27-1.19.2'
 
      accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -125,32 +125,28 @@ repositories {
 //    maven {
 //        url = 'https://maven.lukebemish.dev/releases'
 //    }
-    maven {
-        name = "DefaultResources Maven Repo"
-        url = "https://maven.lukebemish.dev/releases"
-    }
     flatDir {
         dirs "libs"
     }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20-46.0.12'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.21'
 
-    jarJar(implementation(fg.deobf("dev.lukebemish.defaultresources:defaultresources-forge-${project.minecraft_version}:${project.defaultresources_version}"))) {
-        jarJar.ranged(it, "[${project.defaultresources_version},)")
+    jarJar(implementation(fg.deobf("ignored:defaultresources-forge:1.19.2-0.3.0"))) {
+        jarJar.ranged(it, "[0.3.0,)")
     }
 
-    implementation(fg.deobf("net.tslat.effectslib:TslatEffectsLib-forge-1.20:${project.tel_version}"))
-    jarJar("net.tslat.effectslib:TslatEffectsLib-forge-1.20:${project.tel_version}") {
+    implementation(fg.deobf("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}"))
+    jarJar("net.tslat.effectslib:TslatEffectsLib-forge-1.19.3:${project.tel_version}") {
         jarJar.ranged(it, "[1.5,)")
     }
 
     implementation(fg.deobf("net.tslat.tes:TES-forge-${project.minecraft_version}:${project.tes_version}"))
-//    implementation(fg.deobf("curse.maven:attributetooltipfix-658833:3932463"))
-//    jarJar("curse.maven:attributetooltipfix-658833:3932463") {
-//        jarJar.ranged(it, "[1.0.0,)")
-//    }
+    implementation(fg.deobf("curse.maven:attributetooltipfix-658833:3932463"))
+    jarJar("curse.maven:attributetooltipfix-658833:3932463") {
+        jarJar.ranged(it, "[1.0.0,)")
+    }
 
     implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-beta.5"))
     implementation(jarJar("com.github.llamalad7.mixinextras:mixinextras-forge:0.2.0-beta.5")) {

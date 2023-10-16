@@ -1,0 +1,24 @@
+{
+  "tag_type": "alembic:particle_tag",
+  "particle_speed": 0.05,
+  "particle_options": {
+    "type": "minecraft:soul_fire_flame"
+  },
+  "conditions": [
+    {
+      "condition_type": "alembic:any",
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "soulFire"
+        },
+        {
+          "condition_type": "alembic:damage_source",
+          "indirect_entity": {
+            "held_item": "minecraft:soul_torch"
+          }
+        }
+      ]
+    }
+  ]
+}

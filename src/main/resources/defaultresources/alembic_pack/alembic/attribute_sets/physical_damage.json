@@ -1,6 +1,14 @@
 {
-  "base_attribute_min": 0,
-  "base_attribute_max": 1024.0,
-  "base_attribute_default": 0,
-  "resistance": false
+  "damage_attribute": "minecraft:generic.attack_damage",
+  "shielding_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "absorption_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "resistance_attribute": "minecraft:generic.armor"
 }

@@ -1,40 +1,37 @@
 package foundry.alembic.items;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import foundry.alembic.items.slots.EquipmentSlotType;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.item.Item;
 
 import java.util.*;
 
 public class ItemStatHolder {
-    private static final Map<Item, ItemStat> ITEM_STATS = new HashMap<>();
+    private final Map<Item, Multimap<EquipmentSlotType, ItemStat>> stats = new Reference2ObjectOpenHashMap<>();
 
-    public static ItemStat get(Item item){
-        return ITEM_STATS.get(item);
-    }
-
-    static void clear() {
-        ITEM_STATS.clear();
-    }
-
-    static void put(Item item, ItemStat stat) {
-        ITEM_STATS.put(item, stat);
-    }
-
-    public static boolean contains(Item item){
-        return ITEM_STATS.containsKey(item);
-    }
-
-    public static Collection<Item> getItems(){
-        return Collections.unmodifiableCollection(ITEM_STATS.keySet());
-    }
-
-    public static List<UUID> getUUIDs(Item item){
-        ItemStat itemStat = ITEM_STATS.get(item);
-        List<UUID> uuids = new ArrayList<>();
-        if(itemStat == null) return uuids;
-        for (ItemStatAttributeData data : itemStat.attributeData()) {
-            uuids.add(data.getUUID());
+    public Collection<ItemStat> get(Item item, EquipmentSlotType slot) {
+        if (!stats.containsKey(item)) {
+            return Collections.emptyList();
         }
-        return uuids;
+        Multimap<EquipmentSlotType, ItemStat> map = stats.get(item);
+        return Collections.unmodifiableCollection(map.get(slot));
+    }
+
+    public void add(ItemStat stat) {
+        stat.items().getElements().forEach(item -> {
+            Multimap<EquipmentSlotType, ItemStat> multimap = stats.computeIfAbsent(item, item1 -> HashMultimap.create());
+            stat.equipmentSlots().forEach(equipmentSlotType -> multimap.put(equipmentSlotType, stat));
+        });
+    }
+
+    public void clear() {
+        stats.clear();
+    }
+
+    public boolean contains(Item item) {
+        return stats.containsKey(item);
     }
 }
 

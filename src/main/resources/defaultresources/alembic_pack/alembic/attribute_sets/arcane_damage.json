@@ -1,21 +1,40 @@
 {
-  "base_attribute_min": 0,
-  "base_attribute_max": 1024.0,
-  "base_attribute_default": 0,
+  "damage_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "shielding_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "absorption_attribute": {
+    "base": 0,
+    "min": 0,
+    "max": 1024
+  },
+  "resistance_attribute": {
+    "base": 1,
+    "min": -1024,
+    "max": 1024
+  },
   "resistance_potion": {
     "value": 0.1,
     "operation": "MULTIPLY_BASE",
     "base_duration": 600,
     "amplification_per_level": 1,
     "max_amplifier": 2,
+	"max_level": 2,
     "color": "#9760FB",
     "recipe": {
       "reagent": "minecraft:lapis_lazuli",
       "base": {
-        "id": "minecraft:potion",
-        "Count": 1,
-        "tag": {
-          "Potion": "awkward"
+        "type": "forge:nbt",
+        "item": "minecraft:potion",
+        "count": 1,
+        "nbt": {
+          "Potion": "minecraft:awkward"
         }
       }
     }

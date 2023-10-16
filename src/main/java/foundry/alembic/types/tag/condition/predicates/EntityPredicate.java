@@ -3,21 +3,15 @@ package foundry.alembic.types.tag.condition.predicates;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.util.CodecUtil;
-import foundry.alembic.util.ToBooleanFunction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class EntityPredicate {
@@ -58,8 +52,11 @@ public class EntityPredicate {
         if (!tagOrElementPredicate.matches(entity)) {
             return false;
         }
-        if (entity instanceof LivingEntity livingEntity) {
-            return heldItem.matches(livingEntity.getMainHandItem());
+        if (heldItem != ItemPredicate.EMPTY) {
+            if (entity instanceof LivingEntity livingEntity) {
+                return heldItem.matches(livingEntity.getMainHandItem());
+            }
+            return false;
         }
         return true;
     }

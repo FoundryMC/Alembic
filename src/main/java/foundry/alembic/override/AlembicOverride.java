@@ -2,14 +2,14 @@ package foundry.alembic.override;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.util.CodecUtil;
 import foundry.alembic.types.AlembicDamageType;
-import foundry.alembic.types.DamageTypeRegistry;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +20,14 @@ public class AlembicOverride {
                 float total = 0;
                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
-                    if (!DamageTypeRegistry.doesDamageTypeExist(entry.getKey())) {
-                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
+                    if (!DamageTypeManager.containsKey(entry.getKey())) {
+                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
                     }
-                    retMap.put(DamageTypeRegistry.getDamageType(entry.getKey()), entry.getValue());
+                    retMap.put(DamageTypeManager.getDamageType(entry.getKey()), entry.getValue());
                     total += entry.getValue();
                 }
                 if (total != 1.0f) {
-                    float finalTotal = total;
-                    return DataResult.error(() -> "Total value is %s! All values must sum up to 1.0".formatted(finalTotal > 1.0f ? "too high" : "too low"));
+                    return DataResult.error("Total value is %s! All values must sum up to 1.0".formatted(total > 1.0f ? "too high" : "too low"));
                 }
                 return DataResult.success(new AlembicOverride(retMap));
             },
@@ -49,8 +48,8 @@ public class AlembicOverride {
         this.damages = damages;
     }
 
-    public Map<AlembicDamageType, Float> getDamages() {
-        return Collections.unmodifiableMap(damages);
+    public Object2FloatMap<AlembicDamageType> getDamagePercents() {
+        return Object2FloatMaps.unmodifiable(damages);
     }
 
     public ResourceLocation getId() {

@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface MobEffectInstanceAccessor {
 
     @Accessor
-    public int getDuration();
+    int getDuration();
 
     @Accessor("duration")
-    public void setDuration(int duration);
+    void setDuration(int duration);
 }

@@ -3,15 +3,17 @@ package foundry.alembic.types.tag;
 import com.mojang.serialization.Codec;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.tag.condition.TagCondition;
+import foundry.alembic.types.tag.condition.conditions.ReferenceCondition;
 import foundry.alembic.util.ComposedData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Set;
 
 public interface AlembicTag {
-    Codec<AlembicTag> DISPATCH_CODEC = AlembicTagRegistry.TAG_MAP_CODEC.dispatch("tag_id", alembicTag -> {
+    Codec<AlembicTag> DISPATCH_CODEC = AlembicTagRegistry.TAG_MAP_CODEC.dispatch("tag_type", alembicTag -> {
         if (alembicTag.getType() == null) {
             throw new IllegalStateException("TagType for " + alembicTag.toString() + " is null");
         }
@@ -37,7 +39,7 @@ public interface AlembicTag {
         return getConditions().stream().allMatch(tagCondition -> tagCondition.test(data));
     }
 
-    Set<TagCondition> getConditions();
+    List<TagCondition> getConditions();
 
     @Nonnull
     AlembicTagType<?> getType();

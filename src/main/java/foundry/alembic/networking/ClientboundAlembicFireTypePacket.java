@@ -23,7 +23,7 @@ public class ClientboundAlembicFireTypePacket {
     }
 
     public static void handle(ClientboundAlembicFireTypePacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> ClientPacketHandler.handleFireTypePacket(msg, ctx));
+        ctx.get().enqueueWork(() -> ClientPacketHandler.handleFireTypePacket(msg));
         ctx.get().setPacketHandled(true);
     }
 }

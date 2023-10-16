@@ -1,14 +1,16 @@
 {
   "id": "minecraft:trident",
-  "attributes": [
+  "modifiers": [
     {
+      "type": "append",
       "attribute": "alembic:arcane_damage",
       "value": 2,
       "operation": "ADDITION",
       "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"
     },
     {
-      "attribute": "alembic:physical_damage",
+      "type": "replace",
+      "target": "minecraft:generic.attack_damage",
       "value": 6,
       "operation": "ADDITION",
       "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"

@@ -1,7 +1,8 @@
 {
   "id": "minecraft:diamond_leggings",
-  "attributes": [
+  "modifiers": [
     {
+      "type": "append",
       "attribute": "alembic:arcane_damage.resistance",
       "value": 2,
       "operation": "ADDITION",

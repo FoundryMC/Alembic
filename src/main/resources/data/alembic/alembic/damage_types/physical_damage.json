@@ -1,45 +1,23 @@
 {
   "priority": 1,
-  "attributes": {
-    "attribute": "alembic:physical_damage",
-    "shielding_attribute": "alembic:physical_damage.shielding",
-    "absorption_attribute": "alembic:physical_damage.absorption",
-    "resistance_attribute": "minecraft:generic.armor"
-  },
-  "particles": false,
   "color": "#F10000",
   "enchant_reduction": true,
   "enchant_source": "mob",
   "tags": [
     {
-      "tag_id": "alembic:particle_tag",
-      "player_only": true,
+      "tag_type": "alembic:particle_tag",
       "particle_options": {
         "type": "alembic:physical_damage"
-      }
+      },
+      "conditions": "alembic:damage_from_player"
     },
     {
-      "tag_id": "alembic:particle_tag",
-      "player_only": false,
+      "tag_type": "alembic:particle_tag",
       "particle_speed": 0.15,
       "particle_options": {
         "type": "alembic:sculk_hit"
       },
-      "conditions": [
-        {
-          "condition_type": "alembic:any",
-          "conditions": [
-            {
-              "condition_type": "alembic:damage_source",
-              "direct_entity": "minecraft:warden"
-            },
-            {
-              "condition_type": "alembic:damage_source",
-              "damage_source": "sonic_boom"
-            }
-          ]
-        }
-      ]
+      "conditions": "alembic:damage_from_warden"
     }
   ]
 }

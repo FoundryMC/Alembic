@@ -1,0 +1,26 @@
+{
+  "tag_type": "alembic:particle_tag",
+  "particle_speed": 0.2,
+  "particle_options": {
+    "type": "alembic:wither_decay"
+  },
+  "conditions": [
+    {
+      "condition_type": "alembic:any",
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "direct_entity": "minecraft:wither_skeleton"
+        },
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "witherSkull"
+        },
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "WITHER"
+        }
+      ]
+    }
+  ]
+}

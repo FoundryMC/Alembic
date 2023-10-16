@@ -26,23 +26,20 @@ public class AlembicParticleTag extends AbstractTag {
         createBase(instance).and(
                 instance.group(
                         ParticleTypes.CODEC.fieldOf("particle_options").forGetter(alembicParticleTag -> alembicParticleTag.particleOptions),
-                        Codec.BOOL.optionalFieldOf("player_only", false).forGetter(alembicParticleTag -> alembicParticleTag.playerOnly),
                         Codec.FLOAT.optionalFieldOf("particle_speed", 0.35f).forGetter(alembicParticleTag -> alembicParticleTag.particleSpeed)
                 )
         ).apply(instance, AlembicParticleTag::new)
     );
     private final ParticleOptions particleOptions;
-    private final boolean playerOnly;
     private final float particleSpeed;
-    public AlembicParticleTag(Set<TagCondition> conditions, ParticleOptions particleOptions, boolean playerOnly, float particleSpeed) {
+    public AlembicParticleTag(List<TagCondition> conditions, ParticleOptions particleOptions, float particleSpeed) {
         super(conditions);
         this.particleOptions = particleOptions;
-        this.playerOnly = playerOnly;
         this.particleSpeed = particleSpeed;
     }
 
-    public AlembicParticleTag(ParticleOptions particleOptions, boolean playerOnly) {
-        this(Set.of(), particleOptions, playerOnly, 0.35f);
+    public AlembicParticleTag(ParticleOptions particleOptions) {
+        this(List.of(), particleOptions, 0.35f);
     }
 
 
@@ -51,15 +48,8 @@ public class AlembicParticleTag extends AbstractTag {
         LivingEntity entity = data.get(ComposedDataTypes.TARGET_ENTITY);
         float damage = data.get(ComposedDataTypes.FINAL_DAMAGE);
         ServerLevel level = data.get(ComposedDataTypes.SERVER_LEVEL);
-        DamageSource source = data.get(ComposedDataTypes.ORIGINAL_SOURCE);
         float particleCount = damage < 1 ? 1 : Math.min(15, damage)/2f;
-        if (playerOnly) {
-            if(source.getDirectEntity() instanceof Player) {
-                spawnParticle(level, particleOptions, entity, particleCount, particleSpeed);
-            }
-        } else {
-            spawnParticle(level, particleOptions, entity, particleCount, particleSpeed);
-        }
+        spawnParticle(level, particleOptions, entity, particleCount, particleSpeed);
     }
 
     private void spawnParticle(ServerLevel level, ParticleOptions particleOptions, LivingEntity entity, float particleCount, float pSpeed) {

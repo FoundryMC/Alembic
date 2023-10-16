@@ -1,12 +1,12 @@
 package foundry.alembic.types;
 
 import com.mojang.serialization.Codec;
+import foundry.alembic.potion.PotionModifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 import java.util.function.Function;
 
 public enum AlembicTypeModifier implements StringRepresentable {
@@ -28,11 +28,15 @@ public enum AlembicTypeModifier implements StringRepresentable {
         return attributeFunction.apply(damageType);
     }
 
-    public String getId(AlembicDamageType damageType) {
-        return damageType.getId().getPath() + "_" + safeName;
+    public ResourceLocation computePotionId(ResourceLocation attributeSetId) {
+        return new ResourceLocation(attributeSetId.getNamespace(), attributeSetId.getPath() + "_" + safeName);
     }
 
-    public ResourceLocation getId(ResourceLocation baseRl) {
+    public ResourceLocation computePotionId(ResourceLocation attributeSetId, PotionModifier potionModifier) {
+        return new ResourceLocation(attributeSetId.getNamespace(), potionModifier.getSerializedName() + "_" + attributeSetId.getPath() + "_" + safeName);
+    }
+
+    public ResourceLocation computeAttributeId(ResourceLocation baseRl) {
         return new ResourceLocation(baseRl.getNamespace(), baseRl.getPath() + "." + safeName);
     }
 
