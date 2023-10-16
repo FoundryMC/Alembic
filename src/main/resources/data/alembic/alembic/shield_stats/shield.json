@@ -1,0 +1,21 @@
+{
+  "item": "minecraft:shield",
+  "blocking_stats": [
+    {
+      "type": "alembic:physical_damage",
+      "modifier": 0.0
+    },
+    {
+      "type": "alembic:fire_damage",
+      "modifier": 0.7
+    },
+    {
+      "type": "alembic:arcane_damage",
+      "modifier": 0.5
+    },
+    {
+      "type": "alembic:alchemical_damage",
+      "modifier": 0.6
+    }
+  ]
+}

@@ -6,10 +6,8 @@ import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.event.AlembicFoodChangeEvent;
+import foundry.alembic.items.*;
 import foundry.alembic.items.modifiers.ItemModifier;
-import foundry.alembic.items.ItemStat;
-import foundry.alembic.items.ItemStatManager;
-import foundry.alembic.items.ModifierApplication;
 import foundry.alembic.items.modifiers.AppendItemModifier;
 import foundry.alembic.items.slots.VanillaSlotType;
 import foundry.alembic.networking.AlembicPacketHandler;
@@ -53,6 +51,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
@@ -114,6 +113,7 @@ public class ForgeEvents {
         event.addListener(new OverrideManager(event.getConditionContext()));
         event.addListener(new ResistanceManager(event.getConditionContext()));
         event.addListener(new ItemStatManager(event.getConditionContext()));
+        event.addListener(new ShieldStatManager(event.getConditionContext()));
     }
 
     @SubscribeEvent
@@ -205,26 +205,64 @@ public class ForgeEvents {
         if (!OverrideManager.containsKey(event.getDamageSource())) {
             return;
         }
-        LivingEntity entity = event.getEntity();
-        MutableFloat finalDamage = new MutableFloat();
+        ItemStack blockingItem = ItemStack.EMPTY;
+        if(event.getEntity().getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+            blockingItem = event.getEntity().getItemInHand(InteractionHand.MAIN_HAND);
+        } else if(event.getEntity().getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+            blockingItem = event.getEntity().getItemInHand(InteractionHand.OFF_HAND);
+        }
+        if(!blockingItem.isEmpty()){
+            Collection<ShieldBlockStat> stats = ShieldStatManager.getStats(blockingItem.getItem());
+            LivingEntity entity = event.getEntity();
+            MutableFloat finalDamage = new MutableFloat();
 
-        // Need to partition damage to each damage type, then block whatever amount from each, and sum up to put back into the event.
-        OverrideManager.getOverridesForSource(event.getDamageSource()).getDamagePercents()
-                .forEach((alembicDamageType, aFloat) -> {
-                    float damagePart = event.getBlockedDamage() * aFloat;
+            // Need to partition damage to each damage type, then block whatever amount from each, and sum up to put back into the event.
+            OverrideManager.getOverridesForSource(event.getDamageSource()).getDamagePercents()
+                    .forEach((alembicDamageType, aFloat) -> {
+                        float damagePart = event.getBlockedDamage() * aFloat;
 
-                    RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
-                    AttributeInstance instance = entity.getAttribute(resistanceAttribute);
-                    if (instance == null) {
-                        return;
-                    }
+                        RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
+                        AttributeInstance instance = entity.getAttribute(resistanceAttribute);
+                        if (instance == null) {
+                            return;
+                        }
 
-                    damagePart -= (float) instance.getValue();
+                        damagePart -= (float) instance.getValue();
+                        for(ShieldBlockStat stat : stats){
+                            for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
+                                if(mod.type().equals(alembicDamageType.getId())){
+                                    damagePart *= mod.modifier();
+                                }
+                            }
+                        }
+                        finalDamage.add(Math.max(damagePart, 0));
 
-                    finalDamage.add(Math.max(damagePart, 0));
+                    });
+            if(event.getDamageSource().getDirectEntity() != null){
+                if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
+                    ResistanceManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
+                        float damagePart = event.getBlockedDamage() * aFloat;
 
-        });
-        event.setBlockedDamage(event.getBlockedDamage() - finalDamage.getValue());
+                        RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
+                        AttributeInstance instance = entity.getAttribute(resistanceAttribute);
+                        if (instance == null) {
+                            return;
+                        }
+
+                        damagePart -= (float) instance.getValue();
+                        for(ShieldBlockStat stat : stats){
+                            for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
+                                if(mod.type().equals(alembicDamageType.getId())){
+                                    damagePart *= mod.modifier();
+                                }
+                            }
+                        }
+                        finalDamage.add(Math.max(damagePart, 0));
+                    });
+                }
+            }
+            event.setBlockedDamage(event.getBlockedDamage() - finalDamage.getValue());
+        }
     }
 
     private static boolean isBeingDamaged = false;
@@ -287,9 +325,24 @@ public class ForgeEvents {
                 if(attacker.getAttribute(damageType.getAttribute()) == null) continue;
                 if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0 && !entityOverride) {
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
-                    if(target.isBlocking() && !damageType.getId().getPath().contains("true_damage")) {
-                        damage *= 0.25;
-                    }
+//                    if(target.isBlocking() && !damageType.getId().getPath().contains("true_damage")) {
+//                        ItemStack blockingItem = ItemStack.EMPTY;
+//                        if(target.getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+//                            blockingItem = target.getItemInHand(InteractionHand.MAIN_HAND);
+//                        } else if(target.getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+//                            blockingItem = target.getItemInHand(InteractionHand.OFF_HAND);
+//                        }
+//                        if(!blockingItem.isEmpty()){
+//                            Collection<ShieldBlockStat> stats1 = ShieldStatManager.getStats(blockingItem.getItem());
+//                            for(ShieldBlockStat stat : stats1){
+//                                for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
+//                                    if(mod.type().equals(damageType.getId())){
+//                                        damage *= mod.modifier();
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
                     AlembicDamageEvent.Pre preDamage = new AlembicDamageEvent.Pre(target, attacker, damageType, damage, attrValue);
                     MinecraftForge.EVENT_BUS.post(preDamage);
@@ -479,9 +532,24 @@ public class ForgeEvents {
                 multiplier = 1 - (multiplier - 1);
             }
             float damage = (float) (i.getValue() * multiplier);
-            if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
-                damage *= 0.25;
-            }
+//            if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
+//                ItemStack blockingItem = ItemStack.EMPTY;
+//                if(target.getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+//                    blockingItem = target.getItemInHand(InteractionHand.MAIN_HAND);
+//                } else if(target.getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+//                    blockingItem = target.getItemInHand(InteractionHand.OFF_HAND);
+//                }
+//                if(!blockingItem.isEmpty()){
+//                    Collection<ShieldBlockStat> stats1 = ShieldStatManager.getStats(blockingItem.getItem());
+//                    for(ShieldBlockStat stat : stats1){
+//                        for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
+//                            if(mod.type().equals(alembicDamageType.getId())){
+//                                damage *= mod.modifier();
+//                            }
+//                        }
+//                    }
+//                }
+//            }
             if (damage < 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
                 return;
