@@ -19,11 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Optional;
 
 public class AttributeSet {
-    public static final Codec<Holder<Attribute>> GET_OR_CREATE_HOLDER_CODEC = ResourceLocation.CODEC.comapFlatMap(
-            resourceLocation -> BuiltInRegistries.ATTRIBUTE.getOrCreateHolder(ResourceKey.create(BuiltInRegistries.ATTRIBUTE.key(), resourceLocation)),
-            attributeHolder -> attributeHolder.unwrapKey().get().location()
-    );
-    public static final Codec<Either<RangedAttributeData, Holder<Attribute>>> DATA_OR_REGISTERED = Codec.either(RangedAttributeData.CODEC, GET_OR_CREATE_HOLDER_CODEC);
+    public static final Codec<Either<RangedAttributeData, Holder<Attribute>>> DATA_OR_REGISTERED = Codec.either(RangedAttributeData.CODEC, BuiltInRegistries.ATTRIBUTE.holderByNameCodec());
     public static final Codec<AttributeSet> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     DATA_OR_REGISTERED.fieldOf("damage_attribute").forGetter(attributeSet -> attributeSet.damage),
@@ -74,19 +70,19 @@ public class AttributeSet {
     }
 
     public RangedAttribute getDamageAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(getId()), Holder::value);
+        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(getId()), Holder::value);
     }
 
     public RangedAttribute getShieldingAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.SHIELDING.computeAttributeId(getId())), Holder::value);
+        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.SHIELDING.computeAttributeId(getId())), Holder::value);
     }
 
     public RangedAttribute getAbsorptionAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.ABSORPTION.computeAttributeId(getId())), Holder::value);
+        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.ABSORPTION.computeAttributeId(getId())), Holder::value);
     }
 
     public RangedAttribute getResistanceAttribute() {
-        return (RangedAttribute) damage.map(data -> Registry.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeAttributeId(getId())), Holder::value);
+        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeAttributeId(getId())), Holder::value);
     }
 
     private ResourceLocation getId() {

@@ -1,6 +1,7 @@
 package foundry.alembic;
 
 import com.google.common.collect.*;
+import com.mojang.datafixers.util.Pair;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
@@ -14,7 +15,7 @@ import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.resistances.AlembicResistance;
+import foundry.alembic.resistances.AlembicEntityStats;
 import foundry.alembic.resistances.ResistanceManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
@@ -298,35 +299,18 @@ public class ForgeEvents {
             Multimap<Attribute, AttributeModifier> map = ArrayListMultimap.create();
             if (handleEnchantments(attacker, target, map)) return;
             float totalDamage = event.getAmount();
-            AlembicResistance stats = ResistanceManager.get(target.getType());
-            boolean entityOverride = stats != null;
+            AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
+            AlembicEntityStats attackerStats = ResistanceManager.get(attacker.getType());
+            boolean isNotPlayer = attackerStats != null;
             float damageOffset = 0;
-            if (entityOverride) {
-                damageOffset = handleTypedDamage(target, attacker, totalDamage, stats, originalDamageSource);
+            if (isNotPlayer) {
+                damageOffset = handleTypedDamage(target, attacker, totalDamage, targetStats, attackerStats, originalDamageSource);
             }
             totalDamage -= damageOffset;
             for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
                 if(attacker.getAttribute(damageType.getAttribute()) == null) continue;
-                if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0 && !entityOverride) {
+                if (attacker.getAttribute(damageType.getAttribute()).getValue() > 0 && !isNotPlayer) {
                     float damage = (float) attacker.getAttribute(damageType.getAttribute()).getValue();
-//                    if(target.isBlocking() && !damageType.getId().getPath().contains("true_damage")) {
-//                        ItemStack blockingItem = ItemStack.EMPTY;
-//                        if(target.getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
-//                            blockingItem = target.getItemInHand(InteractionHand.MAIN_HAND);
-//                        } else if(target.getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
-//                            blockingItem = target.getItemInHand(InteractionHand.OFF_HAND);
-//                        }
-//                        if(!blockingItem.isEmpty()){
-//                            Collection<ShieldBlockStat> stats1 = ShieldStatManager.getStats(blockingItem.getItem());
-//                            for(ShieldBlockStat stat : stats1){
-//                                for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
-//                                    if(mod.type().equals(damageType.getId())){
-//                                        damage *= mod.modifier();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
                     float attrValue = target.getAttributes().hasAttribute(damageType.getResistanceAttribute()) ? (float) target.getAttribute(damageType.getResistanceAttribute()).getValue() : 0;
                     AlembicDamageEvent.Pre preDamage = new AlembicDamageEvent.Pre(target, attacker, damageType, damage, attrValue);
                     MinecraftForge.EVENT_BUS.post(preDamage);
@@ -334,10 +318,10 @@ public class ForgeEvents {
                     attrValue = preDamage.getResistance();
                     if (damage <= 0 || preDamage.isCanceled()) return;
                     damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
-
                     handleDamageInstance(target, damageType, damage, originalDamageSource);
                     AlembicDamageEvent.Post postDamage = new AlembicDamageEvent.Post(target, attacker, damageType, damage, attrValue);
                     MinecraftForge.EVENT_BUS.post(postDamage);
+                    totalDamage -= postDamage.getDamage();
                 }
             }
             int time = target.invulnerableTime;
@@ -503,45 +487,51 @@ public class ForgeEvents {
         }
     }
 
-    private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
+    private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicEntityStats targetStats, AlembicEntityStats attackerStats, DamageSource originalSource) {
         MutableFloat total = new MutableFloat();
-        stats.getResistances().forEach((alembicDamageType, multiplier) -> {
-            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.getMsgId())) return;
-            AttributeInstance i = attacker.getAttribute(alembicDamageType.getAttribute());
+        Object2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
+        Object2FloatMap<AlembicDamageType> finalDamage = new Object2FloatOpenHashMap<>();
+        damageMap.forEach((alembicDamageType, multiplier) -> {
+            AttributeInstance i = target.getAttribute(alembicDamageType.getAttribute());
             if (i == null) return;
-            // multiplier is 0-2, 1 is normal damage, 2 is no damage, 0 is double damage. scale the value of i by this
-            if(multiplier < 1){
-                multiplier = 1 + (1 - multiplier);
-            } else {
-                multiplier = 1 - (multiplier - 1);
-            }
-            float damage = (float) (i.getValue() * multiplier);
-//            if(target.isBlocking() && !alembicDamageType.getId().getPath().contains("true_damage")) {
-//                ItemStack blockingItem = ItemStack.EMPTY;
-//                if(target.getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
-//                    blockingItem = target.getItemInHand(InteractionHand.MAIN_HAND);
-//                } else if(target.getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
-//                    blockingItem = target.getItemInHand(InteractionHand.OFF_HAND);
-//                }
-//                if(!blockingItem.isEmpty()){
-//                    Collection<ShieldBlockStat> stats1 = ShieldStatManager.getStats(blockingItem.getItem());
-//                    for(ShieldBlockStat stat : stats1){
-//                        for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
-//                            if(mod.type().equals(alembicDamageType.getId())){
-//                                damage *= mod.modifier();
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+            float damage = (float) ((float) (totalDamage * multiplier) + i.getValue());
             if (damage < 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", alembicDamageType.getId().toString());
                 return;
             }
+            finalDamage.put(alembicDamageType, damage);
+        });
+        finalDamage.forEach((damageType, amount) -> {
+            float resistanceMod = getResistanceForType(damageType, target, targetStats).getSecond();
+            // multiplier is 0-2, 1 is normal damage, 2 is no damage, 0 is double damage. scale the value of i by this
+            if(resistanceMod < 1){
+                resistanceMod = 1 + (1 - resistanceMod);
+            } else {
+                resistanceMod = 1 - (resistanceMod - 1);
+            }
+            float damage = amount * resistanceMod;
+            if (damage < 0) {
+                Alembic.LOGGER.warn("Damage overrides are too high! Damage is being reduced to 0 for {}!", damageType.getId().toString());
+                return;
+            }
             total.add(damage);
-            damageCalc(target, attacker, alembicDamageType, damage, originalSource);
+            damageCalc(target, attacker, damageType, damage, originalSource);
         });
         return total.getValue();
+    }
+
+    private static Pair<Double, Float> getResistanceForType(AlembicDamageType type, LivingEntity entity, AlembicEntityStats stats) {
+        double resAtt = entity.getAttribute(type.getResistanceAttribute()).getValue();
+        float resMod = 0.0f;
+        if(entity instanceof Player){
+            resMod = 1.0f;
+        }
+        if(stats != null) {
+            if(stats.getResistances().containsKey(type)) {
+                resMod = stats.getResistances().getFloat(type);
+            }
+        }
+        return Pair.of(resAtt, resMod);
     }
 
     private static void damageCalc(LivingEntity target, LivingEntity attacker, AlembicDamageType alembicDamageType, float damage, DamageSource originalSource) {

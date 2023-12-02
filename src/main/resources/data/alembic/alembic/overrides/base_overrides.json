@@ -2,6 +2,7 @@
   "priority": 1,
   "source_overrides": {
     "ALCHEMICAL": {"alchemical_damage": 1.0},
+    "alchemical": {"alchemical_damage": 1.0},
     "WITHER": {"arcane_damage": 0.50, "true_damage": 0.50},
     "sting": {"alchemical_damage": 0.20, "physical_damage": 0.80},
     "allergy": {"alchemical_damage": 1.0},
@@ -10,7 +11,7 @@
     "FREEZE": {"true_damage": 1.0},
     "witherSkull":{"true_damage": 0.10, "arcane_damage": 0.60, "physical_damage": 0.30},
     "FIRE": {"fire_damage": 1.0},
-    "soulFire": {"fire_damage":  0.50, "arcane_damage":  0.5},
+    "onSoulFire": {"fire_damage":  0.50, "arcane_damage":  0.5},
     "explosion.player": {"fire_damage": 0.50, "physical_damage": 0.50},
     "explosion": {"fire_damage": 0.50, "physical_damage": 0.50},
     "fireworks": {"fire_damage": 0.50, "physical_damage": 0.50},

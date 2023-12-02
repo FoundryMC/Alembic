@@ -9,7 +9,6 @@ import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.types.AlembicDamageType;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -17,11 +16,11 @@ import net.minecraft.world.entity.EntityType;
 import java.util.Map;
 import java.util.Set;
 
-public class AlembicResistance {
-    public static final Codec<AlembicResistance> CODEC = RecordCodecBuilder.create(instance ->
+public class AlembicEntityStats {
+    public static final Codec<AlembicEntityStats> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicResistance::getEntityType),
-                    Codec.INT.fieldOf("priority").forGetter(AlembicResistance::getPriority),
+                    BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicEntityStats::getEntityType),
+                    Codec.INT.fieldOf("priority").forGetter(AlembicEntityStats::getPriority),
                     Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
                             map -> {
                                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
@@ -40,7 +39,7 @@ public class AlembicResistance {
                                 }
                                 return DataResult.success(retMap);
                             }
-                    ).fieldOf("resistances").forGetter(AlembicResistance::getResistances),
+                    ).fieldOf("resistances").forGetter(AlembicEntityStats::getResistances),
                     Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
                             map -> {
                                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
@@ -59,9 +58,9 @@ public class AlembicResistance {
                                 }
                                 return DataResult.success(retMap);
                             }
-                    ).fieldOf("damage").forGetter(AlembicResistance::getDamage),
+                    ).fieldOf("damage").forGetter(AlembicEntityStats::getDamage),
                     CodecUtil.setOf(DamageSourceIdentifier.CODEC).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSources)
-            ).apply(instance, AlembicResistance::new)
+            ).apply(instance, AlembicEntityStats::new)
     );
 
     private EntityType<?> entityType;
@@ -72,7 +71,7 @@ public class AlembicResistance {
 
     private Set<DamageSourceIdentifier> ignoredSources;
 
-    public AlembicResistance(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<DamageSourceIdentifier> ignoredSources) {
+    public AlembicEntityStats(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<DamageSourceIdentifier> ignoredSources) {
         this.entityType = entityType;
         this.priority = priority;
         this.resistances = resistances;

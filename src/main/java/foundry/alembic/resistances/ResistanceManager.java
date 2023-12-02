@@ -9,7 +9,6 @@ import foundry.alembic.util.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -17,17 +16,17 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 import java.util.*;
 
 public class ResistanceManager extends ConditionalJsonResourceReloadListener {
-    private static final Map<EntityType<?>, AlembicResistance> RESISTANCE_MAP = new Reference2ObjectOpenHashMap<>();
+    private static final Map<EntityType<?>, AlembicEntityStats> RESISTANCE_MAP = new Reference2ObjectOpenHashMap<>();
 
     public ResistanceManager(ICondition.IContext conditionContext) {
         super(conditionContext, Utils.GSON, "alembic/resistances");
     }
 
-    public static Collection<AlembicResistance> getValuesView() {
+    public static Collection<AlembicEntityStats> getValuesView() {
         return Collections.unmodifiableCollection(RESISTANCE_MAP.values());
     }
 
-    private static void put(AlembicResistance resistance) {
+    private static void put(AlembicEntityStats resistance) {
         RESISTANCE_MAP.put(resistance.getEntityType(), resistance);
     }
 
@@ -36,11 +35,11 @@ public class ResistanceManager extends ConditionalJsonResourceReloadListener {
         RESISTANCE_MAP.clear();
     }
 
-    public static AlembicResistance get(EntityType<?> entityType){
+    public static AlembicEntityStats get(EntityType<?> entityType){
         return RESISTANCE_MAP.get(entityType);
     }
 
-    public static void smartAddResistance(AlembicResistance resistance) {
+    public static void smartAddResistance(AlembicEntityStats resistance) {
         if(!RESISTANCE_MAP.containsKey(resistance.getEntityType()) || get(resistance.getEntityType()).getPriority() < resistance.getPriority()) {
             put(resistance);
         }
@@ -50,12 +49,12 @@ public class ResistanceManager extends ConditionalJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         clear();
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
-            DataResult<AlembicResistance> result = AlembicResistance.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
+            DataResult<AlembicEntityStats> result = AlembicEntityStats.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (result.error().isPresent()) {
                 Alembic.LOGGER.error("Could not read %s. %s".formatted(entry.getKey(), result.error().get().message()));
                 continue;
             }
-            AlembicResistance obj = result.result().get();
+            AlembicEntityStats obj = result.result().get();
             obj.setId(entry.getKey());
             smartAddResistance(obj);
         }

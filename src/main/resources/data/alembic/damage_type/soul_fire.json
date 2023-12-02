@@ -1,6 +1,6 @@
 {
-  "message_id": "soul_fire",
-  "exhaustion": 0.1,
-  "scaling": "when_caused_by_living_non_player",
-  "effects": "burning"
+  "effects": "burning",
+  "exhaustion": 0.0,
+  "message_id": "onSoulFire",
+  "scaling": "when_caused_by_living_non_player"
 }
