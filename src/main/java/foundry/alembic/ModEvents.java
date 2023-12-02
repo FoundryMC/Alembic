@@ -7,6 +7,7 @@ import foundry.alembic.potion.AlembicPotionRecipe;
 import foundry.alembic.potion.PotionModifier;
 import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,9 +61,9 @@ public class ModEvents {
                         AlembicPotionRecipe recipe = dataHolder.getRecipe();
                         Ingredient baseIngredient = recipe.base();
                         Ingredient reagentIngredient = recipe.reagent();
-                        Potion baseResistancePotion = Registry.POTION.get(AlembicTypeModifier.RESISTANCE.computePotionId(setId));
-                        Potion longResistancePotion = Registry.POTION.get(AlembicTypeModifier.RESISTANCE.computePotionId(setId, PotionModifier.LONG));
-                        Potion strongResistancePotion = Registry.POTION.get(AlembicTypeModifier.RESISTANCE.computePotionId(setId, PotionModifier.STRONG));
+                        Potion baseResistancePotion = BuiltInRegistries.POTION.get(AlembicTypeModifier.RESISTANCE.computePotionId(setId));
+                        Potion longResistancePotion = BuiltInRegistries.POTION.get(AlembicTypeModifier.RESISTANCE.computePotionId(setId, PotionModifier.LONG));
+                        Potion strongResistancePotion = BuiltInRegistries.POTION.get(AlembicTypeModifier.RESISTANCE.computePotionId(setId, PotionModifier.STRONG));
 
                         BrewingRecipeRegistry.addRecipe(baseIngredient, reagentIngredient, PotionUtils.setPotion(new ItemStack(Items.POTION), baseResistancePotion));
                         addPotionRecipe(baseResistancePotion, Items.GLOWSTONE_DUST, longResistancePotion);
@@ -71,7 +72,7 @@ public class ModEvents {
                             Potion lastStrongPotion = strongResistancePotion;
                             for (int i = 2; i < dataHolder.getMaxStrengthLevel(); i++) {
                                 ResourceLocation strongId = AlembicTypeModifier.RESISTANCE.computePotionId(setId, PotionModifier.STRONG);
-                                Potion strongerResistancePotion = Registry.POTION.get(new ResourceLocation(strongId.getNamespace(), strongId.getPath() + "_" + i));
+                                Potion strongerResistancePotion = BuiltInRegistries.POTION.get(new ResourceLocation(strongId.getNamespace(), strongId.getPath() + "_" + i));
                                 addPotionRecipe(lastStrongPotion, Items.REDSTONE, strongerResistancePotion);
                                 lastStrongPotion = strongerResistancePotion;
                             }

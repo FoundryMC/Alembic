@@ -16,7 +16,7 @@ public class AlembicTagRegistry {
 
     public static final Codec<AlembicTagType<?>> TAG_MAP_CODEC = CodecUtil.ALEMBIC_RL_CODEC.comapFlatMap(resourceLocation -> {
         if (!TAGS.containsKey(resourceLocation)) {
-            return DataResult.error("Damage type tag %s does not exist!".formatted(resourceLocation));
+            return DataResult.error(() -> "Damage type tag %s does not exist!".formatted(resourceLocation));
         }
         return DataResult.success(TAGS.get(resourceLocation));
     }, TAGS.inverse()::get);

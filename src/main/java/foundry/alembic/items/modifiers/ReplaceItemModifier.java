@@ -7,6 +7,7 @@ import foundry.alembic.items.ItemStat;
 import foundry.alembic.util.CodecUtil;
 import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
 public final class ReplaceItemModifier implements ItemModifier {
     public static final Codec<ReplaceItemModifier> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Registry.ATTRIBUTE.byNameCodec().fieldOf("target").forGetter(replaceItemModifier -> replaceItemModifier.target),
+                    BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("target").forGetter(replaceItemModifier -> replaceItemModifier.target),
                     Codec.FLOAT.fieldOf("value").forGetter(replaceItemModifier -> replaceItemModifier.value),
                     CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(replaceItemModifier -> replaceItemModifier.operation),
                     CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(replaceItemModifier -> replaceItemModifier.uuid)

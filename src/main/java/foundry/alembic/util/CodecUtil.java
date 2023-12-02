@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.*;
 import foundry.alembic.Alembic;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -36,7 +37,7 @@ public class CodecUtil {
                     int color = Integer.decode(s);
                     return DataResult.success(color);
                 } catch (NumberFormatException e) {
-                    return DataResult.error(e.getMessage());
+                    return DataResult.error(e::getMessage);
                 }
             },
             "#%06X"::formatted
@@ -82,7 +83,7 @@ public class CodecUtil {
     public static final Codec<RangedAttribute> RANGED_ATTRIBUTE_REGISTRY_CODEC = ForgeRegistries.ATTRIBUTES.getCodec().comapFlatMap(
             attribute -> {
                 if (!(attribute instanceof RangedAttribute rangedAttribute)) {
-                    return DataResult.error("The attribute " + ForgeRegistries.ATTRIBUTES.getKey(attribute) + " is not a ranged attribute");
+                    return DataResult.error(() -> "The attribute " + ForgeRegistries.ATTRIBUTES.getKey(attribute) + " is not a ranged attribute");
                 } else {
                     return DataResult.success(rangedAttribute);
                 }
@@ -90,7 +91,7 @@ public class CodecUtil {
             Function.identity()
     );
 
-    public static final Codec<ItemStack> ITEM_OR_STACK_CODEC = Codec.either(Registry.ITEM.byNameCodec(), ItemStack.CODEC).xmap(
+    public static final Codec<ItemStack> ITEM_OR_STACK_CODEC = Codec.either(BuiltInRegistries.ITEM.byNameCodec(), ItemStack.CODEC).xmap(
             either -> either.map(Item::getDefaultInstance, Function.identity()),
             stack -> stack.getCount() == 1 && !stack.hasTag() ? Either.left(stack.getItem()) : Either.right(stack)
     );
@@ -106,16 +107,16 @@ public class CodecUtil {
                 @Override
                 public <T> DataResult<Pair<Ingredient, T>> decode(DynamicOps<T> ops, T input) {
                     try {
-                        Ingredient ingredient = CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input));
+                        Ingredient ingredient = CraftingHelper.getIngredient(ops.convertTo(JsonOps.INSTANCE, input), false);
                         return DataResult.success(Pair.of(ingredient, input));
                     } catch (JsonSyntaxException e) {
-                        return DataResult.error("Failed to decode ingredient" + e.getMessage());
+                        return DataResult.error(() -> "Failed to decode ingredient" + e.getMessage());
                     }
                 }
             }
     );
 
-    public static final Codec<Ingredient> INGREDIENT_FROM_EITHER = Codec.either(Registry.ITEM.byNameCodec(), INGREDIENT_CODEC).xmap(
+    public static final Codec<Ingredient> INGREDIENT_FROM_EITHER = Codec.either(BuiltInRegistries.ITEM.byNameCodec(), INGREDIENT_CODEC).xmap(
             either -> either.map(Ingredient::of, Function.identity()),
             Either::right
     );

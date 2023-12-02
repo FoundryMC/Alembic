@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
@@ -29,7 +30,7 @@ public class AlembicDamageType {
     private int priority;
     private ResourceLocation id;
     private AttributeSet attributeSet;
-    private DamageSource damageSource;
+    private String damageSource;
     private int color;
     private List<AlembicTag> tags;
     private MobEffect resistanceEffect;
@@ -110,7 +111,7 @@ public class AlembicDamageType {
         return id;
     }
 
-    public DamageSource getDamageSource() {
+    public String getDamageSource() {
         return damageSource;
     }
 
@@ -140,7 +141,7 @@ public class AlembicDamageType {
 
     void handlePostParse(ResourceLocation id) {
         this.id = id;
-        this.damageSource = new DamageSource(id.toString());
+        this.damageSource = id.toString();
         this.attributeSet = AttributeSetRegistry.getValue(id);
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }

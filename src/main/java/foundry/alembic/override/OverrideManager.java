@@ -41,7 +41,7 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
     }
 
     public static boolean containsKey(DamageSource damageSource) {
-        return containsKey(DamageSourceIdentifier.create(damageSource.msgId));
+        return containsKey(DamageSourceIdentifier.create(damageSource.type().msgId()));
     }
 
     public static Map<DamageSourceIdentifier, AlembicOverride> getOverrides() {
@@ -74,7 +74,7 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
 
     @Nullable
     public static AlembicOverride getOverridesForSource(DamageSource source) {
-        return OVERRIDES.get(DamageSourceIdentifier.create(source.msgId));
+        return OVERRIDES.get(DamageSourceIdentifier.create(source.type().msgId()));
     }
 
     @Override

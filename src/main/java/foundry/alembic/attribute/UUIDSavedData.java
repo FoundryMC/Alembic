@@ -3,6 +3,7 @@ package foundry.alembic.attribute;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import foundry.alembic.Alembic;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UUIDSavedData extends SavedData {
-    public static final UnboundedMapCodec<ResourceLocation, UUID> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, ExtraCodecs.UUID);
+    public static final UnboundedMapCodec<ResourceLocation, UUID> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, UUIDUtil.CODEC);
 
     public static final String ATTR_MODIFIER_ID = "attr_mod_uuids";
 

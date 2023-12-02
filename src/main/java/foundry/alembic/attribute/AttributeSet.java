@@ -7,18 +7,20 @@ import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.potion.AlembicPotionDataHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 
 public class AttributeSet {
     public static final Codec<Holder<Attribute>> GET_OR_CREATE_HOLDER_CODEC = ResourceLocation.CODEC.comapFlatMap(
-            resourceLocation -> Registry.ATTRIBUTE.getOrCreateHolder(ResourceKey.create(Registry.ATTRIBUTE_REGISTRY, resourceLocation)),
+            resourceLocation -> BuiltInRegistries.ATTRIBUTE.getOrCreateHolder(ResourceKey.create(BuiltInRegistries.ATTRIBUTE.key(), resourceLocation)),
             attributeHolder -> attributeHolder.unwrapKey().get().location()
     );
     public static final Codec<Either<RangedAttributeData, Holder<Attribute>>> DATA_OR_REGISTERED = Codec.either(RangedAttributeData.CODEC, GET_OR_CREATE_HOLDER_CODEC);

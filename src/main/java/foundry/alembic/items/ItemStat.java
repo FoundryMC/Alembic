@@ -9,6 +9,7 @@ import foundry.alembic.items.slots.EquipmentSlotType;
 import foundry.alembic.util.CodecUtil;
 import foundry.alembic.util.TagOrElements;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
@@ -23,7 +24,7 @@ import java.util.function.Function;
 public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeData, Set<EquipmentSlotType> equipmentSlots) {
     public static final Codec<ItemStat> CODEC = RecordCodecBuilder.create(itemStatInstance ->
             itemStatInstance.group(
-                    TagOrElements.codec(Registry.ITEM).fieldOf("id").forGetter(ItemStat::items),
+                    TagOrElements.codec(BuiltInRegistries.ITEM).fieldOf("id").forGetter(ItemStat::items),
                     ItemModifier.DISPATCH_CODEC.listOf().fieldOf("modifiers").forGetter(ItemStat::attributeData),
                     Codec.either(EquipmentSlotType.CODEC, CodecUtil.setOf(EquipmentSlotType.CODEC)).fieldOf("equipment_slot")
                             .xmap(

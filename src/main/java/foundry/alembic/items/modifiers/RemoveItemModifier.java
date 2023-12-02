@@ -4,10 +4,11 @@ import com.mojang.serialization.Codec;
 import foundry.alembic.items.ItemModifierType;
 import foundry.alembic.items.ItemStat;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 
 public final class RemoveItemModifier implements ItemModifier {
-    public static final Codec<RemoveItemModifier> CODEC = Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute")
+    public static final Codec<RemoveItemModifier> CODEC = BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("attribute")
             .xmap(RemoveItemModifier::new, removeItemModifier -> removeItemModifier.attribute)
             .codec();
 

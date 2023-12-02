@@ -21,13 +21,14 @@ public class AlembicOverride {
                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                     if (!DamageTypeManager.containsKey(entry.getKey())) {
-                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
                     }
                     retMap.put(DamageTypeManager.getDamageType(entry.getKey()), entry.getValue());
                     total += entry.getValue();
                 }
                 if (total != 1.0f) {
-                    return DataResult.error("Total value is %s! All values must sum up to 1.0".formatted(total > 1.0f ? "too high" : "too low"));
+                    float finalTotal = total;
+                    return DataResult.error(() -> "Total value is %s! All values must sum up to 1.0".formatted(finalTotal > 1.0f ? "too high" : "too low"));
                 }
                 return DataResult.success(new AlembicOverride(retMap));
             },

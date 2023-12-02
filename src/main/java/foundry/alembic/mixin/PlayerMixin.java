@@ -2,6 +2,7 @@ package foundry.alembic.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import foundry.alembic.Alembic;
 import foundry.alembic.AlembicAPI;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -29,7 +30,7 @@ public class PlayerMixin {
 
     @Inject(method = "getHurtSound", at = @At("HEAD"), cancellable = true)
     private void alembic$soulFireSound(DamageSource pDamageSource, CallbackInfoReturnable<SoundEvent> cir) {
-        if (pDamageSource == AlembicAPI.SOUL_FIRE) {
+        if (pDamageSource.is(AlembicAPI.SOUL_FIRE)) {
             cir.setReturnValue(SoundEvents.PLAYER_HURT_ON_FIRE);
         }
     }

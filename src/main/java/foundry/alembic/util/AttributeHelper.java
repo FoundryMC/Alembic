@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class AttributeHelper {
     public static void addOrModifyModifier(LivingEntity livingEntity, Attribute attribute, ResourceLocation modifierId, double bonus) {
-        if (livingEntity.getLevel() instanceof ServerLevel serverLevel) {
+        if (livingEntity.level() instanceof ServerLevel serverLevel) {
             AttributeInstance instance = livingEntity.getAttribute(attribute);
             UUIDSavedData savedData = UUIDSavedData.getOrLoad(serverLevel.getServer());
             addOrModifyModifier(instance, modifierId, savedData.getOrCreate(modifierId), bonus);

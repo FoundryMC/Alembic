@@ -11,7 +11,7 @@ public class TagConditionRegistry {
     private static final BiMap<ResourceLocation, TagConditionType<?>> REGISTRY = HashBiMap.create();
     public static final Codec<TagConditionType<?>> CONDITION_LOOKUP_CODEC = CodecUtil.ALEMBIC_RL_CODEC.comapFlatMap(resourceLocation -> {
         if (!REGISTRY.containsKey(resourceLocation)) {
-            return DataResult.error("Damage type condition %s does not exist!".formatted(resourceLocation));
+            return DataResult.error(() -> "Damage type condition %s does not exist!".formatted(resourceLocation));
         }
         return DataResult.success(REGISTRY.get(resourceLocation));
     }, REGISTRY.inverse()::get);

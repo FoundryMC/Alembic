@@ -7,6 +7,7 @@ import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ModifierApplication;
 import foundry.alembic.util.CodecUtil;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
@@ -16,7 +17,7 @@ public final class AppendItemModifier implements ItemModifier {
     public static final Codec<AppendItemModifier> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ModifierApplication.CODEC.optionalFieldOf("application", ModifierApplication.INSTANT).forGetter(appendItemModifier -> appendItemModifier.application),
-                    Registry.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(AppendItemModifier::getAttribute),
+                    BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(AppendItemModifier::getAttribute),
                     Codec.FLOAT.fieldOf("value").forGetter(AppendItemModifier::getValue),
                     CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(AppendItemModifier::getOperation),
                     CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(AppendItemModifier::getUUID)

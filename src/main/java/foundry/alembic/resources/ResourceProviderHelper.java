@@ -2,9 +2,9 @@ package foundry.alembic.resources;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dev.lukebemish.defaultresources.api.ResourceProvider;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.Utils;
-import io.github.lukebemish.defaultresources.api.ResourceProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 

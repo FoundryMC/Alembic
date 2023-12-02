@@ -10,6 +10,7 @@ import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.util.ComposedData;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,7 @@ public class AlembicPerLevelTag extends AbstractTag {
     }
 
     public ResourceLocation getModifierId() {
-        ResourceLocation attributeId = Registry.ATTRIBUTE.getKey(affectedAttribute);
+        ResourceLocation attributeId = BuiltInRegistries.ATTRIBUTE.getKey(affectedAttribute);
         return new ResourceLocation(attributeId.getNamespace(), attributeId.getPath() + ".level_up");
     }
 

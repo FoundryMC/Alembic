@@ -10,6 +10,7 @@ import foundry.alembic.types.AlembicDamageType;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
@@ -19,14 +20,14 @@ import java.util.Set;
 public class AlembicResistance {
     public static final Codec<AlembicResistance> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Registry.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicResistance::getEntityType),
+                    BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicResistance::getEntityType),
                     Codec.INT.fieldOf("priority").forGetter(AlembicResistance::getPriority),
                     Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
                             map -> {
                                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
                                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                                     if (!DamageTypeManager.containsKey(entry.getKey())) {
-                                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
                                     }
                                     retMap.put(DamageTypeManager.getDamageType(entry.getKey()), entry.getValue());
                                 }
@@ -45,7 +46,7 @@ public class AlembicResistance {
                                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
                                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                                     if (!DamageTypeManager.containsKey(entry.getKey())) {
-                                        return DataResult.error("Damage type %s does not exist!".formatted(entry.getKey()));
+                                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
                                     }
                                     retMap.put(DamageTypeManager.getDamageType(entry.getKey()), entry.getValue());
                                 }

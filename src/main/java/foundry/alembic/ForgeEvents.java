@@ -34,7 +34,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -79,7 +78,7 @@ public class ForgeEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void onLevelUp(PlayerXpEvent.LevelChange event) {
         Player player = event.getEntity();
-        if(player.level.isClientSide) return;
+        if(player.level().isClientSide) return;
         for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(player.experienceLevel + event.getLevels())) {
             // Get the upgrade region
             RangedAttribute attribute = tag.getAffectedAttribute();
@@ -185,21 +184,6 @@ public class ForgeEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onLivingSpawn(final LivingSpawnEvent event) {
-//        if(!event.getLevel().isClientSide()){
-//            AlembicResistance stats = AlembicResistanceHolder.get(event.getEntity().getType());
-//            if(stats != null){
-//                stats.getResistances().forEach((damageType, value) -> {
-//                    AttributeInstance resistanceInstance = event.getEntity().getAttribute(damageType.getResistanceAttribute());
-//                    if(resistanceInstance != null){
-//                        resistanceInstance.setBaseValue(value);
-//                    }
-//                });
-//            }
-//        }
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void cancelShieldBlock(ShieldBlockEvent event) {
         if (!OverrideManager.containsKey(event.getDamageSource())) {
@@ -272,7 +256,7 @@ public class ForgeEvents {
     static void hurt(final LivingHurtEvent event) {
         LivingEntity target = event.getEntity();
 
-        if (target.level.isClientSide) return;
+        if (target.level().isClientSide) return;
         if (isBeingDamaged) {
             return;
         }
@@ -285,7 +269,7 @@ public class ForgeEvents {
             Alembic.LOGGER.info("Source is {} and is projectile? {}", originalDamageSource.getDirectEntity(), originalDamageSource.getDirectEntity() instanceof Projectile);
         }
 
-        if (originalDamageSource instanceof IndirectEntityDamageSource || originalDamageSource.getDirectEntity() == null || (originalDamageSource.getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
+        if (originalDamageSource.isIndirect() || originalDamageSource.getDirectEntity() == null || (originalDamageSource.getDirectEntity() instanceof AbstractArrow && !AlembicConfig.ownerAttributeProjectiles.get())
                 || originalDamageSource.getDirectEntity() instanceof AbstractHurtingProjectile || (originalDamageSource.getDirectEntity() instanceof Projectile)) {
             isBeingDamaged = false;
             float totalDamage = event.getAmount();
@@ -411,7 +395,7 @@ public class ForgeEvents {
             float finalDamage = damage;
             damageType.getTags().forEach(tag -> {
                 ComposedData data = ComposedData.createEmpty()
-                        .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level)
+                        .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level())
                         .add(ComposedDataTypes.TARGET_ENTITY, target)
                         .add(ComposedDataTypes.FINAL_DAMAGE, finalDamage)
                         .add(ComposedDataTypes.ORIGINAL_SOURCE, originalSource)
@@ -432,7 +416,7 @@ public class ForgeEvents {
                 ((Player) target).awardStat(Stats.CUSTOM.get(Stats.DAMAGE_DEALT_ABSORBED), Math.round(f * 10.0F));
             }
             float health = target.getHealth();
-            target.getCombatTracker().recordDamage(DamageSource.GENERIC, health, damage);
+            target.getCombatTracker().recordDamage(target.level().damageSources().generic(), damage);
             target.setHealth(health - damage);
             target.setAbsorptionAmount(target.getAbsorptionAmount() - f2);
             sendDamagePacket(target, damageType, damage);
@@ -446,7 +430,7 @@ public class ForgeEvents {
 
     private static void sendDamagePacket(LivingEntity target, AlembicDamageType damageType, float damage) {
         AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() ->
-                        new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level.dimension())),
+                        new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level().dimension())),
                 new ClientboundAlembicDamagePacket(target.getId(), damageType.getId().toString(), damage, damageType.getColor()));
     }
 
@@ -500,7 +484,7 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void livingTick(LivingEvent.LivingTickEvent event){
-        if(!event.getEntity().level.isClientSide){
+        if(!event.getEntity().level().isClientSide){
             if(event.getEntity().isInWaterOrRain()){
                 // if the entity is in water or rain, increase fire resistance by +6
                 Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
@@ -522,7 +506,7 @@ public class ForgeEvents {
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicResistance stats, DamageSource originalSource) {
         MutableFloat total = new MutableFloat();
         stats.getResistances().forEach((alembicDamageType, multiplier) -> {
-            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.msgId)) return;
+            if (stats.getIgnoredSources().stream().map(DamageSourceIdentifier::getSerializedName).toList().contains(originalSource.getMsgId())) return;
             AttributeInstance i = attacker.getAttribute(alembicDamageType.getAttribute());
             if (i == null) return;
             // multiplier is 0-2, 1 is normal damage, 2 is no damage, 0 is double damage. scale the value of i by this
@@ -575,7 +559,7 @@ public class ForgeEvents {
         damage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, alembicDamageType, damage);
         boolean enchantReduce = alembicDamageType.hasEnchantReduction();
         if(enchantReduce) {
-            int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), DamageSource.mobAttack(attacker));
+            int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), attacker.level().damageSources().mobAttack(attacker));
             if (k > 0) {
                 damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
             }
@@ -598,12 +582,12 @@ public class ForgeEvents {
 //    }
 
     private static DamageSource src(LivingEntity entity) {
-        return entity instanceof Player p ? DamageSource.playerAttack(p) : DamageSource.mobAttack(entity);
+        return entity instanceof Player p ? p.level().damageSources().playerAttack(p) : entity.level().damageSources().mobAttack(entity);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // We don't want to modify, but we do want to get the final values
     static void hungerChanged(AlembicFoodChangeEvent event) {
-        if (event.getPlayer().level.isClientSide) return;
+        if (event.getPlayer().level().isClientSide) return;
 
         Player player = event.getPlayer();
         int hungerValue = event.getFoodLevel();

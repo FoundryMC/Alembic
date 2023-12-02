@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Blocks;
 
 public class OverrideHelper {
     public static void addFireEffect(int ticks, LivingEntity le) {
-        if(le.level.isClientSide) return;
+        if(le.level().isClientSide) return;
         String s = le.getCapability(AlembicFlammableHandler.CAPABILITY, null).map(AlembicFlammable::getFireType).orElse("normal");
         MobEffect eff = le.getFeetBlockState().is(Blocks.SOUL_FIRE) || s.equals("soul") ? AlembicMobEffectRegistry.SOUL_FIRE.get() : AlembicMobEffectRegistry.FIRE.get();
         if (le.hasEffect(eff)) {
@@ -23,7 +23,7 @@ public class OverrideHelper {
     }
 
     public static void removeFireEffect(LivingEntity le){
-        if(le.level.isClientSide) return;
+        if(le.level().isClientSide) return;
         if(le.hasEffect(AlembicMobEffectRegistry.FIRE.get())){
             le.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("normal"));
             MobEffectInstance effect = le.getEffect(AlembicMobEffectRegistry.FIRE.get());
