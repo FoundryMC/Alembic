@@ -12,7 +12,7 @@
         "run": "alembic:particles/wither",
         "else": {
           "tag_type": "alembic:branch_tag",
-          "run": "alembic:particles/skulk",
+          "run": "alembic:particles/sculk",
           "else": {
             "tag_type": "alembic:branch_tag",
             "run": "alembic:particles/soul_fire",
