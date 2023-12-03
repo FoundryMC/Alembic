@@ -6,14 +6,6 @@
   "tags": [
     {
       "tag_type": "alembic:particle_tag",
-      "particle_options": {
-        "type": "alembic:physical_damage"
-      },
-      "conditions": "alembic:damage_from_player",
-      "scale_with_damage": true
-    },
-    {
-      "tag_type": "alembic:particle_tag",
       "particle_speed": 0.15,
       "particle_options": {
         "type": "alembic:sculk_hit"
