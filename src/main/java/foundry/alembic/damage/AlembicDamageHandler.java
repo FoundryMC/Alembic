@@ -12,8 +12,8 @@ import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.resistances.AlembicEntityStats;
-import foundry.alembic.resistances.ResistanceManager;
+import foundry.alembic.stats.AlembicEntityStats;
+import foundry.alembic.stats.StatsManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.tag.AlembicTagRegistry;
@@ -97,8 +97,8 @@ public class AlembicDamageHandler {
     }
 
     private static float handleLivingEntityDamage(LivingEntity target, LivingEntity attacker, float originalDamage, DamageSource originalSource) {
-        AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
-        AlembicEntityStats attackerStats = ResistanceManager.get(attacker.getType());
+        AlembicEntityStats targetStats = StatsManager.get(target.getType());
+        AlembicEntityStats attackerStats = StatsManager.get(attacker.getType());
         if(targetStats == null || attackerStats == null) return 0;
         MutableFloat total = new MutableFloat();
         Object2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
@@ -133,7 +133,7 @@ public class AlembicDamageHandler {
 
     private static float handlePlayerDamage(LivingEntity target, Player attacker, float originalDamage, DamageSource originalSource) {
         float totalTypedDamage = 0f;
-        AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
+        AlembicEntityStats targetStats = StatsManager.get(target.getType());
         for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
             Alembic.printInDebug(() -> "Handling damage type: " + damageType.getId() + "for player " + attacker.getDisplayName().getString());
             if (!attacker.getAttributes().hasAttribute(damageType.getAttribute())) continue;

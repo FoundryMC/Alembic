@@ -1,58 +1,31 @@
 package foundry.alembic;
 
-import com.google.common.collect.*;
-import com.mojang.datafixers.util.Pair;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
-import foundry.alembic.damagesource.DamageSourceIdentifier;
-import foundry.alembic.event.AlembicDamageDataModificationEvent;
-import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.items.*;
-import foundry.alembic.items.modifiers.ItemModifier;
-import foundry.alembic.items.modifiers.AppendItemModifier;
 import foundry.alembic.items.slots.VanillaSlotType;
-import foundry.alembic.networking.AlembicPacketHandler;
-import foundry.alembic.networking.ClientboundAlembicDamagePacket;
-import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.resistances.AlembicEntityStats;
-import foundry.alembic.resistances.ResistanceManager;
+import foundry.alembic.stats.StatsManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
 import foundry.alembic.util.AttributeHelper;
-import foundry.alembic.util.ComposedData;
-import foundry.alembic.util.ComposedDataTypes;
-import foundry.alembic.util.Utils;
-import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.CombatRules;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -63,7 +36,6 @@ import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.*;
@@ -119,7 +91,7 @@ public class ForgeEvents {
     static void onJsonListener(AddReloadListenerEvent event) {
         event.addListener(new DamageTypeManager(event.getConditionContext()));
         event.addListener(new OverrideManager(event.getConditionContext()));
-        event.addListener(new ResistanceManager(event.getConditionContext()));
+        event.addListener(new StatsManager(event.getConditionContext()));
         event.addListener(new ItemStatManager(event.getConditionContext()));
         event.addListener(new ShieldStatManager(event.getConditionContext()));
     }
@@ -185,7 +157,7 @@ public class ForgeEvents {
                     });
             if(event.getDamageSource().getDirectEntity() != null){
                 if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
-                    ResistanceManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
+                    StatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
                         float damagePart = event.getBlockedDamage() * aFloat;
 
                         RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();

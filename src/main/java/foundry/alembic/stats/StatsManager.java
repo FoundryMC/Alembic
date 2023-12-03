@@ -1,4 +1,4 @@
-package foundry.alembic.resistances;
+package foundry.alembic.stats;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
@@ -15,11 +15,11 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 
 import java.util.*;
 
-public class ResistanceManager extends ConditionalJsonResourceReloadListener {
+public class StatsManager extends ConditionalJsonResourceReloadListener {
     private static final Map<EntityType<?>, AlembicEntityStats> RESISTANCE_MAP = new Reference2ObjectOpenHashMap<>();
 
-    public ResistanceManager(ICondition.IContext conditionContext) {
-        super(conditionContext, Utils.GSON, "alembic/resistances");
+    public StatsManager(ICondition.IContext conditionContext) {
+        super(conditionContext, Utils.GSON, "alembic/stats");
     }
 
     public static Collection<AlembicEntityStats> getValuesView() {

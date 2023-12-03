@@ -1,4 +1,4 @@
-package foundry.alembic.resistances;
+package foundry.alembic.stats;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

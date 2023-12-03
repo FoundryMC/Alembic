@@ -9,8 +9,8 @@ import foundry.alembic.items.ItemStatManager;
 import foundry.alembic.items.slots.EquipmentSlotType;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.resistances.AlembicEntityStats;
-import foundry.alembic.resistances.ResistanceManager;
+import foundry.alembic.stats.AlembicEntityStats;
+import foundry.alembic.stats.StatsManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
@@ -19,7 +19,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.world.item.Item;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,7 +80,7 @@ public class AlembicCommand {
                         }))
                 .then(Commands.literal("resistances")
                         .executes((context) -> {
-                            Collection<AlembicEntityStats> overrides = ResistanceManager.getValuesView();
+                            Collection<AlembicEntityStats> overrides = StatsManager.getValuesView();
                             // write all damage types to a file
                             Path writer = null;
                             try {
