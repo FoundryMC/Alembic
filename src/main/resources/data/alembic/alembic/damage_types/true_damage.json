@@ -19,7 +19,7 @@
       "conditions": [
         {
           "condition_type": "alembic:damage_source",
-          "damage_source": "FREEZE"
+          "damage_source": "minecraft:freeze"
         }
       ]
     },

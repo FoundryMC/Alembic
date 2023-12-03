@@ -7,7 +7,7 @@
     },
     {
       "condition_type": "alembic:damage_source",
-      "damage_source": "sonic_boom"
+      "damage_source": "minecraft:sonic_boom"
     }
   ]
 }

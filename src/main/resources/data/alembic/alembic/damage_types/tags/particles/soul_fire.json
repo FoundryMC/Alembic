@@ -10,7 +10,7 @@
       "conditions": [
         {
           "condition_type": "alembic:damage_source",
-          "damage_source": "soulFire"
+          "damage_source": "alembic:soul_fire"
         },
         {
           "condition_type": "alembic:damage_source",
