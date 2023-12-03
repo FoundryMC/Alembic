@@ -35,7 +35,6 @@ public abstract class ConditionalJsonResourceReloadListener extends SimplePrepar
     protected Map<ResourceLocation, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         Map<ResourceLocation, JsonElement> retMap = new HashMap<>();
 
-        // TODO: 1.20 replace with FileToIdConverter
         for (Map.Entry<ResourceLocation, Resource> entry : converter.listMatchingResources(pResourceManager).entrySet()) {
             ResourceLocation id = converter.fileToId(entry.getKey());
             Resource resource = entry.getValue();

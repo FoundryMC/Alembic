@@ -1,6 +1,7 @@
 package foundry.alembic.override;
 
 import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -21,8 +22,7 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 public class OverrideManager extends ConditionalJsonResourceReloadListener {
     private static final Codec<OverrideStorage> STORAGE_CODEC = RecordCodecBuilder.create(instance ->
@@ -32,10 +32,29 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
             ).apply(instance, OverrideStorage::new)
     );
 
+    private static final Set<Pair<ResourceLocation, OverrideStorage>> STORES = new LinkedHashSet<>();
     private static final Map<DamageType, AlembicOverride> OVERRIDES = new Reference2ObjectOpenHashMap<>();
 
     public OverrideManager(ICondition.IContext conditionContext) {
         super(conditionContext, Utils.GSON, "alembic/overrides");
+    }
+
+    public static void setupOverrides(RegistryAccess registryAccess) {
+        for (Pair<ResourceLocation, OverrideStorage> pair : STORES) {
+            ResourceLocation id = pair.getFirst();
+            OverrideStorage storage = pair.getSecond();
+            for (Map.Entry<TagOrElements.Lazy<DamageType>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
+                AlembicOverride override = parsedEntry.getValue();
+
+                override.setId(id);
+                override.setPriority(storage.priority);
+
+                for (DamageType damageType : parsedEntry.getKey().getElements(registryAccess)) {
+                    smartAddOverride(damageType, override);
+                }
+            }
+        }
+        STORES.clear();
     }
 
     public static boolean containsKey(DamageType damageType) {
@@ -90,18 +109,7 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
             }
 
             OverrideStorage storage = dataResult.result().get();
-            for (Map.Entry<TagOrElements.Lazy<DamageType>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
-                AlembicOverride override = parsedEntry.getValue();
-
-                override.setId(dataEntry.getKey());
-                override.setPriority(storage.priority);
-
-                RegistryAccess access = ServerLifecycleHooks.getCurrentServer().registryAccess();
-
-                for (DamageType type : parsedEntry.getKey().getElements(access)) {
-                    smartAddOverride(type, override);
-                }
-            }
+            STORES.add(Pair.of(dataEntry.getKey(), storage));
         }
         // write the map to a human-readable string
         String logPut = getOverrides().entrySet().stream().map(entry -> entry.getKey().toString() + " -> " + entry.getValue().toString()).reduce((s, s2) -> s + ", " + s2).orElse("Empty");
