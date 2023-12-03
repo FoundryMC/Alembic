@@ -32,7 +32,7 @@ public class TESCompat {
             if(!data.contains("damage") || !data.contains("color")) return healthDelta;
             if(data.getFloat("damage") == 0) return healthDelta;
             Vector3f pos = new Vector3f(entityState.getEntity().getOnPos().getX() + 0.5f, entityState.getEntity().getOnPos().getY() + 0.5f, entityState.getEntity().getOnPos().getZ() + 0.5f);
-            pos.add(0,entityState.getEntity().getBbHeight(),0);
+            pos.add(0,entityState.getEntity().getBbHeight() + ((((float)Math.random()) - 0.5f)/2f),0);
             particleAdder.accept(new NumericParticle(entityState, pos, TESParticle.Animation.POP_OFF, data.getFloat("damage")).withColour(data.getInt("color")));
             return healthDelta + data.getFloat("damage");
         });

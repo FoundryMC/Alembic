@@ -293,6 +293,7 @@ public class ForgeEvents {
                 attacker = (LivingEntity) originalDamageSource.getDirectEntity();
             }
             if(attacker == null) {
+                Alembic.printInDebug(() -> "Attacker is null, returning. Damage source is " + originalDamageSource.getMsgId());
                 isBeingDamaged = false;
                 return;
             }
@@ -303,7 +304,7 @@ public class ForgeEvents {
             AlembicEntityStats attackerStats = ResistanceManager.get(attacker.getType());
             boolean isNotPlayer = attackerStats != null;
             float damageOffset = 0;
-            if (isNotPlayer) {
+            if (isNotPlayer && !(attacker instanceof Player)) {
                 damageOffset = handleTypedDamage(target, attacker, totalDamage, targetStats, attackerStats, originalDamageSource);
             }
             totalDamage -= damageOffset;
@@ -488,6 +489,12 @@ public class ForgeEvents {
     }
 
     private static float handleTypedDamage(LivingEntity target, LivingEntity attacker, float totalDamage, AlembicEntityStats targetStats, AlembicEntityStats attackerStats, DamageSource originalSource) {
+        if(attacker == null) {
+            Alembic.LOGGER.warn("Attacker is null! This should not happen!");
+            return 0;
+        }
+        // capture attacker object (not reference) to ensure it isnt changed to null later on
+        LivingEntity originalAttacker = attacker;
         MutableFloat total = new MutableFloat();
         Object2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
         Object2FloatMap<AlembicDamageType> finalDamage = new Object2FloatOpenHashMap<>();
@@ -503,7 +510,6 @@ public class ForgeEvents {
         });
         finalDamage.forEach((damageType, amount) -> {
             float resistanceMod = getResistanceForType(damageType, target, targetStats).getSecond();
-            // multiplier is 0-2, 1 is normal damage, 2 is no damage, 0 is double damage. scale the value of i by this
             if(resistanceMod < 1){
                 resistanceMod = 1 + (1 - resistanceMod);
             } else {
@@ -515,7 +521,7 @@ public class ForgeEvents {
                 return;
             }
             total.add(damage);
-            damageCalc(target, attacker, damageType, damage, originalSource);
+            damageCalc(target, originalAttacker, damageType, damage, originalSource);
         });
         return total.getValue();
     }
@@ -548,8 +554,8 @@ public class ForgeEvents {
         damage = CombatRules.getDamageAfterAbsorb(damage, attrValue, (float) target.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue());
         damage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, alembicDamageType, damage);
         boolean enchantReduce = alembicDamageType.hasEnchantReduction();
-        if(enchantReduce) {
-            int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), attacker.level().damageSources().mobAttack(attacker));
+        if(enchantReduce && attacker != null) {
+            int k = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), target.level().damageSources().mobAttack(attacker));
             if (k > 0) {
                 damage = CombatRules.getDamageAfterMagicAbsorb(damage, (float)k);
             }
