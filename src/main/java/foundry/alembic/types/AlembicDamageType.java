@@ -63,6 +63,18 @@ public class AlembicDamageType {
         return attributeSet.getResistanceAttribute();
     }
 
+    public float getShieldingIgnore() {
+        return attributeSet.getShieldingIgnore();
+    }
+
+    public float getAbsorptionIgnore() {
+        return attributeSet.getAbsorptionIgnore();
+    }
+
+    public float getResistanceIgnore() {
+        return attributeSet.getResistanceIgnore();
+    }
+
     public boolean hasEnchantReduction() {
         return enchantReduction;
     }
