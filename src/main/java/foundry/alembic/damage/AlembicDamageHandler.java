@@ -99,6 +99,7 @@ public class AlembicDamageHandler {
     private static float handleLivingEntityDamage(LivingEntity target, LivingEntity attacker, float originalDamage, DamageSource originalSource) {
         AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
         AlembicEntityStats attackerStats = ResistanceManager.get(attacker.getType());
+        if(targetStats == null || attackerStats == null) return 0;
         MutableFloat total = new MutableFloat();
         Object2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
         Object2FloatMap<AlembicDamageType> finalTypedDamage = new Object2FloatOpenHashMap<>();
