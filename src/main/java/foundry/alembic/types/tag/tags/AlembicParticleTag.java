@@ -26,20 +26,23 @@ public class AlembicParticleTag extends AbstractTag {
         createBase(instance).and(
                 instance.group(
                         ParticleTypes.CODEC.fieldOf("particle_options").forGetter(alembicParticleTag -> alembicParticleTag.particleOptions),
-                        Codec.FLOAT.optionalFieldOf("particle_speed", 0.35f).forGetter(alembicParticleTag -> alembicParticleTag.particleSpeed)
+                        Codec.FLOAT.optionalFieldOf("particle_speed", 0.35f).forGetter(alembicParticleTag -> alembicParticleTag.particleSpeed),
+                        Codec.BOOL.optionalFieldOf("scale_with_damage", false).forGetter(alembicParticleTag -> alembicParticleTag.scaleWithDamage)
                 )
         ).apply(instance, AlembicParticleTag::new)
     );
     private final ParticleOptions particleOptions;
     private final float particleSpeed;
-    public AlembicParticleTag(List<TagCondition> conditions, ParticleOptions particleOptions, float particleSpeed) {
+    private final boolean scaleWithDamage;
+    public AlembicParticleTag(List<TagCondition> conditions, ParticleOptions particleOptions, float particleSpeed, boolean scaleWithDamage) {
         super(conditions);
         this.particleOptions = particleOptions;
         this.particleSpeed = particleSpeed;
+        this.scaleWithDamage = scaleWithDamage;
     }
 
     public AlembicParticleTag(ParticleOptions particleOptions) {
-        this(List.of(), particleOptions, 0.35f);
+        this(List.of(), particleOptions, 0.35f, false);
     }
 
 
@@ -49,13 +52,14 @@ public class AlembicParticleTag extends AbstractTag {
         float damage = data.get(ComposedDataTypes.FINAL_DAMAGE);
         ServerLevel level = data.get(ComposedDataTypes.SERVER_LEVEL);
         float particleCount = damage < 1 ? 1 : Math.min(15, damage)/2f;
+        if(!scaleWithDamage) particleCount = 1;
         spawnParticle(level, particleOptions, entity, particleCount, particleSpeed);
     }
 
     private void spawnParticle(ServerLevel level, ParticleOptions particleOptions, LivingEntity entity, float particleCount, float pSpeed) {
         ForgeRegistries.PARTICLE_TYPES.getKey(particleOptions.getType());
         level.sendParticles(particleOptions, entity.getX(), entity.getY() + entity.getBbHeight() / 2f, entity.getZ(),
-                (int) Math.ceil(particleCount * 2),
+                (int) Math.ceil(particleCount),
                 0, 0, 0,
                 pSpeed);
     }

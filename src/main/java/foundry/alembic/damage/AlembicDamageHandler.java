@@ -74,7 +74,7 @@ public class AlembicDamageHandler {
             totalDamage -= damageOffset;
             int time = target.invulnerableTime;
             target.invulnerableTime = 0;
-            float fudge = 0.0001f;
+            float fudge = AlembicConfig.enableCompatFudge.get() ? 0.0001f : 0.0f;
             if (totalDamage + fudge >= fudge) {
                 target.hurt(entitySource(attacker), totalDamage + fudge);
             }

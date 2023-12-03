@@ -26,7 +26,8 @@
             "particle_options": {
                 "type": "alembic:fire_damage"
             },
-            "conditions": "alembic:damage_from_player"
+            "conditions": "alembic:damage_from_player",
+            "scale_with_damage": true
         },
         {
             "tag_type": "alembic:extend_fire_tag",
