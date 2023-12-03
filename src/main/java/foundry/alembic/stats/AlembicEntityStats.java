@@ -5,12 +5,14 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.util.CodecUtil;
-import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.util.TagOrElements;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.Map;
@@ -59,32 +61,32 @@ public class AlembicEntityStats {
                                 return DataResult.success(retMap);
                             }
                     ).fieldOf("damage").forGetter(AlembicEntityStats::getDamage),
-                    CodecUtil.setOf(DamageSourceIdentifier.CODEC).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSources)
+                    CodecUtil.setOf(TagOrElements.lazyCodec(Registries.DAMAGE_TYPE)).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSourcesRaw)
             ).apply(instance, AlembicEntityStats::new)
     );
 
-    private EntityType<?> entityType;
-    private int priority;
+    private final EntityType<?> entityType;
+    private final int priority;
     private ResourceLocation id;
-    private Object2FloatMap<AlembicDamageType> resistances;
-    private Object2FloatMap<AlembicDamageType> damage;
+    private final Object2FloatMap<AlembicDamageType> resistances;
+    private final Object2FloatMap<AlembicDamageType> damage;
 
-    private Set<DamageSourceIdentifier> ignoredSources;
+    private final Set<TagOrElements.Lazy<DamageType>> ignoredSourcesRaw;
 
-    public AlembicEntityStats(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<DamageSourceIdentifier> ignoredSources) {
+    public AlembicEntityStats(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<TagOrElements.Lazy<DamageType>> ignoredSourcesRaw) {
         this.entityType = entityType;
         this.priority = priority;
         this.resistances = resistances;
         this.damage = damageTypes;
-        this.ignoredSources = ignoredSources;
+        this.ignoredSourcesRaw = ignoredSourcesRaw;
     }
 
     public EntityType<?> getEntityType() {
         return entityType;
     }
 
-    public Set<DamageSourceIdentifier> getIgnoredSources() {
-        return ignoredSources;
+    public Set<TagOrElements.Lazy<DamageType>> getIgnoredSources() {
+        return ignoredSourcesRaw;
     }
 
     public int getPriority() {

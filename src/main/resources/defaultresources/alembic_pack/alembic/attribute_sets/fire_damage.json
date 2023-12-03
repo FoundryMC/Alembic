@@ -24,11 +24,9 @@
     "operation": "MULTIPLY_BASE",
     "vanilla_override": true,
     "immunities": [
-      "onFire",
-      "inFire",
-      "lava",
-      "soulFire",
-      "hotFloor"
+      "#alembic:is_fire_only",
+      "minecraft:lava",
+      "alembic:soul_fire"
     ],
     "color": "#E49A3A",
     "max_level": 2

@@ -16,7 +16,7 @@
                 "conditions": [
                     {
                         "condition_type": "alembic:damage_source",
-                        "damage_source": "FIRE"
+                        "damage_source": "#alembic:is_fire_only"
                     }
                 ]
             }
@@ -33,10 +33,10 @@
             "tag_type": "alembic:extend_fire_tag",
             "multiplier": 0.25,
             "ignored_sources": [
-                "inFire",
-                "onFire",
-                "lava",
-                "soulFire"
+                "minecraft:in_fire",
+                "minecraft:on_fire",
+                "minecraft:lava",
+                "alembic:soul_fire"
             ]
         }
     ]

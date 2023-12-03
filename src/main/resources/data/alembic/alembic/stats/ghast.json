@@ -13,6 +13,6 @@
     "physical_damage": 0.50
   },
   "ignored_sources": [
-    "inFire"
+    "minecraft:in_fire"
   ]
 }

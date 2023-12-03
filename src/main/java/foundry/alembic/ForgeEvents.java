@@ -33,6 +33,7 @@ import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,6 +51,11 @@ public class ForgeEvents {
 
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
+
+    @SubscribeEvent
+    static void onServerStarted(final ServerStartedEvent event) {
+        OverrideManager.setupOverrides(event.getServer().registryAccess());
+    }
 
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {

@@ -7,10 +7,16 @@ import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.CodecUtil;
-import foundry.alembic.damagesource.DamageSourceIdentifier;
+import foundry.alembic.util.TagOrElements;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.*;
@@ -22,7 +28,7 @@ public class AlembicPotionDataHolder {
                     Codec.FLOAT.fieldOf("value").forGetter(AlembicPotionDataHolder::getValue),
                     CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(AlembicPotionDataHolder::getOperation),
                     Codec.BOOL.optionalFieldOf("vanilla_override", false).forGetter(AlembicPotionDataHolder::isVanillaOverride),
-                    CodecUtil.setOf(DamageSourceIdentifier.EITHER_CODEC).optionalFieldOf("immunities", Set.of()).forGetter(dataHolder -> dataHolder.immunitiesEither),
+                    CodecUtil.setOf(TagOrElements.lazyCodec(Registries.DAMAGE_TYPE)).optionalFieldOf("immunities", Set.of()).forGetter(dataHolder -> dataHolder.immunitiesRaw),
                     Codec.INT.optionalFieldOf("max_level", 0).forGetter(AlembicPotionDataHolder::getMaxStrengthLevel),
                     Codec.INT.optionalFieldOf("base_duration", 0).forGetter(AlembicPotionDataHolder::getBaseDuration),
                     Codec.INT.optionalFieldOf("amplification_per_level", 0).forGetter(AlembicPotionDataHolder::getAmplifierPerLevel),
@@ -35,8 +41,8 @@ public class AlembicPotionDataHolder {
     private final AttributeModifier.Operation operation;
     private final float value;
     private final boolean vanillaOverride;
-    private final Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>> immunitiesEither;
-    private final Set<DamageSourceIdentifier> immunities;
+    private final Set<TagOrElements.Lazy<DamageType>> immunitiesRaw;
+    private Set<DamageType> immunities;
     private final int maxLevel;
     private final int baseDuration;
     private final int amplifierPerLevel;
@@ -51,8 +57,7 @@ public class AlembicPotionDataHolder {
         this.value = 0;
         this.operation = AttributeModifier.Operation.ADDITION;
         this.vanillaOverride = false;
-        this.immunitiesEither = Set.of();
-        this.immunities = Set.of();
+        this.immunitiesRaw = Set.of();
         this.maxLevel = 0;
         this.baseDuration = 0;
         this.amplifierPerLevel = 0;
@@ -62,17 +67,11 @@ public class AlembicPotionDataHolder {
         uuid = UUID.randomUUID();
     }
 
-    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, boolean vanillaOverride, Set<Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier>> immunities, int maxLevel, int baseDuration, int amplifierPerLevel, int maxAmplifier, int color, JsonElement rawRecipe) {
+    public AlembicPotionDataHolder(float value, AttributeModifier.Operation operation, boolean vanillaOverride, Set<TagOrElements.Lazy<DamageType>> immunities, int maxLevel, int baseDuration, int amplifierPerLevel, int maxAmplifier, int color, JsonElement rawRecipe) {
         this.value = value;
         this.operation = operation;
         this.vanillaOverride = vanillaOverride;
-        this.immunitiesEither = immunities;
-        ImmutableSet.Builder<DamageSourceIdentifier> setBuilder = ImmutableSet.builder();
-        for (Either<DamageSourceIdentifier.DefaultWrappedSource, DamageSourceIdentifier> either : immunities) {
-            either.ifLeft(defaultWrappedSource -> setBuilder.addAll(defaultWrappedSource.getIdentifiers()))
-                  .ifRight(setBuilder::add);
-        }
-        this.immunities = setBuilder.build();
+        this.immunitiesRaw = immunities;
         this.maxLevel = maxLevel;
         this.baseDuration = baseDuration;
         this.amplifierPerLevel = amplifierPerLevel;
@@ -98,8 +97,8 @@ public class AlembicPotionDataHolder {
         return vanillaOverride;
     }
 
-    public Set<DamageSourceIdentifier> getImmunities(){
-        return immunities;
+    public Set<TagOrElements.Lazy<DamageType>> getImmunities() {
+        return immunitiesRaw;
     }
 
     public int getMaxStrengthLevel() {

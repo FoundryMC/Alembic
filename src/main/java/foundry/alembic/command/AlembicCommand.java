@@ -3,7 +3,6 @@ package foundry.alembic.command;
 import com.google.common.collect.Multimap;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import foundry.alembic.damagesource.DamageSourceIdentifier;
 import foundry.alembic.items.ItemStat;
 import foundry.alembic.items.ItemStatManager;
 import foundry.alembic.items.slots.EquipmentSlotType;
@@ -16,6 +15,7 @@ import foundry.alembic.types.DamageTypeManager;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.item.Item;
 
 import java.io.File;
@@ -57,7 +57,7 @@ public class AlembicCommand {
                         }))
                 .then(Commands.literal("overrides")
                         .executes((context) -> {
-                            Map<DamageSourceIdentifier, AlembicOverride> overrides = OverrideManager.getOverrides();
+                            Map<DamageType, AlembicOverride> overrides = OverrideManager.getOverrides();
                             // write all damage types to a file
                             Path writer = null;
                             try {
@@ -68,7 +68,7 @@ public class AlembicCommand {
                                 }
                                 writer = Paths.get("./alembic/overrides.txt");
                                 List<String> lines = new ArrayList<>();
-                                for (Map.Entry<DamageSourceIdentifier, AlembicOverride> entry : overrides.entrySet()) {
+                                for (Map.Entry<DamageType, AlembicOverride> entry : overrides.entrySet()) {
                                     lines.add(entry.getKey().toString() + " -> " + entry.getValue().getId().toString());
                                 }
                                 Files.write(writer, lines);

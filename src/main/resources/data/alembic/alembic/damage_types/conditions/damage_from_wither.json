@@ -7,11 +7,11 @@
     },
     {
       "condition_type": "alembic:damage_source",
-      "damage_source": "witherSkull"
+      "damage_source": "minecraft:wither_skull"
     },
     {
       "condition_type": "alembic:damage_source",
-      "damage_source": "WITHER"
+      "damage_source": "minecraft:wither"
     }
   ]
 }

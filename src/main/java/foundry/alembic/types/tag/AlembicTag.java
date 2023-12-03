@@ -1,10 +1,12 @@
 package foundry.alembic.types.tag;
 
 import com.mojang.serialization.Codec;
+import foundry.alembic.Alembic;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.types.tag.condition.conditions.ReferenceCondition;
 import foundry.alembic.util.ComposedData;
+import foundry.alembic.util.ComposedDataTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -36,7 +38,12 @@ public interface AlembicTag {
     default void tick(LivingEntity entity, ServerLevel level) {/* TODO: implement? */}
 
     default boolean testConditions(ComposedData data) {
-        return getConditions().stream().allMatch(tagCondition -> tagCondition.test(data));
+        try {
+            return getConditions().stream().allMatch(tagCondition -> tagCondition.test(data));
+        } catch (IllegalStateException e) {
+            Alembic.LOGGER.error("An exception occurred while testing conditions for {}. Error: {}", data.get(ComposedDataTypes.DAMAGE_TYPE).getId(), e);
+            return false;
+        }
     }
 
     List<TagCondition> getConditions();

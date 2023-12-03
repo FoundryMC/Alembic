@@ -21,7 +21,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeData, Set<EquipmentSlotType> equipmentSlots) {
+public record ItemStat(TagOrElements.Immediate<Item> items, List<ItemModifier> attributeData, Set<EquipmentSlotType> equipmentSlots) {
     public static final Codec<ItemStat> CODEC = RecordCodecBuilder.create(itemStatInstance ->
             itemStatInstance.group(
                     TagOrElements.codec(BuiltInRegistries.ITEM).fieldOf("id").forGetter(ItemStat::items),

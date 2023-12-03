@@ -12,8 +12,8 @@
     "physical_damage": 1.0
   },
   "ignored_sources": [
-  "lava",
-  "inFire",
-  "onFire"
+  "minecraft:lava",
+  "minecraft:in_fire",
+  "minecraft:on_fire"
   ]
 }
