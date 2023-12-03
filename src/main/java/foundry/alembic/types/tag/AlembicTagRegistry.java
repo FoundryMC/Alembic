@@ -34,6 +34,10 @@ public class AlembicTagRegistry {
         return TAGS.containsKey(id);
     }
 
+    public static String getRegisteredName(AlembicTagType<?> type) {
+        return TAGS.inverse().get(type).toString();
+    }
+
     public static Set<ResourceLocation> getRegisteredTags() {
         return Collections.unmodifiableSet(TAGS.keySet());
     }

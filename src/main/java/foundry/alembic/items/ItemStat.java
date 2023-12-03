@@ -78,4 +78,20 @@ public record ItemStat(TagOrElements<Item> items, List<ItemModifier> attributeDa
 
         public abstract void remove(Attribute attribute);
     }
+
+    public String toString() {
+        StringBuilder items = new StringBuilder();
+        for (Item item : this.items.getElements()) {
+            items.append(item.getDefaultInstance().getDisplayName().getString()).append(", ");
+        }
+        StringBuilder slots = new StringBuilder();
+        for (EquipmentSlotType slot : equipmentSlots) {
+            slots.append(slot.getName()).append(", ");
+        }
+        return "ItemStat{" +
+                "items=" + items +
+                ", attributeData=" + attributeData +
+                ", equipmentSlots=" + slots +
+                '}';
+    }
 }

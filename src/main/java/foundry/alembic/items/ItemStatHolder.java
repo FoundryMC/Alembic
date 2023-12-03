@@ -26,6 +26,10 @@ public class ItemStatHolder {
         });
     }
 
+    public Map<Item, Multimap<EquipmentSlotType, ItemStat>> get() {
+        return Collections.unmodifiableMap(stats);
+    }
+
     public void clear() {
         stats.clear();
     }

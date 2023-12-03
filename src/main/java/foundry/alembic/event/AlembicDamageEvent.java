@@ -6,11 +6,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.eventbus.api.Event;
 
 public class AlembicDamageEvent extends Event {
-    public LivingEntity target;
-    public LivingEntity attacker;
-    public AlembicDamageType damageType;
-    public float damage;
-    public float resistance;
+    private LivingEntity target;
+    private LivingEntity attacker;
+    private AlembicDamageType damageType;
+    private float damage;
+    private float resistance;
 
     public AlembicDamageEvent(LivingEntity target, LivingEntity attacker, AlembicDamageType damageType, float damage, float resistance) {
         this.target = target;

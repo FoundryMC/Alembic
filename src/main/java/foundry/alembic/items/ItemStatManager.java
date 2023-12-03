@@ -1,5 +1,6 @@
 package foundry.alembic.items;
 
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -26,6 +27,10 @@ public class ItemStatManager extends ConditionalJsonResourceReloadListener {
 
     public static Collection<ItemStat> getStats(Item item, EquipmentSlotType equipmentSlotType) {
         return HOLDER.get(item, equipmentSlotType);
+    }
+
+    public static Map<Item, Multimap<EquipmentSlotType, ItemStat>> getStats() {
+        return HOLDER.get();
     }
 
     public static boolean hasStats(Item item) {

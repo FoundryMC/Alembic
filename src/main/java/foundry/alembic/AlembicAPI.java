@@ -18,6 +18,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -28,8 +29,8 @@ import javax.annotation.Nullable;
 public class AlembicAPI {
 
     public static final ResourceKey<DamageType> SOUL_FIRE = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("soul_fire"));
-    public static DamageSource soulFire(Entity entity){
-        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SOUL_FIRE), entity);
+    public static DamageSource soulFire(Entity entity, Level level){
+        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SOUL_FIRE), entity);
     }
     public static final ResourceKey<DamageType> ALCHEMICAL = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("alchemical"));
     public static DamageSource alchemical(Entity entity){

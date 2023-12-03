@@ -1,6 +1,8 @@
 package foundry.alembic.asm;
 
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
+import foundry.alembic.Alembic;
+import net.minecraftforge.fml.loading.LoadingModList;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -21,6 +23,10 @@ public class AlembicMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if(LoadingModList.get().getMods().stream().anyMatch(modInfo -> modInfo.getModId().contains("soulfire")) && mixinClassName.contains("Render")) {
+            Alembic.LOGGER.warn("Soulfire-enhancing mods are present, disabling Alembic's soulfire mixins.");
+            return false;
+        }
         return true;
     }
 
