@@ -1,7 +1,5 @@
 package foundry.alembic;
 
-import com.google.common.collect.*;
-import com.mojang.datafixers.util.Pair;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
@@ -9,7 +7,7 @@ import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.items.*;
 import foundry.alembic.items.slots.VanillaSlotType;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.resistances.ResistanceManager;
+import foundry.alembic.stats.StatsManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
@@ -26,15 +24,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -46,7 +37,6 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.*;
@@ -107,7 +97,7 @@ public class ForgeEvents {
     static void onJsonListener(AddReloadListenerEvent event) {
         event.addListener(new DamageTypeManager(event.getConditionContext()));
         event.addListener(new OverrideManager(event.getConditionContext()));
-        event.addListener(new ResistanceManager(event.getConditionContext()));
+        event.addListener(new StatsManager(event.getConditionContext()));
         event.addListener(new ItemStatManager(event.getConditionContext()));
         event.addListener(new ShieldStatManager(event.getConditionContext()));
     }
@@ -173,7 +163,7 @@ public class ForgeEvents {
                     });
             if(event.getDamageSource().getDirectEntity() != null){
                 if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
-                    ResistanceManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
+                    StatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
                         float damagePart = event.getBlockedDamage() * aFloat;
 
                         RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();

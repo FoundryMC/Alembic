@@ -32,7 +32,8 @@
       "particle_options": {
         "type": "alembic:arcane_damage"
       },
-      "conditions": "alembic:damage_from_player"
+      "conditions": "alembic:damage_from_player",
+      "scale_with_damage": true
     },
     {
       "tag_type": "alembic:per_level_tag",

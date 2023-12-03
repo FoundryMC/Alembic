@@ -26,7 +26,10 @@ public class AttributeSet {
                     DATA_OR_REGISTERED.fieldOf("shielding_attribute").forGetter(attributeSet -> attributeSet.shielding),
                     DATA_OR_REGISTERED.fieldOf("absorption_attribute").forGetter(attributeSet -> attributeSet.absorption),
                     DATA_OR_REGISTERED.fieldOf("resistance_attribute").forGetter(attributeSet -> attributeSet.resistance),
-                    AlembicPotionDataHolder.CODEC.optionalFieldOf("resistance_potion", AlembicPotionDataHolder.EMPTY).forGetter(attributeSet -> attributeSet.potionDataHolder)
+                    AlembicPotionDataHolder.CODEC.optionalFieldOf("resistance_potion", AlembicPotionDataHolder.EMPTY).forGetter(attributeSet -> attributeSet.potionDataHolder),
+                    Codec.FLOAT.optionalFieldOf("shielding_ignore", 0.0f).forGetter(attributeSet -> attributeSet.shieldingIgnore),
+                    Codec.FLOAT.optionalFieldOf("absorption_ignore", 0.0f).forGetter(attributeSet -> attributeSet.absorptionIgnore),
+                    Codec.FLOAT.optionalFieldOf("resistance_ignore", 0.0f).forGetter(attributeSet -> attributeSet.resistanceIgnore)
             ).apply(instance, AttributeSet::new)
     );
 
@@ -35,17 +38,24 @@ public class AttributeSet {
     private final Either<RangedAttributeData, Holder<Attribute>> absorption;
     private final Either<RangedAttributeData, Holder<Attribute>> resistance;
     private final AlembicPotionDataHolder potionDataHolder;
+    private final float shieldingIgnore;
+    private final float absorptionIgnore;
+    private final float resistanceIgnore;
 
     public AttributeSet(Either<RangedAttributeData, Holder<Attribute>> damage,
                         Either<RangedAttributeData, Holder<Attribute>> shielding,
                         Either<RangedAttributeData, Holder<Attribute>> absorption,
                         Either<RangedAttributeData, Holder<Attribute>> resistance,
-                        AlembicPotionDataHolder potionDataHolder) {
+                        AlembicPotionDataHolder potionDataHolder, float shieldingIgnore,
+                        float absorptionIgnore, float resistanceIgnore) {
         this.damage = damage;
         this.shielding = shielding;
         this.absorption = absorption;
         this.resistance = resistance;
         this.potionDataHolder = potionDataHolder;
+        this.shieldingIgnore = 1.0f - shieldingIgnore;
+        this.absorptionIgnore = 1.0f - absorptionIgnore;
+        this.resistanceIgnore = 1.0f - resistanceIgnore;
     }
 
     Optional<RangedAttributeData> getDamageData() {
@@ -62,6 +72,18 @@ public class AttributeSet {
 
     Optional<RangedAttributeData> getResistanceData() {
         return resistance.left();
+    }
+
+    public float getShieldingIgnore() {
+        return shieldingIgnore;
+    }
+
+    public float getAbsorptionIgnore() {
+        return absorptionIgnore;
+    }
+
+    public float getResistanceIgnore() {
+        return resistanceIgnore;
     }
 
     @ApiStatus.Internal

@@ -20,7 +20,8 @@
       "particle_options": {
         "type": "alembic:alchemical_damage"
       },
-      "conditions": "alembic:damage_from_player"
+      "conditions": "alembic:damage_from_player",
+      "scale_with_damage": true
     },
     {
       "tag_type": "alembic:hunger_tag",

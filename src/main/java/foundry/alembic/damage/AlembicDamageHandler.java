@@ -12,8 +12,8 @@ import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.resistances.AlembicEntityStats;
-import foundry.alembic.resistances.ResistanceManager;
+import foundry.alembic.stats.AlembicEntityStats;
+import foundry.alembic.stats.StatsManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.tag.AlembicTagRegistry;
@@ -74,7 +74,7 @@ public class AlembicDamageHandler {
             totalDamage -= damageOffset;
             int time = target.invulnerableTime;
             target.invulnerableTime = 0;
-            float fudge = 0.0001f;
+            float fudge = AlembicConfig.enableCompatFudge.get() ? 0.0001f : 0.0f;
             if (totalDamage + fudge >= fudge) {
                 target.hurt(entitySource(attacker), totalDamage + fudge);
             }
@@ -97,8 +97,9 @@ public class AlembicDamageHandler {
     }
 
     private static float handleLivingEntityDamage(LivingEntity target, LivingEntity attacker, float originalDamage, DamageSource originalSource) {
-        AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
-        AlembicEntityStats attackerStats = ResistanceManager.get(attacker.getType());
+        AlembicEntityStats targetStats = StatsManager.get(target.getType());
+        AlembicEntityStats attackerStats = StatsManager.get(attacker.getType());
+        if(attackerStats == null) return 0;
         MutableFloat total = new MutableFloat();
         Object2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
         Object2FloatMap<AlembicDamageType> finalTypedDamage = new Object2FloatOpenHashMap<>();
@@ -119,7 +120,7 @@ public class AlembicDamageHandler {
             } else {
                 resistanceModifier = 1 - (resistanceModifier - 1);
             }
-            float reducedDamage = damage * resistanceModifier;
+            float reducedDamage = damage * (resistanceModifier * damageType.getResistanceIgnore());
             if (damage < 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for " + damageType.getId().toString());
                 return;
@@ -132,7 +133,7 @@ public class AlembicDamageHandler {
 
     private static float handlePlayerDamage(LivingEntity target, Player attacker, float originalDamage, DamageSource originalSource) {
         float totalTypedDamage = 0f;
-        AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
+        AlembicEntityStats targetStats = StatsManager.get(target.getType());
         for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
             Alembic.printInDebug(() -> "Handling damage type: " + damageType.getId() + "for player " + attacker.getDisplayName().getString());
             if (!attacker.getAttributes().hasAttribute(damageType.getAttribute())) continue;
@@ -145,10 +146,10 @@ public class AlembicDamageHandler {
                 }
                 damageAttributeValue *= attacker.getAttackStrengthScale(0.5f);
                 float resMod = getResistanceForType(damageType, target, targetStats).getSecond();
-                if (resMod < 1) {
+                if (resMod <= 1) {
                     resMod = 1 + (1 - resMod);
                 } else {
-                    resMod = 1 - (resMod - 1);
+                    resMod = 1 - ((resMod - 1) * damageType.getResistanceIgnore());
                 }
                 damageAttributeValue *= resMod;
                 AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, damageAttributeValue, targetResistance);
@@ -207,7 +208,7 @@ public class AlembicDamageHandler {
     private static void handleResistances(LivingEntity target, float totalDamage, AlembicDamageType damageType, DamageSource originalSource) {
         float attributeValue = 0;
         if (target.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
-            attributeValue = (float) target.getAttributeValue(damageType.getResistanceAttribute());
+            attributeValue = (float) target.getAttributeValue(damageType.getResistanceAttribute()) * damageType.getResistanceIgnore();
         }
         LivingEntity attacker = null;
         if (originalSource.getDirectEntity() instanceof LivingEntity livingEntity) {
