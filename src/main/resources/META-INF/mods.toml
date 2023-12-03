@@ -28,6 +28,7 @@ displayName="Alembic" #mandatory
 #displayURL="http://example.com/" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="alembic.png" #optional
+logoFile="logo.png"
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 # A text field displayed in the mod UI

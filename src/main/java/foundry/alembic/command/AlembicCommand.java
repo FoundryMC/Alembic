@@ -93,7 +93,7 @@ public class AlembicCommand {
                                 writer = Paths.get("./alembic/resistances.txt");
                                 List<String> lines = new ArrayList<>();
                                 for (AlembicEntityStats entry : overrides) {
-                                    lines.add(entry.getEntityType().toString() + " -> \n" + statsToString(entry.getDamage()));
+                                    lines.add(entry.getEntityType().toString() + " -> \n" + statsToString(entry.getResistances()));
                                 }
                                 Files.write(writer, lines);
                             } catch (IOException e) {
@@ -116,7 +116,7 @@ public class AlembicCommand {
                                 writer = Paths.get("./alembic/items.txt");
                                 List<String> lines = new ArrayList<>();
                                 for (Map.Entry<Item, Multimap<EquipmentSlotType, ItemStat>> entry : overrides.entrySet()) {
-                                    lines.add(entry.getKey().getDefaultInstance().getDisplayName().getString() + " -> \n" + entry.getValue().toString());
+                                    lines.add(entry.getKey().getDefaultInstance().getDisplayName().getString() + " -> \n" + formatItemStat(entry.getValue()));
                                 }
                                 Files.write(writer, lines);
                             } catch (IOException e) {
@@ -132,22 +132,16 @@ public class AlembicCommand {
     public static String statsToString(Object2FloatMap<AlembicDamageType> stats) {
         StringBuilder builder = new StringBuilder();
         for (Object2FloatMap.Entry<AlembicDamageType> entry : stats.object2FloatEntrySet()) {
-            builder.append(entry.getKey().getId().toString() + " -> " + entry.getFloatValue() + "\n");
+            builder.append(entry.getKey().getId().toString()).append(" -> ").append(entry.getFloatValue()).append("\n");
         }
-        // indent every line
-        builder.insert(0, "    ");
-        builder.replace(builder.indexOf("\n"), builder.length(), "\n    ");
         return builder.toString();
     }
 
     public static String formatItemStat(Multimap<EquipmentSlotType, ItemStat> stat) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<EquipmentSlotType, ItemStat> entry : stat.entries()) {
-            builder.append(entry.getKey().getName() + " -> " + entry.getValue().toString() + "\n");
+            builder.append(entry.getKey().getName()).append(" -> ").append(entry.getValue().toString()).append("\n");
         }
-        // indent every line
-        builder.insert(0, "    ");
-        builder.replace(builder.indexOf("\n"), builder.length(), "\n    ");
         return builder.toString();
     }
 }

@@ -132,6 +132,7 @@ public class AlembicDamageHandler {
 
     private static float handlePlayerDamage(LivingEntity target, Player attacker, float originalDamage, DamageSource originalSource) {
         float totalTypedDamage = 0f;
+        AlembicEntityStats targetStats = ResistanceManager.get(target.getType());
         for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
             Alembic.printInDebug(() -> "Handling damage type: " + damageType.getId() + "for player " + attacker.getDisplayName().getString());
             if (!attacker.getAttributes().hasAttribute(damageType.getAttribute())) continue;
@@ -143,6 +144,13 @@ public class AlembicDamageHandler {
                     targetResistance = (float) target.getAttributeValue(damageType.getResistanceAttribute());
                 }
                 damageAttributeValue *= attacker.getAttackStrengthScale(0.5f);
+                float resMod = getResistanceForType(damageType, target, targetStats).getSecond();
+                if (resMod < 1) {
+                    resMod = 1 + (1 - resMod);
+                } else {
+                    resMod = 1 - (resMod - 1);
+                }
+                damageAttributeValue *= resMod;
                 AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, damageAttributeValue, targetResistance);
                 MinecraftForge.EVENT_BUS.post(preEvent);
                 float damage = preEvent.getDamage();
