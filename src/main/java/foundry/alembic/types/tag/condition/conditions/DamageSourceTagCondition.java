@@ -26,7 +26,7 @@ public class DamageSourceTagCondition implements TagCondition {
 
     @Override
     public boolean test(ComposedData composedData) {
-        return damageSourcePredicate.matches(composedData.get(ComposedDataTypes.ORIGINAL_SOURCE));
+        return damageSourcePredicate.matches(composedData.get(ComposedDataTypes.SERVER_LEVEL), composedData.get(ComposedDataTypes.ORIGINAL_SOURCE));
     }
 
     @Nonnull

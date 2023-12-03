@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import foundry.alembic.Alembic;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -22,12 +23,12 @@ public abstract class ConditionalJsonResourceReloadListener extends SimplePrepar
 
     protected final ICondition.IContext context;
     protected final Gson gson;
-    protected final String directory;
+    protected final FileToIdConverter converter;
 
     public ConditionalJsonResourceReloadListener(ICondition.IContext conditionContext, Gson gson, String directory) {
         this.context = conditionContext;
         this.gson = gson;
-        this.directory = directory;
+        this.converter = FileToIdConverter.json(directory);
     }
 
     @Override
@@ -35,14 +36,14 @@ public abstract class ConditionalJsonResourceReloadListener extends SimplePrepar
         Map<ResourceLocation, JsonElement> retMap = new HashMap<>();
 
         // TODO: 1.20 replace with FileToIdConverter
-        for (Map.Entry<ResourceLocation, Resource> entry : pResourceManager.listResources(directory, resourceLocation -> resourceLocation.getPath().endsWith(".json")).entrySet()) {
-            ResourceLocation id = Utils.sanitize(entry.getKey(), directory + "/", ".json");
+        for (Map.Entry<ResourceLocation, Resource> entry : converter.listMatchingResources(pResourceManager).entrySet()) {
+            ResourceLocation id = converter.fileToId(entry.getKey());
             Resource resource = entry.getValue();
 
             try (BufferedReader reader = resource.openAsReader()) {
                 JsonElement jsonElement = GsonHelper.fromJson(gson, reader, JsonElement.class);
-                if (jsonElement == null) {
-                    Alembic.LOGGER.error("Couldn't load data file {} from {} as it's null or empty", id, entry.getKey());
+                if (jsonElement.isJsonNull() || (jsonElement.isJsonObject() && jsonElement.getAsJsonObject().size() == 0)) {
+                    Alembic.LOGGER.error("Skipping loading empty data file {} from {}", id, entry.getKey());
                     continue;
                 }
 
