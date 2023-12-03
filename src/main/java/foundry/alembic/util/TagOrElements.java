@@ -61,7 +61,7 @@ public abstract class TagOrElements<T> {
                     if (element == null) {
                         throw new IllegalStateException("Element is null for %s".formatted(tagOrElement));
                     }
-                    resolvedSet = Set.of();
+                    resolvedSet = Set.of(element);
                 }
             }
             return resolvedSet;

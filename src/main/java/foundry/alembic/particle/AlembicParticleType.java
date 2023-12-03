@@ -22,6 +22,8 @@ public class AlembicParticleType extends TextureSheetParticle {
         this.hasPhysics = false;
         this.spriteSet = pSprites;
         this.setSpriteFromAge(pSprites);
+        this.quadSize *= 0.75F;
+
     }
 
     public float getQuadSize(float pScaleFactor) {

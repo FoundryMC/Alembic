@@ -27,22 +27,25 @@ public class AlembicParticleTag extends AbstractTag {
                 instance.group(
                         ParticleTypes.CODEC.fieldOf("particle_options").forGetter(alembicParticleTag -> alembicParticleTag.particleOptions),
                         Codec.FLOAT.optionalFieldOf("particle_speed", 0.35f).forGetter(alembicParticleTag -> alembicParticleTag.particleSpeed),
-                        Codec.BOOL.optionalFieldOf("scale_with_damage", false).forGetter(alembicParticleTag -> alembicParticleTag.scaleWithDamage)
+                        Codec.BOOL.optionalFieldOf("scale_with_damage", false).forGetter(alembicParticleTag -> alembicParticleTag.scaleWithDamage),
+                        Codec.FLOAT.optionalFieldOf("scalar", 0.5f).forGetter(alembicParticleTag -> alembicParticleTag.scalar)
                 )
         ).apply(instance, AlembicParticleTag::new)
     );
     private final ParticleOptions particleOptions;
     private final float particleSpeed;
     private final boolean scaleWithDamage;
-    public AlembicParticleTag(List<TagCondition> conditions, ParticleOptions particleOptions, float particleSpeed, boolean scaleWithDamage) {
+    private final float scalar;
+    public AlembicParticleTag(List<TagCondition> conditions, ParticleOptions particleOptions, float particleSpeed, boolean scaleWithDamage, float scalar) {
         super(conditions);
         this.particleOptions = particleOptions;
         this.particleSpeed = particleSpeed;
         this.scaleWithDamage = scaleWithDamage;
+        this.scalar = scalar;
     }
 
     public AlembicParticleTag(ParticleOptions particleOptions) {
-        this(List.of(), particleOptions, 0.35f, false);
+        this(List.of(), particleOptions, 0.35f, false, 0.5f);
     }
 
 
@@ -53,6 +56,7 @@ public class AlembicParticleTag extends AbstractTag {
         ServerLevel level = data.get(ComposedDataTypes.SERVER_LEVEL);
         float particleCount = damage < 1 ? 1 : Math.min(15, damage)/2f;
         if(!scaleWithDamage) particleCount = 1;
+        particleCount = (int) Math.floor(particleCount * scalar);
         spawnParticle(level, particleOptions, entity, particleCount, particleSpeed);
     }
 
