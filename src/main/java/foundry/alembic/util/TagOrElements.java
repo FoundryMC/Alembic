@@ -57,7 +57,11 @@ public abstract class TagOrElements<T> {
                 if (tagOrElement.tag()) {
                     resolvedSet = registry.getOrCreateTag(TagKey.create(getRegistryKey(), tagOrElement.id())).stream().map(Holder::get).collect(Collectors.toSet());
                 } else {
-                    resolvedSet = Set.of(registry.get(tagOrElement.id()));
+                    T element = registry.get(tagOrElement.id());
+                    if (element == null) {
+                        throw new IllegalStateException("Element is null for %s".formatted(tagOrElement));
+                    }
+                    resolvedSet = Set.of();
                 }
             }
             return resolvedSet;
@@ -83,7 +87,11 @@ public abstract class TagOrElements<T> {
                 if (tagOrElement.tag()) {
                     resolvedSet = registry.getOrCreateTag(TagKey.create(registryKey, tagOrElement.id())).stream().map(Holder::get).collect(Collectors.toSet());
                 } else {
-                    resolvedSet = Set.of(registry.get(tagOrElement.id()));
+                    T element = registry.get(tagOrElement.id());
+                    if (element == null) {
+                        throw new IllegalStateException("Element is null for %s".formatted(tagOrElement));
+                    }
+                    resolvedSet = Set.of(element);
                 }
             }
             return resolvedSet;

@@ -1,4 +1,4 @@
 {
   "condition_type": "alembic:damage_source",
-  "damage_source": "minecraft:player"
+  "damage_source": "minecraft:player_attack"
 }
