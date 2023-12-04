@@ -157,4 +157,9 @@ public class AlembicDamageType {
         this.attributeSet = AttributeSetRegistry.getValue(id);
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }
+
+    @Override
+    public String toString() {
+        return id.toString();
+    }
 }
