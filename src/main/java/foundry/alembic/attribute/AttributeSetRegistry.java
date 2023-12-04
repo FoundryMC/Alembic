@@ -102,7 +102,7 @@ public class AttributeSetRegistry {
                 String descId = AlembicTypeModifier.ABSORPTION.getTranslationId(id.toLanguageKey("attribute"));
                 deferredRegister.register(regId, () -> createFromData(descId, data));
             });
-            set.getAbsorptionData().ifPresent(data -> {
+            set.getResistanceData().ifPresent(data -> {
                 String regId = AlembicTypeModifier.RESISTANCE.getTranslationId(id.getPath());
                 String descId = AlembicTypeModifier.RESISTANCE.getTranslationId(id.toLanguageKey("attribute"));
                 deferredRegister.register(regId, () -> createFromData(descId, data));

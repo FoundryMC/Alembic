@@ -4,7 +4,6 @@ import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
 import foundry.alembic.event.AlembicFoodChangeEvent;
-import foundry.alembic.items.*;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.shield.ShieldBlockStat;
 import foundry.alembic.stats.shield.ShieldStatManager;
@@ -193,7 +192,6 @@ public class ForgeEvents {
 
     public static boolean isBeingDamaged = false;
 
-    // TODO: note/2
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void hurt(final LivingHurtEvent event) {
         LivingEntity target = event.getEntity();
@@ -207,7 +205,7 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    static void onEffect(MobEffectEvent event){
+    static void onEffect(MobEffectEvent event) {
         if (event.getEffectInstance() == null) return;
         AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 * (1 + event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
         if (event instanceof MobEffectEvent.Added) {
