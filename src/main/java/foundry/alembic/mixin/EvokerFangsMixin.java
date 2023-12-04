@@ -13,6 +13,6 @@ public class EvokerFangsMixin {
 
     @Redirect(method = "dealDamageTo", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", ordinal = 0))
     private boolean alembic$evokerFangsDamage(LivingEntity entity, DamageSource source, float amount) {
-        return entity.hurt(AlembicAPI.evokerFangs(entity), amount);
+        return entity.hurt(AlembicAPI.evokerFangs(source.getDirectEntity(), source.getEntity(), entity.level()), amount);
     }
 }

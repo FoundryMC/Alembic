@@ -29,27 +29,27 @@ import javax.annotation.Nullable;
 public class AlembicAPI {
 
     public static final ResourceKey<DamageType> SOUL_FIRE = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("soul_fire"));
-    public static DamageSource soulFire(Entity entity, Level level){
-        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SOUL_FIRE), entity);
+    public static DamageSource soulFire(Entity directEntity, Entity causingEntity, Level level){
+        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SOUL_FIRE), directEntity, causingEntity);
     }
     public static final ResourceKey<DamageType> ALCHEMICAL = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("alchemical"));
-    public static DamageSource alchemical(Entity entity){
-        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(ALCHEMICAL), entity);
+    public static DamageSource alchemical(Entity directEntity, Entity causingEntity, Level level){
+        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(ALCHEMICAL), directEntity, causingEntity);
     }
 
     public static final ResourceKey<DamageType> EVOKER_FANGS = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("evoker_fangs"));
-    public static DamageSource evokerFangs(Entity entity){
-        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(EVOKER_FANGS), entity);
+    public static DamageSource evokerFangs(Entity directEntity, Entity causingEntity, Level level){
+        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(EVOKER_FANGS), directEntity, causingEntity);
     }
 
     public static final ResourceKey<DamageType> GUARDIAN_BEAM = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("guardian_beam"));
-    public static DamageSource guardianBeam(Entity entity){
-        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUARDIAN_BEAM), entity);
+    public static DamageSource guardianBeam(Entity directEntity, Entity causingEntity, Level level){
+        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUARDIAN_BEAM), directEntity, causingEntity);
     }
 
     public static final ResourceKey<DamageType> ALLERGY = ResourceKey.create(Registries.DAMAGE_TYPE, Alembic.location("allergy"));
-    public static DamageSource allergy(Entity entity){
-        return new DamageSource(entity.level().registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(ALLERGY), entity);
+    public static DamageSource allergy(Entity directEntity, Entity causingEntity, Level level){
+        return new DamageSource(level.registryAccess().registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(ALLERGY), directEntity, causingEntity);
     }
     /**
      * Registration method for alembic tag conditions. Create a tag condition to handle any needed conditional logic,

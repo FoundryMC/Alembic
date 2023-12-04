@@ -21,7 +21,7 @@ public abstract class BaseFireBlockMixin {
         if (pState.is(Blocks.SOUL_FIRE)) {
             AlembicPacketHandler.sendFirePacket(instance, "soul");
             instance.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("soul"));
-            return instance.hurt(AlembicAPI.soulFire(pSource.getDirectEntity(), instance.level()), pAmount);
+            return instance.hurt(AlembicAPI.soulFire(pSource.getDirectEntity(), pSource.getEntity(), instance.level()), pAmount);
         } else {
             AlembicPacketHandler.sendFirePacket(instance, "normal");
             instance.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent(cap -> cap.setFireType("normal"));
