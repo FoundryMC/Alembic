@@ -56,7 +56,7 @@ public class AlembicParticleTag extends AbstractTag {
         float damage = data.get(ComposedDataTypes.FINAL_DAMAGE);
         ServerLevel level = data.get(ComposedDataTypes.SERVER_LEVEL);
         float particleCount = damage < 1 ? 1 : Math.min(15, damage)/2f;
-        if(!scaleWithDamage) particleCount = (int) Math.ceil(1 * scalar);
+        if(!scaleWithDamage) particleCount = 1;
         particleCount = (int) Math.floor(particleCount * scalar);
         spawnParticle(level, particleOptions, entity, particleCount, particleSpeed);
     }
