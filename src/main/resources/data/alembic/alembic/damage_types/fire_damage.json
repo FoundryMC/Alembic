@@ -13,13 +13,7 @@
                 "scalar": 2,
                 "particle_options": {
                     "type": "minecraft:flame"
-                },
-                "conditions": [
-                    {
-                        "condition_type": "alembic:damage_source",
-                        "damage_source": "#alembic:is_fire_only"
-                    }
-                ]
+                }
             }
         },
         {
