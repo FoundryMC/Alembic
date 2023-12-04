@@ -4,7 +4,6 @@ import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
 import foundry.alembic.event.AlembicFoodChangeEvent;
-import foundry.alembic.items.*;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.shield.ShieldBlockStat;
 import foundry.alembic.stats.shield.ShieldStatManager;
