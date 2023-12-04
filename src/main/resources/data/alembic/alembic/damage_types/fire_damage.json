@@ -10,6 +10,7 @@
             "else": {
                 "tag_type": "alembic:particle_tag",
                 "particle_speed": 0.05,
+                "scalar": 2,
                 "particle_options": {
                     "type": "minecraft:flame"
                 },

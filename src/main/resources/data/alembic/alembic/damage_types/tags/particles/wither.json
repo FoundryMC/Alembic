@@ -1,6 +1,7 @@
 {
   "tag_type": "alembic:particle_tag",
   "particle_speed": 0.2,
+  "scalar": 3,
   "particle_options": {
     "type": "alembic:wither_decay"
   },

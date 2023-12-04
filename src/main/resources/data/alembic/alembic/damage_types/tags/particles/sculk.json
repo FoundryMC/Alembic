@@ -1,6 +1,7 @@
 {
   "tag_type": "alembic:particle_tag",
   "particle_speed": 0.25,
+  "scalar": 4,
   "particle_options": {
     "type": "alembic:sculk_hit"
   },
