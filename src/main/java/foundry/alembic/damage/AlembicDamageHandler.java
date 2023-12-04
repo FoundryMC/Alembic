@@ -26,6 +26,8 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -142,6 +144,7 @@ public class AlembicDamageHandler {
             Alembic.printInDebug(() -> "Attacker has attribute: " + damageType.getAttribute().getDescriptionId());
             float damageAttributeValue = (float) attacker.getAttributeValue(damageType.getAttribute());
             if (damageAttributeValue > 0) {
+                totalTypedDamage += damageAttributeValue;
                 float targetResistance = 0f;
                 if (target.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
                     targetResistance = (float) target.getAttributeValue(damageType.getResistanceAttribute());
@@ -163,7 +166,6 @@ public class AlembicDamageHandler {
                 handleResistances(target, damage, damageType, originalSource);
                 AlembicDamageEvent.Post postEvent = new AlembicDamageEvent.Post(target, attacker, damageType, damage, targetResistance);
                 MinecraftForge.EVENT_BUS.post(postEvent);
-                totalTypedDamage += postEvent.getDamage();
             }
         }
         return totalTypedDamage;

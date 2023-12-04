@@ -2,6 +2,7 @@ package foundry.alembic.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import foundry.alembic.Alembic;
 import foundry.alembic.AlembicAPI;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,6 +16,7 @@ public class MobEffectMixin {
 
     @WrapOperation(method = "applyEffectTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", ordinal = 0))
     private boolean alembic$poisonHurt(LivingEntity livingEntity, net.minecraft.world.damagesource.DamageSource damageSource, float amount, Operation<Boolean> original) {
+        Alembic.printInDebug(() -> "Poisoning " + livingEntity);
         return livingEntity.hurt(AlembicAPI.alchemical(livingEntity), amount);
     }
 
