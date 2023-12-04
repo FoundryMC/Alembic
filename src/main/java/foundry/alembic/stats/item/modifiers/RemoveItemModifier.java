@@ -1,9 +1,8 @@
-package foundry.alembic.items.modifiers;
+package foundry.alembic.stats.item.modifiers;
 
 import com.mojang.serialization.Codec;
-import foundry.alembic.items.ItemModifierType;
-import foundry.alembic.items.ItemStat;
-import net.minecraft.core.Registry;
+import foundry.alembic.stats.item.ItemModifierType;
+import foundry.alembic.stats.item.ItemStat;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 

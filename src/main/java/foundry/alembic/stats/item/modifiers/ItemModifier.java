@@ -1,8 +1,8 @@
-package foundry.alembic.items.modifiers;
+package foundry.alembic.stats.item.modifiers;
 
 import com.mojang.serialization.Codec;
-import foundry.alembic.items.ItemModifierType;
-import foundry.alembic.items.ItemStat;
+import foundry.alembic.stats.item.ItemModifierType;
+import foundry.alembic.stats.item.ItemStat;
 import foundry.alembic.util.CodecUtil;
 
 public sealed interface ItemModifier permits AppendItemModifier, RemoveItemModifier, ReplaceItemModifier {

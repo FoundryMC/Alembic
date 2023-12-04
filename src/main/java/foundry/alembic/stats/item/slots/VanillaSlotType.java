@@ -1,16 +1,16 @@
-package foundry.alembic.items.slots;
+package foundry.alembic.stats.item.slots;
 
 import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 
-public record CustomSlotType(String customName) implements EquipmentSlotType {
+public record VanillaSlotType(EquipmentSlot slot) implements EquipmentSlotType {
     @Override
     public @Nullable EquipmentSlot getVanillaSlot() {
-        return null;
+        return slot;
     }
 
     @Override
     public String getName() {
-        return customName;
+        return slot.getName();
     }
 }

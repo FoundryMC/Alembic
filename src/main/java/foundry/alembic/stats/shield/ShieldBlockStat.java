@@ -1,13 +1,9 @@
-package foundry.alembic.items;
+package foundry.alembic.stats.shield;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.util.CodecUtil;
-import foundry.alembic.util.TagOrElements;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;

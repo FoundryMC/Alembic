@@ -1,6 +1,5 @@
-package foundry.alembic.items;
+package foundry.alembic.stats.shield;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -13,7 +12,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.common.loot.CanToolPerformAction;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package foundry.alembic.stats;
+package foundry.alembic.stats.entity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

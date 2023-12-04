@@ -1,12 +1,10 @@
-package foundry.alembic.items.modifiers;
+package foundry.alembic.stats.item.modifiers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.items.ItemModifierType;
-import foundry.alembic.items.ItemStat;
+import foundry.alembic.stats.item.ItemModifierType;
+import foundry.alembic.stats.item.ItemStat;
 import foundry.alembic.util.CodecUtil;
-import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;

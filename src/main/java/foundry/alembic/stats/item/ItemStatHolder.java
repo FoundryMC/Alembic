@@ -1,8 +1,8 @@
-package foundry.alembic.items;
+package foundry.alembic.stats.item;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import foundry.alembic.items.slots.EquipmentSlotType;
+import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.item.Item;
 

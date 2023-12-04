@@ -1,4 +1,4 @@
-package foundry.alembic.stats;
+package foundry.alembic.stats.entity;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
@@ -19,7 +19,7 @@ public class StatsManager extends ConditionalJsonResourceReloadListener {
     private static final Map<EntityType<?>, AlembicEntityStats> RESISTANCE_MAP = new Reference2ObjectOpenHashMap<>();
 
     public StatsManager(ICondition.IContext conditionContext) {
-        super(conditionContext, Utils.GSON, "alembic/stats");
+        super(conditionContext, Utils.GSON, "alembic/entity_stats");
     }
 
     public static Collection<AlembicEntityStats> getValuesView() {

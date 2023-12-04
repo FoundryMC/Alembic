@@ -1,10 +1,10 @@
-package foundry.alembic.items;
+package foundry.alembic.stats.item;
 
 import com.mojang.serialization.Codec;
-import foundry.alembic.items.modifiers.AppendItemModifier;
-import foundry.alembic.items.modifiers.ItemModifier;
-import foundry.alembic.items.modifiers.RemoveItemModifier;
-import foundry.alembic.items.modifiers.ReplaceItemModifier;
+import foundry.alembic.stats.item.modifiers.AppendItemModifier;
+import foundry.alembic.stats.item.modifiers.ItemModifier;
+import foundry.alembic.stats.item.modifiers.RemoveItemModifier;
+import foundry.alembic.stats.item.modifiers.ReplaceItemModifier;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.function.Supplier;

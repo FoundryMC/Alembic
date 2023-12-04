@@ -1,4 +1,4 @@
-package foundry.alembic.items;
+package foundry.alembic.stats.item;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;

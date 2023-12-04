@@ -1,4 +1,4 @@
-package foundry.alembic.items.slots;
+package foundry.alembic.stats.item.slots;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
