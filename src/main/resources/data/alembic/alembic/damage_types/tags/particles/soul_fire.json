@@ -14,7 +14,7 @@
         },
         {
           "condition_type": "alembic:damage_source",
-          "indirect_entity": {
+          "direct_entity": {
             "held_item": "minecraft:soul_torch"
           }
         }
