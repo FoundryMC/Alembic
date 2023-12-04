@@ -33,7 +33,7 @@
   "alembic:true_damage": "Danno puro",
   
   "effect.alembic.fire": "Fuoco",
-  "effect.alembic.soul_fire": "Fuoco dell'anima",
+  "effect.alembic.soul_fire": "Fuoco spettrale",
   "effect.alembic.frostbite": "Assideramento",
 
   "death.attack.soulFire": "%s è stato incenerito da delle fiamme spettrali",
