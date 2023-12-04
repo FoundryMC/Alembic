@@ -1,0 +1,16 @@
+{
+  "textures": [
+    "alembic:redstone_spark_0",
+	"alembic:redstone_spark_1",
+	"alembic:redstone_spark_2",
+	"alembic:redstone_spark_3",
+	"alembic:redstone_spark_dark_0",
+	"alembic:redstone_spark_dark_1",
+	"alembic:redstone_spark_dark_2",
+	"alembic:redstone_spark_dark_3",
+	"alembic:redstone_spark_light_0",
+	"alembic:redstone_spark_light_1",
+	"alembic:redstone_spark_light_2",
+	"alembic:redstone_spark_light_3"
+  ]
+}
