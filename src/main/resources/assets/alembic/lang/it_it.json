@@ -33,8 +33,10 @@
   "alembic:true_damage": "Danno puro",
   
   "effect.alembic.fire": "Fuoco",
-  "effect.alembic.soul_fire": "Fuoco dell'anima",
+  "effect.alembic.soul_fire": "Fuoco spettrale",
   "effect.alembic.frostbite": "Assideramento",
+
+  "death.attack.soulFire": "%s è stato incenerito da delle fiamme spettrali",
   
   "item.minecraft.potion.effect.alchemical_damage_resistance": "Pozione di resistenza alchemica",
   "item.minecraft.splash_potion.effect.alchemical_damage_resistance": "Pozione da lancio di resistenza alchemica",
@@ -79,5 +81,11 @@
   "item.minecraft.potion.effect.long_fire_resistance": "Pozione di resistenza al fuoco",
   "item.minecraft.splash_potion.effect.long_fire_resistance": "Pozione da lancio di resistenza al fuoco",
   "item.minecraft.lingering_potion.effect.long_fire_resistance": "Pozione persistente di resistenza al fuoco",
-  "item.minecraft.tipped_arrow.effect.long_fire_resistance": "Freccia di resistenza al fuoco"
+  "item.minecraft.tipped_arrow.effect.long_fire_resistance": "Freccia di resistenza al fuoco",
+  "item.modifiers.blocking": "Parare riduce:",
+  "item.modifiers.blocking.alembic.physical_damage": "il danno fisico del %s%%",
+  "item.modifiers.blocking.alembic.true_damage": "il danno puro del %s%%",
+  "item.modifiers.blocking.alembic.alchemical_damage": "il danno alchemico del %s%%",
+  "item.modifiers.blocking.alembic.arcane_damage": "il danno arcano del %s%%",
+  "item.modifiers.blocking.alembic.fire_damage": "il danno da fuoco del %s%%"
 }

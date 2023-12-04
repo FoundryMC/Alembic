@@ -7,11 +7,11 @@
     },
     {
       "type": "alembic:fire_damage",
-      "modifier": 0.7
+      "modifier": 0.8
     },
     {
       "type": "alembic:arcane_damage",
-      "modifier": 0.5
+      "modifier": 0.4
     },
     {
       "type": "alembic:alchemical_damage",
