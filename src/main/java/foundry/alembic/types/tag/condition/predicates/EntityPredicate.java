@@ -18,7 +18,7 @@ import java.util.function.Function;
 public class EntityPredicate {
     public static final EntityPredicate EMPTY = new EntityPredicate();
 
-    public static final Codec<TagOrElementPredicate<Entity>> ENTITY_EITHER_PREDICATE = TagOrElementPredicate.codec(ForgeRegistries.ENTITY_TYPES.getRegistryKey(), BuiltInRegistries.ENTITY_TYPE::getOptional, (Entity entity, TagKey<EntityType<?>> tagKey) -> entity.getType().is(tagKey));
+    public static final Codec<TagOrElementPredicate<EntityType<?>>> ENTITY_EITHER_PREDICATE = TagOrElementPredicate.codec(ForgeRegistries.ENTITY_TYPES.getRegistryKey(), BuiltInRegistries.ENTITY_TYPE::getOptional, EntityType::is);
     public static final Codec<EntityPredicate> RECORD_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ENTITY_EITHER_PREDICATE.optionalFieldOf("entity_type", TagOrElementPredicate.alwaysTrue()).forGetter(entityPredicate -> entityPredicate.tagOrElementPredicate),
@@ -35,11 +35,11 @@ public class EntityPredicate {
             }
     );
 
-    private final TagOrElementPredicate<Entity> tagOrElementPredicate;
+    private final TagOrElementPredicate<EntityType<?>> tagOrElementPredicate;
     private final ItemPredicate heldItem;
     // TODO: Possibly have an EquipmentPredicate to test all known equipment slots?
 
-    public EntityPredicate(@Nonnull TagOrElementPredicate<Entity> tagOrElement, @Nonnull ItemPredicate item) {
+    public EntityPredicate(@Nonnull TagOrElementPredicate<EntityType<?>> tagOrElement, @Nonnull ItemPredicate item) {
         this.tagOrElementPredicate = tagOrElement;
         this.heldItem = item;
     }
@@ -50,7 +50,10 @@ public class EntityPredicate {
     }
 
     public boolean matches(@Nullable Entity entity) {
-        if (!tagOrElementPredicate.matches(entity)) {
+        if (entity == null) {
+            return false;
+        }
+        if (!tagOrElementPredicate.matches(entity.getType())) {
             return false;
         }
         if (heldItem != ItemPredicate.EMPTY) {
