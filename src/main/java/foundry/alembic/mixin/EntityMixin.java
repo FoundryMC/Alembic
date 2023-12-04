@@ -32,7 +32,7 @@ public class EntityMixin{
     @WrapOperation(method = "baseTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", ordinal = 0))
     private boolean alembic$onEntityBaseTick(Entity instance, DamageSource pSource, float pAmount, Operation<Boolean> original) {
         if(instance.getCapability(AlembicFlammableHandler.CAPABILITY, null).map(cap -> cap.getFireType().equals("soul")).orElse(false)){
-            return instance.hurt(AlembicAPI.soulFire(pSource.getDirectEntity(), instance.level()), pAmount);
+            return instance.hurt(AlembicAPI.soulFire(pSource.getDirectEntity(), pSource.getEntity(), instance.level()), pAmount);
         } else {
             return original.call(instance, pSource, pAmount);
         }
