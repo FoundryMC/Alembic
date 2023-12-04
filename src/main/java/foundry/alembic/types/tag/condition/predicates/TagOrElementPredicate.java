@@ -3,7 +3,6 @@ package foundry.alembic.types.tag.condition.predicates;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import foundry.alembic.Alembic;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

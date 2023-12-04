@@ -2,9 +2,9 @@ package foundry.alembic.override;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.util.CodecUtil;
-import foundry.alembic.types.AlembicDamageType;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;

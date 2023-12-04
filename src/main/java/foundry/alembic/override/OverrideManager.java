@@ -19,10 +19,12 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class OverrideManager extends ConditionalJsonResourceReloadListener {
     private static final Codec<OverrideStorage> STORAGE_CODEC = RecordCodecBuilder.create(instance ->

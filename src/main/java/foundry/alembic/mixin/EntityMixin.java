@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import foundry.alembic.AlembicAPI;
 import foundry.alembic.caps.AlembicFlammableHandler;
-import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.potion.OverrideHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;

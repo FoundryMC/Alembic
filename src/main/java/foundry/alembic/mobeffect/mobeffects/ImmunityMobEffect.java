@@ -6,9 +6,7 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.tslat.effectslib.api.EffectOverlayRenderer;
 import net.tslat.effectslib.api.ExtendedMobEffect;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -1,7 +1,6 @@
 package foundry.alembic.resources;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.lukebemish.defaultresources.api.ResourceProvider;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.Utils;
@@ -15,8 +14,6 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 

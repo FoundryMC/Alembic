@@ -10,7 +10,6 @@ import foundry.alembic.util.FileReferenceCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
 
 public class AlembicReferenceTag extends AbstractTag {
     public static final Codec<AlembicTag> REFERENCE_CODEC = FileReferenceCodec.json("alembic/damage_types/tags/", AlembicTag.DISPATCH_CODEC);

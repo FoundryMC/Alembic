@@ -2,7 +2,6 @@ package foundry.alembic.types.tag.condition;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import foundry.alembic.types.tag.AlembicTag;
 import foundry.alembic.types.tag.condition.conditions.ReferenceCondition;
 import foundry.alembic.util.ComposedData;
 

@@ -1,12 +1,11 @@
 package foundry.alembic;
 
-import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.attribute.AttributeSet;
+import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.potion.AlembicPotionDataHolder;
 import foundry.alembic.potion.AlembicPotionRecipe;
 import foundry.alembic.potion.PotionModifier;
 import foundry.alembic.types.AlembicTypeModifier;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;

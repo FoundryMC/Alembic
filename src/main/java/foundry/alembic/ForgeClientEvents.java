@@ -4,8 +4,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.client.TooltipHelper;
-import foundry.alembic.stats.shield.ShieldStatManager;
-import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.stats.item.ItemStat;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.item.slots.VanillaSlotType;

@@ -2,9 +2,6 @@ package foundry.alembic;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.List;
-import java.util.Set;
-
 //TODO: make-a da system
 public class AlembicConfig {
     public static ForgeConfigSpec.BooleanValue modifyTooltips;

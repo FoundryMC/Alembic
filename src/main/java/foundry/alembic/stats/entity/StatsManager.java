@@ -13,7 +13,9 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class StatsManager extends ConditionalJsonResourceReloadListener {
     private static final Map<EntityType<?>, AlembicEntityStats> RESISTANCE_MAP = new Reference2ObjectOpenHashMap<>();

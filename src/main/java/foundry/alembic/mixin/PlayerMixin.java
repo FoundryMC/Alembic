@@ -2,7 +2,6 @@ package foundry.alembic.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import foundry.alembic.Alembic;
 import foundry.alembic.AlembicAPI;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;

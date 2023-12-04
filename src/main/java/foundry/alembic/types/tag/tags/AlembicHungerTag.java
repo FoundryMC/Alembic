@@ -2,13 +2,13 @@ package foundry.alembic.types.tag.tags;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.AlembicGlobalTagPropertyHolder;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
 import foundry.alembic.util.CodecUtil;
-import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.util.ComposedData;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jetbrains.annotations.NotNull;

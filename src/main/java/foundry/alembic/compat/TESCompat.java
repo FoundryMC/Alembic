@@ -5,13 +5,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import net.tslat.tes.api.TESAPI;
 import net.tslat.tes.api.TESParticle;
 import net.tslat.tes.core.particle.type.NumericParticle;
 import net.tslat.tes.core.state.EntityState;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
 
 public class TESCompat {
     public static final ResourceLocation TES_CLAIMANT = Alembic.location("alembic_claimant");

@@ -10,7 +10,6 @@ import foundry.alembic.util.FileReferenceOps;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraftforge.common.crafting.conditions.ICondition;

@@ -6,7 +6,9 @@ import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.world.item.Item;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class ItemStatHolder {
     private final Map<Item, Multimap<EquipmentSlotType, ItemStat>> stats = new Reference2ObjectOpenHashMap<>();

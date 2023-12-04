@@ -26,8 +26,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -51,9 +49,7 @@ import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.Map;
 
-import static foundry.alembic.ForgeEvents.TEMP_MOD_UUID;
-import static foundry.alembic.ForgeEvents.TEMP_MOD_UUID2;
-import static foundry.alembic.ForgeEvents.isBeingDamaged;
+import static foundry.alembic.ForgeEvents.*;
 
 public class AlembicDamageHandler {
     public static void handleDamage(LivingHurtEvent event) {

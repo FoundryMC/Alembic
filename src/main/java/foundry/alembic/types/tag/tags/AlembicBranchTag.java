@@ -10,7 +10,6 @@ import foundry.alembic.util.ComposedData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
 
 public class AlembicBranchTag extends AbstractTag {
     public static final Codec<AlembicBranchTag> CODEC = RecordCodecBuilder.create(instance ->

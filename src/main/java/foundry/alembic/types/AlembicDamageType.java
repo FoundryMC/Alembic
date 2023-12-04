@@ -2,16 +2,13 @@ package foundry.alembic.types;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.attribute.AttributeSet;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.types.tag.AlembicTag;
+import foundry.alembic.util.CodecUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import java.util.List;
@@ -33,8 +30,6 @@ public class AlembicDamageType {
     private String damageSource;
     private int color;
     private List<AlembicTag> tags;
-    private MobEffect resistanceEffect;
-    private MobEffect absorptionEffect;
 
     private boolean enchantReduction;
     private String enchantSource;

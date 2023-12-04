@@ -1,7 +1,6 @@
 package foundry.alembic.event;
 
 import foundry.alembic.types.AlembicDamageType;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.eventbus.api.Event;
 

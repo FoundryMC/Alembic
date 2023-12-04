@@ -1,10 +1,5 @@
 package foundry.alembic.util;
 
-import foundry.alembic.types.AlembicDamageType;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

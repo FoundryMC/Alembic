@@ -4,7 +4,6 @@ import foundry.alembic.types.AlembicDamageType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 
 public class ComposedDataTypes {
     private ComposedDataTypes() {}

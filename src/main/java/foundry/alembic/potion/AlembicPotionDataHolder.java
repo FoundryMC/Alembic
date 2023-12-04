@@ -12,7 +12,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
-import java.util.*;
+import java.util.Set;
+import java.util.UUID;
 
 public class AlembicPotionDataHolder {
     public static final AlembicPotionDataHolder EMPTY = new AlembicPotionDataHolder();

@@ -1,18 +1,14 @@
 package foundry.alembic.util;
 
-import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class TagOrElements<T> {
