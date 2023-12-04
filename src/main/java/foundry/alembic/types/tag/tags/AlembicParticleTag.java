@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,9 +63,15 @@ public class AlembicParticleTag extends AbstractTag {
 
     private void spawnParticle(ServerLevel level, ParticleOptions particleOptions, LivingEntity entity, float particleCount, float pSpeed) {
         ForgeRegistries.PARTICLE_TYPES.getKey(particleOptions.getType());
-        level.sendParticles(particleOptions, entity.getX(), entity.getY() + entity.getBbHeight() / 2f, entity.getZ(),
+        // random offset between -0.1 and 0.1
+        Vec3 randomOffset = new Vec3(
+                (level.random.nextFloat() - 1f) * 0.5f,
+                (level.random.nextFloat() - 1f) * 0.5f,
+                (level.random.nextFloat() - 1f) * 0.5f
+        );
+        level.sendParticles(particleOptions, entity.getX(), entity.getY(0.5D), entity.getZ(),
                 (int) Math.ceil(particleCount),
-                0, 0, 0,
+                randomOffset.x, 0, randomOffset.z,
                 pSpeed);
     }
 

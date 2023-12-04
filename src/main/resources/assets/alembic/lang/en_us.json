@@ -79,5 +79,11 @@
   "item.minecraft.potion.effect.long_fire_resistance": "Potion of Fire Resistance",
   "item.minecraft.splash_potion.effect.long_fire_resistance": "Splash Potion of Fire Resistance",
   "item.minecraft.lingering_potion.effect.long_fire_resistance": "Lingering Potion of Fire Resistance",
-  "item.minecraft.tipped_arrow.effect.long_fire_resistance": "Tipped Arrow of Fire Resistance"
+  "item.minecraft.tipped_arrow.effect.long_fire_resistance": "Tipped Arrow of Fire Resistance",
+  "item.modifiers.blocking": "Blocking reduces:",
+  "item.modifiers.blocking.alembic.physical_damage": "%s%% of Physical Damage",
+  "item.modifiers.blocking.alembic.true_damage": "%s%% of True Damage",
+  "item.modifiers.blocking.alembic.alchemical_damage": "%s%% of Alchemical Damage",
+  "item.modifiers.blocking.alembic.arcane_damage": "%s%% of Arcane Damage",
+  "item.modifiers.blocking.alembic.fire_damage": "%s%% of Fire Damage"
 }

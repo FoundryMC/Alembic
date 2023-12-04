@@ -4,12 +4,19 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.client.TooltipHelper;
+import foundry.alembic.items.ItemStat;
+import foundry.alembic.items.ItemStatManager;
+import foundry.alembic.items.ModifierApplication;
+import foundry.alembic.items.ShieldStatManager;
+import foundry.alembic.items.slots.VanillaSlotType;
+import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.stats.item.ItemStat;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.item.slots.VanillaSlotType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -51,6 +58,23 @@ public class ForgeClientEvents {
         if (event.getEntity() == null) return;
         Player player = event.getEntity();
 
+        if(stack.getItem() instanceof ShieldItem) {
+            tooltip.add(CommonComponents.EMPTY);
+            tooltip.add(Component.translatable("item.modifiers.blocking").withStyle(ChatFormatting.GRAY));
+            ShieldStatManager.getStats(stack.getItem()).forEach(stat -> {
+                stat.typeModifiers().forEach(typeModifier -> {
+                    tooltip.add(CommonComponents.space().append(
+                            Component.translatable(
+                                    "item.modifiers.blocking." + typeModifier.type().toLanguageKey(),
+                                            ATTRIBUTE_MODIFIER_FORMAT.format((1.0f-typeModifier.modifier()) * 100)
+                                    ).withStyle(ChatFormatting.BLUE)
+                            )
+                    );
+                });
+            });
+            return;
+        }
+
         int target = 0;
 
         Iterator<Component> iter = event.getToolTip().iterator();
@@ -66,9 +90,7 @@ public class ForgeClientEvents {
 
         if (target != 0) {
             Collection<ItemStat> stats = ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(EquipmentSlot.MAINHAND));
-
             if(stats.isEmpty()) return;
-
             Multimap<Attribute, AttributeModifier> modifiableMap = HashMultimap.create(stack.getAttributeModifiers(EquipmentSlot.MAINHAND));
 
             stats.forEach(stat -> {
@@ -107,7 +129,7 @@ public class ForgeClientEvents {
     }
 
     private static boolean isValidItem(Item item) {
-        return item instanceof SwordItem || item instanceof TridentItem || item instanceof DiggerItem;
+        return item instanceof SwordItem || item instanceof TridentItem || item instanceof DiggerItem || item instanceof ShieldItem;
     }
 
     private static boolean isVanillaFireResistancePotion(ItemStack stack) {
