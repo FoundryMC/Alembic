@@ -96,15 +96,15 @@ public class AttributeSet {
     }
 
     public RangedAttribute getShieldingAttribute() {
-        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.SHIELDING.computeAttributeId(getId())), Holder::value);
+        return (RangedAttribute) shielding.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.SHIELDING.computeAttributeId(getId())), Holder::value);
     }
 
     public RangedAttribute getAbsorptionAttribute() {
-        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.ABSORPTION.computeAttributeId(getId())), Holder::value);
+        return (RangedAttribute) absorption.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.ABSORPTION.computeAttributeId(getId())), Holder::value);
     }
 
     public RangedAttribute getResistanceAttribute() {
-        return (RangedAttribute) damage.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeAttributeId(getId())), Holder::value);
+        return (RangedAttribute) resistance.map(data -> BuiltInRegistries.ATTRIBUTE.get(AlembicTypeModifier.RESISTANCE.computeAttributeId(getId())), Holder::value);
     }
 
     private ResourceLocation getId() {
