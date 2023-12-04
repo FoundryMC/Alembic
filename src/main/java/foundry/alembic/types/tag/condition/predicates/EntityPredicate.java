@@ -50,6 +50,9 @@ public class EntityPredicate {
     }
 
     public boolean matches(@Nullable Entity entity) {
+        if (this == EMPTY) {
+            return true;
+        }
         if (entity == null) {
             return false;
         }
