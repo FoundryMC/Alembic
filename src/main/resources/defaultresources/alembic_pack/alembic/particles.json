@@ -10,6 +10,7 @@
         "ender_magic",
         "sculk_hit",
         "wither_decay",
-        "frostbite"
+        "frostbite",
+        "redstone_spark"
     ]
 }

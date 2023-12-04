@@ -1,5 +1,6 @@
-package foundry.alembic;
+package foundry.alembic.damage;
 
+import foundry.alembic.Alembic;
 import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicDamageType;
 import net.minecraft.stats.Stats;

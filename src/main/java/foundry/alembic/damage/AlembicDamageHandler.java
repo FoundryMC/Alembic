@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import foundry.alembic.Alembic;
 import foundry.alembic.AlembicConfig;
-import foundry.alembic.AlembicDamageHelper;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
 import foundry.alembic.event.AlembicDamageEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
@@ -21,11 +20,14 @@ import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -207,20 +209,29 @@ public class AlembicDamageHandler {
 
     private static void handleResistances(LivingEntity target, float totalDamage, AlembicDamageType damageType, DamageSource originalSource) {
         float attributeValue = 0;
+
         if (target.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
             attributeValue = (float) target.getAttributeValue(damageType.getResistanceAttribute()) * damageType.getResistanceIgnore();
         }
+
         LivingEntity attacker = null;
         if (originalSource.getDirectEntity() instanceof LivingEntity livingEntity) {
             attacker = livingEntity;
         }
+
         AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, totalDamage, attributeValue);
         MinecraftForge.EVENT_BUS.post(preEvent);
+
         totalDamage = preEvent.getDamage();
         if (totalDamage <= 0 || preEvent.isCanceled()) return;
+
         target.hurtArmor(originalSource, totalDamage);
+
         totalDamage = CombatRules.getDamageAfterAbsorb(totalDamage, attributeValue, (float) target.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
         totalDamage = AlembicDamageHelper.getDamageAfterAttributeAbsorb(target, damageType, totalDamage);
+
+        totalDamage = computePotionResistance(totalDamage, target, damageType);
+
         boolean enchantReduction = damageType.hasEnchantReduction();
         if (enchantReduction && attacker != null) {
             int prot = EnchantmentHelper.getDamageProtection(target.getArmorSlots(), target.level().damageSources().mobAttack(attacker));
@@ -228,6 +239,7 @@ public class AlembicDamageHandler {
                 totalDamage = CombatRules.getDamageAfterMagicAbsorb(totalDamage, prot);
             }
         }
+
         /*
         float absorptionValue = target.getAttributes().hasAttribute(alembicDamageType.getAbsorptionAttribute()) ? (float) target.getAttribute(alembicDamageType.getAbsorptionAttribute()).getValue() : 0;
         if (absorptionValue > 0) {
@@ -238,9 +250,24 @@ public class AlembicDamageHandler {
             target.getAttribute(alembicDamageType.getAbsorptionAttribute()).setBaseValue(absorptionValue);
         }
          */
+
         actuallyHurt(target, damageType, totalDamage, originalSource);
+
         AlembicDamageEvent.Post postEvent = new AlembicDamageEvent.Post(target, attacker, damageType, totalDamage, attributeValue);
         MinecraftForge.EVENT_BUS.post(postEvent);
+    }
+
+    private static float computePotionResistance(float totalDamage, LivingEntity entity, AlembicDamageType damageType) {
+        MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(damageType.getId().withSuffix("_resistance"));
+        if (effect != null) {
+            MobEffectInstance instance = entity.getEffect(effect);
+            if (instance != null) {
+                int amplifier = instance.getAmplifier();
+                totalDamage -= totalDamage * (((float)amplifier) * 0.1f);
+            }
+        }
+
+        return totalDamage;
     }
 
     private static void actuallyHurt(LivingEntity target, AlembicDamageType damageType, float damage, DamageSource originalSource) {
