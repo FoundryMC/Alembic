@@ -53,7 +53,7 @@ public class ItemStatManager extends ConditionalJsonResourceReloadListener {
             }
             ItemStat stat = result.result().get();
             TagOrElements<Item> elements = stat.items();
-            Alembic.printInDebug(() -> "Adding items stat %s to %s".formatted(jsonEntry.getKey(), elements));
+            Alembic.printInDebug(() -> "Adding items stat %s to %s".formatted(jsonEntry.getKey(), elements.getTagOrElementLocation()));
 
             HOLDER.add(stat);
 

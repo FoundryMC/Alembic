@@ -39,6 +39,10 @@ public abstract class TagOrElements<T> {
 
     protected abstract ResourceKey<? extends Registry<T>> getRegistryKey();
 
+    public ExtraCodecs.TagOrElementLocation getTagOrElementLocation() {
+        return this.tagOrElement;
+    }
+
     @Override
     public String toString() {
         return "TagOrElements[" + getRegistryKey().toString() + " / " + tagOrElement.toString() + "]";
