@@ -2,7 +2,7 @@
   "priority": 1,
   "type": "minecraft:horse",
   "resistances": {
-    "alchemical_damage": 0.70,
+    "alchemical_damage": 0.85,
     "physical_damage": 1.0,
     "fire_damage": 0.9,
     "arcane_damage": 1.0,

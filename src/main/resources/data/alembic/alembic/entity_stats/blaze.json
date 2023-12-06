@@ -5,7 +5,7 @@
     "alchemical_damage": 1.0,
     "physical_damage": 1.0,
     "fire_damage": 2.0,
-    "arcane_damage": 0.5,
+    "arcane_damage": 0.7,
     "true_damage": 0.0
   },
   "damage": {

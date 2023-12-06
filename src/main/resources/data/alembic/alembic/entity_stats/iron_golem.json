@@ -2,10 +2,10 @@
   "priority": 1,
   "type": "minecraft:iron_golem",
   "resistances": {
-    "alchemical_damage": 1.60,
+    "alchemical_damage": 1.6,
     "physical_damage": 1.0,
-    "fire_damage": 1.35,
-    "arcane_damage": 1.0,
+    "fire_damage": 1.3,
+    "arcane_damage": 0.6,
     "true_damage": 0.0
   },
   "damage": {

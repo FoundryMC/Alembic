@@ -4,8 +4,8 @@
   "resistances": {
     "alchemical_damage": 1.0,
     "physical_damage": 1.0,
-    "fire_damage": 0.6,
-    "arcane_damage": 1.2,
+    "fire_damage": 0.7,
+    "arcane_damage": 1.0,
     "true_damage": 0.0
   },
   "damage": {

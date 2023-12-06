@@ -2,15 +2,15 @@
   "priority": 1,
   "type": "minecraft:endermite",
   "resistances": {
-    "alchemical_damage": 1.0,
+    "alchemical_damage": 0.9,
     "physical_damage": 1.0,
-    "fire_damage": 1.30,
-    "arcane_damage": 1.50,
+    "fire_damage": 0.9,
+    "arcane_damage": 1.3,
     "true_damage": 0.0
   },
   "damage": {
-    "physical_damage": 0.60,
-	  "arcane_damage": 0.40
+    "physical_damage": 0.8,
+	  "arcane_damage": 0.2
   },
   "ignored_sources": []
 }

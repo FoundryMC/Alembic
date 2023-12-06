@@ -2,10 +2,10 @@
   "priority": 1,
   "type": "minecraft:snow_golem",
   "resistances": {
-    "alchemical_damage": 2.0,
+    "alchemical_damage": 1.0,
     "physical_damage": 1.0,
-    "fire_damage": 0.1,
-    "arcane_damage": 1.0,
+    "fire_damage": 0.2,
+    "arcane_damage": 2.0,
     "true_damage": 0.0
   },
   "damage": {

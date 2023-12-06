@@ -2,10 +2,10 @@
   "priority": 1,
   "type": "minecraft:guardian",
   "resistances": {
-    "alchemical_damage": 1.20,
+    "alchemical_damage": 0.8,
     "physical_damage": 1.0,
     "fire_damage": 1.0,
-    "arcane_damage": 1.30,
+    "arcane_damage": 1.20,
     "true_damage": 0.0
   },
   "damage": {
