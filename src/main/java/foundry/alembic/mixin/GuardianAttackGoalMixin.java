@@ -13,6 +13,6 @@ public class GuardianAttackGoalMixin {
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", ordinal = 0))
     private boolean alembic$guardianBeamDamage(LivingEntity entity, DamageSource source, float amount, Operation<Boolean> original) {
-        return entity.hurt(AlembicAPI.guardianBeam(source.getDirectEntity(), source.getEntity(), entity.level()), amount); // TODO: pass a source with entity context
+        return entity.hurt(AlembicAPI.guardianBeam(source.getDirectEntity(), source.getEntity(), entity.level()), amount);
     }
 }

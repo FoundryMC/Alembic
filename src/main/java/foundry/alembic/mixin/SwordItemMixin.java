@@ -22,10 +22,8 @@ public class SwordItemMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void alembic$onInit(Tier pTier, int pAttackDamageModifier, float pAttackSpeedModifier, Item.Properties pProperties, CallbackInfo ci, ImmutableMultimap.Builder builder) {
-        Multimap<Attribute, AttributeModifier> defaultModifiers;
-        HashMultimap<Attribute, AttributeModifier> hashMultimap = HashMultimap.create();
-        this.defaultModifiers.forEach(hashMultimap::put);
-        defaultModifiers = hashMultimap;
+        Multimap<Attribute, AttributeModifier> defaultModifiers = HashMultimap.create();
+        this.defaultModifiers.forEach(defaultModifiers::put);
         ((SwordItem)(Object)this).defaultModifiers = defaultModifiers;
     }
 }

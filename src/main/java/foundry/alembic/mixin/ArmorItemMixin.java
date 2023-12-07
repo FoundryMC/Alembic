@@ -22,11 +22,9 @@ public class ArmorItemMixin {
     @Shadow public Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void alembic$onInit(ArmorMaterial p_40386_, ArmorItem.Type p_266831_, Item.Properties p_40388_, CallbackInfo ci, ImmutableMultimap.Builder builder, UUID uuid) {
-        Multimap<Attribute, AttributeModifier> defaultModifiers;
-        HashMultimap<Attribute, AttributeModifier> hashMultimap = HashMultimap.create();
-        this.defaultModifiers.forEach(hashMultimap::put);
-        defaultModifiers = hashMultimap;
+    private void alembic$onInit(ArmorMaterial p_40386_, ArmorItem.Type p_266831_, Item.Properties p_40388_, CallbackInfo ci) {
+        Multimap<Attribute, AttributeModifier> defaultModifiers = HashMultimap.create();
+        this.defaultModifiers.forEach(defaultModifiers::put);
         ((ArmorItem)(Object)this).defaultModifiers = defaultModifiers;
     }
 }
