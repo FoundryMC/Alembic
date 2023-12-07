@@ -57,19 +57,19 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
         DAMAGE_TYPES.clear();
         AlembicGlobalTagPropertyHolder.clearAll();
+        FileReferenceOps<JsonElement> ops = FileReferenceOps.create(JsonOps.INSTANCE, rm);
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             ResourceLocation id = entry.getKey();
             if (id.getPath().startsWith("tags/") || id.getPath().startsWith("conditions/")) {
                 continue;
             }
-            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(FileReferenceOps.create(JsonOps.INSTANCE, rm), entry.getValue());
+            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(ops, entry.getValue());
             if (result.error().isPresent()) {
                 Alembic.LOGGER.error("Could not read %s. %s".formatted(id, result.error().get().message()));
                 continue;
             }
             AlembicDamageType type = result.getOrThrow(false, Alembic.LOGGER::error);
             type.handlePostParse(id);
-
 
             if (containsKey(id)) {
                 if (type.getPriority() < getDamageType(type.getId()).getPriority()) {
