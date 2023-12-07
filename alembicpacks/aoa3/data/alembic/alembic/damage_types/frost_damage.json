@@ -1,0 +1,23 @@
+{
+    "priority": 1,
+    "attributes": "alembic:frost_damage",
+    "particles": true,
+    "enchant_reduction": true,
+    "enchant_source": "mob",
+    "color": "#A7EFFD",
+    "tags": [
+        {
+            "tag_type": "alembic:particle_tag",
+            "particle_options": {
+                "type": "alembic:frostbite"
+            }
+        },
+        {
+            "tag_type": "alembic:extend_fire_tag",
+            "multiplier": -0.25,
+            "ignored_sources": [
+                
+            ]
+        }
+    ]
+}

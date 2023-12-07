@@ -1,0 +1,25 @@
+{
+    "priority": 1,
+    "source_overrides": {
+        "aoa3:acid": {"alchemical_damage": 1.0},
+        "aoa3:bleed": {"true_damage": 1.0},
+        "aoa3:burn": {"fire_damage": 1.0},
+        "aoa3:energy_effect": {"energy_damage": 1.0},
+        "aoa3:energy_projectile": {"energy_damage": 1.0},
+        "aoa3:freeze": {"frost_damage": 1.0},
+        "aoa3:gun": {"physical_damage": 1.0},
+        "aoa3:hauling": {"physical_damage": 1.0},
+        "aoa3:heavy_gun": {"physical_damage": 1.0},
+        "aoa3:magic_effect": {"arcane_damage": 1.0},
+        "aoa3:magic_projectile": {"arcane_damage": 1.0},
+        "aoa3:mob_fire_melee_attack": {"fire_damage": 1.0},
+        "aoa3:mob_fire_ranged_attack": {"fire_damage":1.0},
+        "aoa3:mob_fire_recoil": {"fire_damage": 1.0},
+        "aoa3:mob_flamethrower": {"fire_damage": 1.0},
+        "aoa3:mob_icebeam": {"frost_damage": 1.0},
+        "aoa3:ranged_attack": {"physical_damage": 1.0},
+        "aoa3:recoil": {"physical_damage": 1.0},
+        "aoa3:suffocation": {"true_damage": 1.0},
+        "aoa3:vulcane": {"fire_damage": 1.0}
+    }
+}
