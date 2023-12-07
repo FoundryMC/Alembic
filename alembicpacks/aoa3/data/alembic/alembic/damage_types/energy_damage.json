@@ -1,0 +1,16 @@
+{
+    "priority": 1,
+    "attributes": "alembic:energy_damage",
+    "particles": true,
+    "enchant_reduction": true,
+    "enchant_source": "mob",
+    "color": "#FFFF00",
+    "tags": [
+        {
+            "tag_type": "alembic:particle_tag",
+            "particle_options": {
+                "type": "alembic:arcane_spark"
+            }
+        }
+    ]
+}

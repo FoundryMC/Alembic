@@ -76,7 +76,7 @@ public class AlembicDamageHandler {
             target.invulnerableTime = 0;
             float fudge = AlembicConfig.enableCompatFudge.get() ? 0.0001f : 0.0f;
             if (totalDamage + fudge >= fudge) {
-                target.hurt(entitySource(attacker), totalDamage + fudge);
+                target.hurt(originalSource, totalDamage + fudge);
             }
             target.invulnerableTime = time;
             attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
@@ -272,12 +272,13 @@ public class AlembicDamageHandler {
         damage = Math.round(Math.max(damage, 0) * 10) / 10f;
         if (damage > 0) {
             float finalDamage = damage;
-            Alembic.printInDebug(() -> "Dealing " + finalDamage + " " + damageType.getId().toString() + " damage to " + target);
+            float d = finalDamage;
+            Alembic.printInDebug(() -> "Dealing " + d + " " + damageType.getId().toString() + " damage to " + target);
             damageType.getTags().forEach(tag -> {
                 ComposedData data = ComposedData.createEmpty()
                         .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level())
                         .add(ComposedDataTypes.TARGET_ENTITY, target)
-                        .add(ComposedDataTypes.FINAL_DAMAGE, finalDamage)
+                        .add(ComposedDataTypes.FINAL_DAMAGE, d)
                         .add(ComposedDataTypes.ORIGINAL_SOURCE, originalSource)
                         .add(ComposedDataTypes.DAMAGE_TYPE, damageType);
                 AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
@@ -297,13 +298,16 @@ public class AlembicDamageHandler {
                 ((Player) target).awardStat(Stats.CUSTOM.get(Stats.DAMAGE_DEALT_ABSORBED), Math.round(absorbedDamage * 10.0F));
             }
             float health = target.getHealth();
-            target.getCombatTracker().recordDamage(target.level().damageSources().generic(), finalDamage);
+            if(AlembicConfig.compatDamageEvent.get()) {
+                finalDamage = net.minecraftforge.common.ForgeHooks.onLivingDamage(target, originalSource, finalDamage);
+            }
+            target.getCombatTracker().recordDamage(originalSource, finalDamage);
             target.setHealth(health - finalDamage);
             target.setAbsorptionAmount(target.getAbsorptionAmount() - absorbedDamage);
             sendDamagePacket(target, damageType, finalDamage);
             target.gameEvent(GameEvent.ENTITY_DAMAGE);
             target.invulnerableTime = invulnerableTime;
-            Alembic.printInDebug(() -> "Dealt " + finalDamage + " " + damageType.getId().toString() + " damage to " + target);
+            Alembic.printInDebug(() -> "Dealt " + d + " " + damageType.getId().toString() + " damage to " + target);
         }
     }
 
