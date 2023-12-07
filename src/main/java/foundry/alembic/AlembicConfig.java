@@ -1,5 +1,6 @@
 package foundry.alembic;
 
+import foundry.alembic.override.OverrideManager;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 //TODO: make-a da system
@@ -8,6 +9,7 @@ public class AlembicConfig {
     public static ForgeConfigSpec.BooleanValue ownerAttributeProjectiles;
     public static ForgeConfigSpec.BooleanValue enableDebugPrints;
     public static ForgeConfigSpec.BooleanValue enableCompatFudge;
+    public static ForgeConfigSpec.BooleanValue compatDamageEvent;
 
 
     public static ForgeConfigSpec makeConfig(ForgeConfigSpec.Builder builder) {
@@ -15,6 +17,7 @@ public class AlembicConfig {
         ownerAttributeProjectiles = builder.comment("Whether or not to apply the owner's damage attributes to projectiles. This disables entity-specific damage overrides for the projectile entities.").define("owner_attribute_projectiles", false);
         enableDebugPrints = builder.comment("Whether or not to enable debug prints. (Turn off if not debugging)").define("enable_debug_prints", false);
         enableCompatFudge = builder.comment("Whether or not to enable compat fudge. (Turn off if not debugging)").define("enable_compat_fudge", false);
+        compatDamageEvent = builder.comment("Whether or not to use the compat damage event. (Turn off only if 100% sure mods work with it.)").define("compat_damage_event", true);
         return builder.build();
     }
 }

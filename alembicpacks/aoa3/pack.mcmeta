@@ -1,0 +1,9 @@
+{
+	"pack": {
+		"pack_format": 15,
+		"description": "Adding Simply Swords's weapons to the EFM combat system."
+	},
+	"defaultresources": {
+		"detect": true
+	}
+}
