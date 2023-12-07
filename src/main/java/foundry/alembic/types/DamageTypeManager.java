@@ -15,10 +15,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
@@ -42,9 +40,8 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
         return DAMAGE_TYPES.get(id);
     }
 
-    @Nullable
-    public static AlembicDamageType getDamageType(Attribute attribute) {
-        return DAMAGE_TYPES.values().stream().filter(damageType -> damageType.getAttribute() == attribute).findFirst().orElse(null);
+    public static Set<AlembicDamageType> getDamageTypes(Attribute attribute) {
+        return DAMAGE_TYPES.values().stream().filter(damageType -> damageType.getAttribute() == attribute).collect(Collectors.toSet());
     }
 
     @Nullable
