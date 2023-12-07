@@ -14,6 +14,7 @@ import foundry.alembic.resources.ResourceProviderHelper;
 import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.util.Utils;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -42,6 +43,8 @@ public class AttributeSetRegistry {
     private static final Map<String, DeferredRegister<Attribute>> ATTRIBUTE_REGISTRY_MAP = new HashMap<>();
     private static final Map<String, DeferredRegister<Potion>> POTION_REGISTRY_MAP = new HashMap<>();
     private static final Map<String, DeferredRegister<MobEffect>> MOB_EFFECT_REGISTRY_MAP = new HashMap<>();
+
+    private static final FileToIdConverter CONVERTER = FileToIdConverter.json("attribute_sets");
 
     public static Collection<AttributeSet> getValues() {
         return Collections.unmodifiableCollection(ID_TO_SET_BIMAP.values());
@@ -73,13 +76,13 @@ public class AttributeSetRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus) {
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets", jsonElement -> CraftingHelper.processConditions(jsonElement.getAsJsonObject(), "forge:conditions", ICondition.IContext.TAGS_INVALID)).entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets", jsonElement -> Utils.shouldParse(jsonElement, ICondition.IContext.TAGS_INVALID)).entrySet()) {
             DataResult<AttributeSet> setResult = AttributeSet.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (setResult.error().isPresent()) {
                 throw new IllegalStateException("Error loading {" + entry.getKey() + "}: " + setResult.error().get().message());
             }
             AttributeSet set = setResult.result().get();
-            ResourceLocation id = Utils.sanitize(entry.getKey(), "attribute_sets/", ".json"); // TODO: replace with FileToIdConverter
+            ResourceLocation id = CONVERTER.fileToId(entry.getKey());
 
             if (ID_TO_SET_BIMAP.containsKey(id)) {
                 Alembic.LOGGER.error("Attribute set already present " + id);
