@@ -7,23 +7,18 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class ClientboundAlembicFireTypePacket {
-    public CompoundTag fireType;
+public record ClientboundAlembicFireTypePacket(String fireType, int entityId) {
 
-    public ClientboundAlembicFireTypePacket(CompoundTag fireType) {
-        this.fireType = fireType;
+    public void encode(FriendlyByteBuf buf){
+        buf.writeUtf(fireType);
+        buf.writeInt(entityId);
     }
 
-    public static void encode(ClientboundAlembicFireTypePacket msg, FriendlyByteBuf buf){
-        buf.writeNbt(msg.fireType);
+    public static ClientboundAlembicFireTypePacket decode(FriendlyByteBuf buf) {
+        return new ClientboundAlembicFireTypePacket(buf.readUtf(), buf.readInt());
     }
 
-    public static ClientboundAlembicFireTypePacket decode(FriendlyByteBuf buf){
-        return new ClientboundAlembicFireTypePacket(buf.readNbt());
-    }
-
-    public static void handle(ClientboundAlembicFireTypePacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> ClientPacketHandler.handleFireTypePacket(msg));
-        ctx.get().setPacketHandled(true);
+    public void handle(Supplier<NetworkEvent.Context> _ctx) {
+        ClientPacketHandler.handleFireTypePacket(this);
     }
 }

@@ -17,15 +17,20 @@ public class AlembicPacketHandler {
     );
     private static int id = 0;
 
-    public static void init() { // fixme: 1.20 changes these, rewrite the packets with "Main" consumer
-        INSTANCE.registerMessage(id++, ClientboundAlembicDamagePacket.class, ClientboundAlembicDamagePacket::encode, ClientboundAlembicDamagePacket::decode, ClientboundAlembicDamagePacket::handle);
-        INSTANCE.registerMessage(id++, ClientboundAlembicFireTypePacket.class, ClientboundAlembicFireTypePacket::encode, ClientboundAlembicFireTypePacket::decode, ClientboundAlembicFireTypePacket::handle);
+    public static void init() {
+        INSTANCE.messageBuilder(ClientboundAlembicDamagePacket.class, id++)
+                .encoder(ClientboundAlembicDamagePacket::encode)
+                .decoder(ClientboundAlembicDamagePacket::decode)
+                .consumerMainThread(ClientboundAlembicDamagePacket::handle)
+                .add();
+        INSTANCE.messageBuilder(ClientboundAlembicFireTypePacket.class, id++)
+                .encoder(ClientboundAlembicFireTypePacket::encode)
+                .decoder(ClientboundAlembicFireTypePacket::decode)
+                .consumerMainThread(ClientboundAlembicFireTypePacket::handle)
+                .add();
     }
 
     public static void sendFirePacket(Entity entity, String type) {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("fireType", type);
-        tag.putInt("entityID", entity.getId());
-        AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level().dimension())), new ClientboundAlembicFireTypePacket(tag));
+        AlembicPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientboundAlembicFireTypePacket(type, entity.getId()));
     }
 }

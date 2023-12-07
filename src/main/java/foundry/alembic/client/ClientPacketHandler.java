@@ -16,7 +16,7 @@ public class ClientPacketHandler {
     public static void handleDamagePacket(ClientboundAlembicDamagePacket msg, Supplier<NetworkEvent.Context> ctx) {
         if(ModList.get().isLoaded("tslatentitystatus")){
             try{
-                TESCompat.spawnParticle(Minecraft.getInstance().level, msg.entityID, msg.damageType, msg.damageAmount, msg.color);
+                TESCompat.spawnParticle(Minecraft.getInstance().level, msg.entityID(), msg.damageType(), msg.damageAmount(), msg.color());
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -26,10 +26,10 @@ public class ClientPacketHandler {
     public static void handleFireTypePacket(ClientboundAlembicFireTypePacket msg) {
         Level level = Minecraft.getInstance().level;
         if(level == null) return;
-        Entity entity = level.getEntity(msg.fireType.getInt("entityID"));
+        Entity entity = level.getEntity(msg.entityId());
         if(entity != null){
             entity.getCapability(AlembicFlammableHandler.CAPABILITY, null).ifPresent((handler) -> {
-                handler.setFireType(msg.fireType.getString("fireType"));
+                handler.setFireType(msg.fireType());
             });
         }
     }
