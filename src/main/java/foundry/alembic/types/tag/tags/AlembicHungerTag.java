@@ -8,7 +8,7 @@ import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.ComposedData;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jetbrains.annotations.NotNull;

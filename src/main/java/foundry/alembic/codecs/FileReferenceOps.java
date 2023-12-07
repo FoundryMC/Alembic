@@ -1,4 +1,4 @@
-package foundry.alembic.util;
+package foundry.alembic.codecs;
 
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.resources.DelegatingOps;

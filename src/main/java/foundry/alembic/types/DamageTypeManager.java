@@ -6,7 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.ConditionalJsonResourceReloadListener;
-import foundry.alembic.util.FileReferenceOps;
+import foundry.alembic.codecs.FileReferenceOps;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;

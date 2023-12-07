@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
 import foundry.alembic.util.TagOrElements;
