@@ -129,6 +129,9 @@ repositories {
         name = "DefaultResources Maven Repo"
         url = "https://maven.lukebemish.dev/releases"
     }
+    maven {
+        url = "https://maven.shadowsoffire.dev/releases"
+    }
     flatDir {
         dirs "libs"
     }
@@ -147,16 +150,14 @@ dependencies {
     }
 
     implementation(fg.deobf("net.tslat.tes:TES-forge-${project.minecraft_version}.1:${project.tes_version}"))
-//    implementation(fg.deobf("curse.maven:attributetooltipfix-658833:3932463"))
-//    jarJar("curse.maven:attributetooltipfix-658833:3932463") {
-//        jarJar.ranged(it, "[1.0.0,)")
-//    }
 
     implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-beta.5"))
     implementation(jarJar("com.github.llamalad7.mixinextras:mixinextras-forge:0.2.0-beta.5")) {
         jarJar.ranged(it, "[0.2.0-beta.5,)")
     }
 
+    implementation(fg.deobf( "dev.shadowsoffire:ApothicAttributes:1.20.1-1.2.0"))
+    implementation(fg.deobf("dev.shadowsoffire:Placebo:1.20.1-8.6.0"))
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     if (System.getProperty("idea.sync.active") != "true") {
         annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

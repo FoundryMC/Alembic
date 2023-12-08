@@ -69,38 +69,37 @@ public class ForgeClientEvents {
             return;
         }
 
-        int target = 0;
-
-        Iterator<Component> iter = event.getToolTip().iterator();
-        while (iter.hasNext()) {
-            Component component = iter.next();
-            if(component.getString().contains("When in")) {
-                target = event.getToolTip().indexOf(component) + 1;
-            }
-            if (shouldRemoveComponent(stack, component)) {
-                iter.remove();
-            }
-        }
-
-        if (target != 0) {
-            Collection<ItemStat> stats = ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(EquipmentSlot.MAINHAND));
-            if(stats.isEmpty()) return;
-            Multimap<Attribute, AttributeModifier> modifiableMap = HashMultimap.create(stack.getAttributeModifiers(EquipmentSlot.MAINHAND));
-
-            stats.forEach(stat -> {
-                stat.computeAttributes(modifiableMap, modifiableMap::put, modifiableMap::removeAll);
-            });
-
-            int finalTarget = target;
-            modifiableMap.forEach((key, value) -> {
-                if (isDefaultAttack(key)) return;
-                double d0 = 0;
-                d0 += player.getAttributeBaseValue(key);
-                d0 += stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(key).stream().mapToDouble(AttributeModifier::getAmount).sum();
-                d0 = TooltipHelper.getMod(value, d0);
-                tooltip.add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + value.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(key.getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
-            });
-        }
+//        int target = 0;
+//
+//        Iterator<Component> iter = event.getToolTip().iterator();
+//        while (iter.hasNext()) {
+//            Component component = iter.next();
+//            if(component.getString().contains("When in")) {
+//                target = event.getToolTip().indexOf(component) + 1;
+//            }
+//            if (shouldRemoveComponent(stack, component)) {
+//                iter.remove();
+//            }
+//        }
+//
+//        if (target != 0) {
+//            Collection<ItemStat> stats = ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(EquipmentSlot.MAINHAND));
+//            if(stats.isEmpty()) return;
+//            Multimap<Attribute, AttributeModifier> modifiableMap = HashMultimap.create(stack.getAttributeModifiers(EquipmentSlot.MAINHAND));
+//            stats.forEach(stat -> {
+//                stat.computeAttributes(modifiableMap, modifiableMap::put, modifiableMap::removeAll);
+//            });
+//
+//            int finalTarget = target;
+//            modifiableMap.forEach((key, value) -> {
+//                if (isDefaultAttack(key)) return;
+//                double d0 = 0;
+//                d0 += player.getAttributeBaseValue(key);
+//                d0 += stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(key).stream().mapToDouble(AttributeModifier::getAmount).sum();
+//                d0 = TooltipHelper.getMod(value, d0);
+//                tooltip.add(finalTarget, Component.literal(" ").append(Component.translatable("attribute.modifier.equals." + value.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d0), Component.translatable(key.getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
+//            });
+//        }
 
     }
 

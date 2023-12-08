@@ -8,6 +8,7 @@ import foundry.alembic.util.CodecUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -44,5 +45,20 @@ public final class ReplaceItemModifier implements ItemModifier {
     @Override
     public ItemModifierType getType() {
         return ItemModifierType.REPLACE;
+    }
+
+    @Override
+    public @Nullable Attribute getAttribute() {
+        return null;
+    }
+
+    @Override
+    public @Nullable Attribute getTarget() {
+        return target;
+    }
+
+    @Override
+    public @Nullable UUID getUUID() {
+        return uuid;
     }
 }
