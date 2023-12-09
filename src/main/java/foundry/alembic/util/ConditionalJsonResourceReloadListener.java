@@ -42,7 +42,7 @@ public abstract class ConditionalJsonResourceReloadListener extends SimplePrepar
             try (BufferedReader reader = resource.openAsReader()) {
                 JsonElement jsonElement = GsonHelper.fromJson(gson, reader, JsonElement.class);
                 if (jsonElement.isJsonNull() || (jsonElement.isJsonObject() && jsonElement.getAsJsonObject().size() == 0)) {
-                    Alembic.LOGGER.error("Skipping loading empty data file {} from {}", id, entry.getKey());
+                    Alembic.LOGGER.info("Skipping loading empty data file {} from {}", id, entry.getKey());
                     continue;
                 }
 
