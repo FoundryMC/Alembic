@@ -11,4 +11,10 @@ public sealed interface ItemModifier permits AppendItemModifier, RemoveItemModif
     void compute(ItemStat.AttributeContainer container);
 
     ItemModifierType getType();
+
+    @Nullable Attribute getAttribute();
+
+    @Nullable Attribute getTarget();
+
+    @Nullable UUID getUUID();
 }

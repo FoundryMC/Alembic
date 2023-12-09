@@ -10,6 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public final class AppendItemModifier implements ItemModifier {
@@ -41,10 +42,17 @@ public final class AppendItemModifier implements ItemModifier {
         return application;
     }
 
+    @Override
     public Attribute getAttribute() {
         return attribute;
     }
 
+    @Override
+    public @Nullable Attribute getTarget() {
+        return null;
+    }
+
+    @Override
     public UUID getUUID() {
         return uuid;
     }
