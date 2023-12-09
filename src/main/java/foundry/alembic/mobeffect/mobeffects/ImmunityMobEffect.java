@@ -1,6 +1,7 @@
 package foundry.alembic.mobeffect.mobeffects;
 
 import foundry.alembic.util.TagOrElements;
+import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -23,7 +24,7 @@ public class ImmunityMobEffect extends ExtendedMobEffect {
     @Override
     public boolean beforeIncomingAttack(LivingEntity entity, MobEffectInstance effectInstance, DamageSource source, float amount) {
         if (immunities == null) {
-            immunities = rawImmunities.stream().flatMap(damageTypeLazy -> damageTypeLazy.getElements(entity.level().registryAccess()).stream()).collect(Collectors.toSet());
+            immunities = rawImmunities.stream().flatMap(damageTypeLazy -> damageTypeLazy.getElements(entity.level().registryAccess()).stream().map(Holder::get)).collect(Collectors.toSet());
         }
         return !immunities.contains(source.type()) && super.beforeIncomingAttack(entity, effectInstance, source, amount);
     }

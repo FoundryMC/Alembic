@@ -8,6 +8,7 @@ import foundry.alembic.stats.item.modifiers.ItemModifier;
 import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.TagOrElements;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -20,10 +21,10 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public record ItemStat(TagOrElements.Immediate<Item> items, List<ItemModifier> attributeData, Set<EquipmentSlotType> equipmentSlots) {
+public record ItemStat(TagOrElements.BuiltInLazy<Item> items, List<ItemModifier> attributeData, Set<EquipmentSlotType> equipmentSlots) {
     public static final Codec<ItemStat> CODEC = RecordCodecBuilder.create(itemStatInstance ->
             itemStatInstance.group(
-                    TagOrElements.codec(BuiltInRegistries.ITEM).fieldOf("id").forGetter(ItemStat::items),
+                    TagOrElements.builtInLazyCodec(BuiltInRegistries.ITEM).fieldOf("id").forGetter(ItemStat::items),
                     ItemModifier.DISPATCH_CODEC.listOf().fieldOf("modifiers").forGetter(ItemStat::attributeData),
                     Codec.either(EquipmentSlotType.CODEC, CodecUtil.setOf(EquipmentSlotType.CODEC)).fieldOf("equipment_slot")
                             .xmap(
@@ -80,8 +81,8 @@ public record ItemStat(TagOrElements.Immediate<Item> items, List<ItemModifier> a
 
     public String toString() {
         StringBuilder items = new StringBuilder();
-        for (Item item : this.items.getElements()) {
-            items.append(item.getDefaultInstance().getDisplayName().getString()).append(", ");
+        for (Holder<Item> item : this.items.getElements()) {
+            items.append(item.get().getDefaultInstance().getDisplayName().getString()).append(", ");
         }
         StringBuilder slots = new StringBuilder();
         for (EquipmentSlotType slot : equipmentSlots) {
