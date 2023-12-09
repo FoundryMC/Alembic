@@ -1,5 +1,6 @@
 package foundry.alembic;
 
+import foundry.alembic.attribute.UUIDSavedData;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
@@ -272,6 +273,7 @@ public class ForgeEvents {
 
         Player player = event.getPlayer();
         int hungerValue = event.getFoodLevel();
+        UUIDSavedData uuidManager = UUIDSavedData.getOrLoad(event.getPlayer().level().getServer());
 
         for (Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
             AlembicDamageType type = entry.getKey();
@@ -291,10 +293,12 @@ public class ForgeEvents {
             if (instance != null) { // maybe log warning?
                 float scalar = tag.getScaleAmount() * ((20 / tag.getHungerTrigger()) - (int)affectedFraction);
 
-                AttributeModifier modifier = new AttributeModifier(tag.getUUID(), modifierId, scalar, tag.getOperation());
+                UUID uuid = uuidManager.getOrCreate(type.getId().withSuffix(".%s_hunger_mod".formatted(tag.getTypeModifier())));
 
-                if (instance.getModifier(tag.getUUID()) != null) {
-                    instance.removeModifier(tag.getUUID());
+                AttributeModifier modifier = new AttributeModifier(uuid, modifierId, scalar, tag.getOperation());
+
+                if (instance.getModifier(uuid) != null) {
+                    instance.removeModifier(uuid);
                     instance.addTransientModifier(modifier);
                 } else {
                     instance.addTransientModifier(modifier);
