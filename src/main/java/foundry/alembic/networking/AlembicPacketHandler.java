@@ -31,6 +31,8 @@ public class AlembicPacketHandler {
     }
 
     public static void sendFirePacket(Entity entity, String type) {
-        AlembicPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientboundAlembicFireTypePacket(type, entity.getId()));
+        if (!entity.level().isClientSide) {
+            AlembicPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientboundAlembicFireTypePacket(type, entity.getId()));
+        }
     }
 }
