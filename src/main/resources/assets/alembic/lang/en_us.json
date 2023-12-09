@@ -34,7 +34,7 @@
   "effect.alembic.soul_fire": "Soul Fire",
   "effect.alembic.frostbite": "Frostbite",
 
-  "death.attack.soulFire": "%s burned in otherworldly flames",
+  "death.attack.onSoulFire": "%s burned in otherworldly flames",
   
   "item.minecraft.potion.effect.alchemical_damage_resistance": "Potion of Alchemical Resistance",
   "item.minecraft.splash_potion.effect.alchemical_damage_resistance": "Splash Potion of Alchemical Resistance",
