@@ -43,7 +43,7 @@ public abstract class FileReferenceCodec<T> implements Codec<T> {
 
     @Override
     public <T1> DataResult<Pair<T, T1>> decode(DynamicOps<T1> ops, T1 input) {
-        if (ops instanceof FileReferenceOps<T1> fileReferenceOps) {
+        if (ops instanceof FileReferenceRegistryOps<T1> fileReferenceOps) {
             // This is in the alembic namespace by default instead of minecraft
             DataResult<ResourceLocation> refIdResult = CodecUtil.ALEMBIC_RL_CODEC.parse(ops, input);
             if (refIdResult.error().isPresent()) {
@@ -55,7 +55,7 @@ public abstract class FileReferenceCodec<T> implements Codec<T> {
         return referenceCodec.decode(ops, input);
     }
 
-    protected final <T1> DataResult<T> resolveData(FileReferenceOps<T1> ops, ResourceLocation refId) {
+    protected final <T1> DataResult<T> resolveData(FileReferenceRegistryOps<T1> ops, ResourceLocation refId) {
         ResourceLocation fullPath = converter.idToFile(refId);
         DataResult<T> parsedDataResult;
         if (ops.hasParsed(fullPath)) {
