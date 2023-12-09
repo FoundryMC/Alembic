@@ -6,8 +6,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.ConditionalJsonResourceReloadListener;
-import foundry.alembic.codecs.FileReferenceOps;
+import foundry.alembic.codecs.FileReferenceRegistryOps;
 import foundry.alembic.util.Utils;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -23,8 +24,11 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
 
     public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = ResourceLocation.CODEC.xmap(DAMAGE_TYPES::get, AlembicDamageType::getId);
 
-    public DamageTypeManager(ICondition.IContext conditionContext) {
+    private final RegistryAccess registryAccess;
+
+    public DamageTypeManager(ICondition.IContext conditionContext, RegistryAccess registryAccess) {
         super(conditionContext, Utils.GSON, "alembic/damage_types");
+        this.registryAccess = registryAccess;
     }
 
     public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {
@@ -57,7 +61,7 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
         DAMAGE_TYPES.clear();
         AlembicGlobalTagPropertyHolder.clearAll();
-        FileReferenceOps<JsonElement> ops = FileReferenceOps.create(JsonOps.INSTANCE, rm);
+        FileReferenceRegistryOps<JsonElement> ops = FileReferenceRegistryOps.create(JsonOps.INSTANCE, registryAccess, rm);
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             ResourceLocation id = entry.getKey();
             if (id.getPath().startsWith("tags/") || id.getPath().startsWith("conditions/")) {
@@ -72,8 +76,8 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
             type.handlePostParse(id);
 
             if (containsKey(id)) {
-                if (type.getPriority() < getDamageType(type.getId()).getPriority()) {
-                    Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(type.getId()));
+                if (type.getPriority() < getDamageType(id).getPriority()) {
+                    Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(id));
                 }
             } else {
                 registerDamageType(id, type);
