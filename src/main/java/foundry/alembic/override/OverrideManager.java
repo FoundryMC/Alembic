@@ -38,7 +38,6 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
         );
     }
 
-    private static final Set<Pair<ResourceLocation, OverrideStorage>> STORES = new LinkedHashSet<>();
     private static final Map<DamageType, AlembicOverride> OVERRIDES = new Reference2ObjectOpenHashMap<>();
     private final RegistryAccess registryAccess;
 
@@ -79,10 +78,6 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
         }
     }
 
-    static void clearOverrides() {
-        OVERRIDES.clear();
-    }
-
     @Nullable
     public static AlembicOverride getOverridesForSource(DamageSource source) {
         return OVERRIDES.get(source.type());
@@ -90,7 +85,7 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> jsonMap, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        clearOverrides();
+        OVERRIDES.clear();
         RegistryOps<JsonElement> regOps = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
         Codec<OverrideStorage> storageCodec = createCodec(context);
         for (Map.Entry<ResourceLocation, JsonElement> dataEntry : jsonMap.entrySet()) {
@@ -101,7 +96,16 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
             }
 
             OverrideStorage storage = dataResult.result().get();
-            STORES.add(Pair.of(dataEntry.getKey(), storage));
+            for (Map.Entry<TagOrElements.Immediate<DamageType>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
+                AlembicOverride override = parsedEntry.getValue();
+
+                override.setId(dataEntry.getKey());
+                override.setPriority(storage.priority);
+
+                for (Holder<DamageType> type : parsedEntry.getKey().getElements()) {
+                    smartAddOverride(type.get(), override);
+                }
+            }
         }
         // write the map to a human-readable string
         String logPut = getOverrides().entrySet().stream()
