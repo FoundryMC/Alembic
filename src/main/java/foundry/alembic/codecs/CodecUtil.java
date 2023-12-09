@@ -1,11 +1,9 @@
 package foundry.alembic.codecs;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.*;
 import foundry.alembic.Alembic;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,13 +19,8 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class CodecUtil {
     public static final Codec<Integer> STRINGIFIED_LITERAL_COLOR_CODEC = Codec.STRING.comapFlatMap(
@@ -148,12 +141,5 @@ public class CodecUtil {
             throw new IllegalArgumentException("Cannot create either because both elements are present. Only one must exist");
         }
         return left == null ? Either.right(right) : Either.left(left);
-    }
-
-    public static <L, R> Optional<Either<L, R>> optionalEither(L left, R right) {
-        if (left == null && right == null) {
-            return Optional.empty();
-        }
-        return Optional.of(wrapEither(left, right));
     }
 }
