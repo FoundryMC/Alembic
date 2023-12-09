@@ -2,6 +2,7 @@ package foundry.alembic.types.tag.condition.predicates;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.ForgeEvents;
 import foundry.alembic.util.TagOrElements;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,18 +15,18 @@ public class DamageSourcePredicate {
     public static final MapCodec<DamageSourcePredicate> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                     EntityPredicate.CODEC.optionalFieldOf("direct_entity", EntityPredicate.EMPTY).forGetter(damageSourcePredicate -> damageSourcePredicate.directEntityPredicate),
                     EntityPredicate.CODEC.optionalFieldOf("indirect_entity", EntityPredicate.EMPTY).forGetter(damageSourcePredicate -> damageSourcePredicate.indirectEntityPredicate),
-                    TagOrElements.lazyCodec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_source").forGetter(damageSourcePredicate -> Optional.ofNullable(damageSourcePredicate.damageTypeLazy))
+                    TagOrElements.codec(Registries.DAMAGE_TYPE, ForgeEvents.getCurrentContext()).optionalFieldOf("damage_source").forGetter(damageSourcePredicate -> Optional.ofNullable(damageSourcePredicate.damageType))
             ).apply(instance, DamageSourcePredicate::new)
     );
 
     private final EntityPredicate directEntityPredicate;
     private final EntityPredicate indirectEntityPredicate;
-    private TagOrElements.Lazy<DamageType> damageTypeLazy;
+    private final TagOrElements.Immediate<DamageType> damageType;
 
-    public DamageSourcePredicate(EntityPredicate directEntity, EntityPredicate indirectEntity, Optional<TagOrElements.Lazy<DamageType>> damageTypeLazyOptional) {
+    public DamageSourcePredicate(EntityPredicate directEntity, EntityPredicate indirectEntity, Optional<TagOrElements.Immediate<DamageType>> damageTypeLazyOptional) {
         this.directEntityPredicate = directEntity;
         this.indirectEntityPredicate = indirectEntity;
-        this.damageTypeLazy = damageTypeLazyOptional.orElse(null);
+        this.damageType = damageTypeLazyOptional.orElse(null);
     }
 
     public boolean matches(Level level, DamageSource damageSource) {
@@ -35,7 +36,7 @@ public class DamageSourcePredicate {
         if (!indirectEntityPredicate.matches(damageSource.getEntity())) {
             return false;
         }
-        if (damageTypeLazy != null && !damageTypeLazy.getElements(level.registryAccess()).contains(damageSource.type())) {
+        if (damageType != null && !damageType.getElements().contains(damageSource.typeHolder())) {
             return false;
         }
         return true;
