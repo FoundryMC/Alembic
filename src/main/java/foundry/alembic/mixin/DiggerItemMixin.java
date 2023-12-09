@@ -24,7 +24,7 @@ public class DiggerItemMixin {
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void alembic$onInit(float pAttackDamageModifier, float pAttackSpeedModifier, Tier pTier, TagKey pBlocks, Item.Properties pProperties, CallbackInfo ci, ImmutableMultimap.Builder builder) {
         Multimap<Attribute, AttributeModifier> defaultModifiers = HashMultimap.create();
-        this.defaultModifiers.forEach(defaultModifiers::put);
+        defaultModifiers.putAll(this.defaultModifiers);
         ((DiggerItem)(Object)this).defaultModifiers = defaultModifiers;
     }
 }

@@ -22,7 +22,7 @@ public class TridentItemMixin {
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void alembic$onInit(Item.Properties pProperties, CallbackInfo ci, ImmutableMultimap.Builder $$1) {
         Multimap<Attribute, AttributeModifier> defaultModifiers = HashMultimap.create();
-        this.defaultModifiers.forEach(defaultModifiers::put);
+        defaultModifiers.putAll(this.defaultModifiers);
         ((TridentItem)(Object)this).defaultModifiers = defaultModifiers;
     }
 }
