@@ -85,5 +85,7 @@
   "item.modifiers.blocking.alembic.true_damage": "%s%% of True Damage",
   "item.modifiers.blocking.alembic.alchemical_damage": "%s%% of Alchemical Damage",
   "item.modifiers.blocking.alembic.arcane_damage": "%s%% of Arcane Damage",
-  "item.modifiers.blocking.alembic.fire_damage": "%s%% of Fire Damage"
+  "item.modifiers.blocking.alembic.fire_damage": "%s%% of Fire Damage",
+
+  "dataPack.alembic_default_pack.name": "Alembic Defaults"
 }

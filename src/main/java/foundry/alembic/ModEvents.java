@@ -7,7 +7,12 @@ import foundry.alembic.potion.AlembicPotionRecipe;
 import foundry.alembic.potion.PotionModifier;
 import foundry.alembic.types.AlembicTypeModifier;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -18,8 +23,10 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.crafting.StrictNBTIngredient;
+import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -80,6 +87,17 @@ public class ModEvents {
                 });
             }
         });
+    }
+
+    @SubscribeEvent
+    static void addBuiltinPack(final AddPackFindersEvent event) {
+        if (event.getPackType() == PackType.SERVER_DATA) {
+            event.addRepositorySource(pOnLoad -> {
+                pOnLoad.accept(Pack.readMetaAndCreate("alembic_default", Component.translatable("dataPack.alembic_default_pack.name"), false, pId ->
+                    new PathPackResources(pId, ModList.get().getModFileById(Alembic.MODID).getFile().findResource("data/alembic/datapacks/" + pId), true)
+                , PackType.SERVER_DATA, Pack.Position.TOP, PackSource.BUILT_IN));
+            });
+        }
     }
 
     private static void addPotionRecipe(Potion input, Item reagent, Potion output) {
