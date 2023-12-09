@@ -29,10 +29,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
@@ -43,6 +41,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -60,9 +59,9 @@ public class ForgeEvents {
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
 
-    @SubscribeEvent
-    static void onServerStarted(final ServerStartedEvent event) {
-        OverrideManager.setupOverrides(event.getServer().registryAccess());
+    private static ICondition.IContext conditionContext;
+    public static ICondition.IContext getCurrentContext() {
+        return conditionContext;
     }
 
     @SubscribeEvent
@@ -103,11 +102,17 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void onJsonListener(AddReloadListenerEvent event) {
-        event.addListener(new DamageTypeManager(event.getConditionContext()));
-        event.addListener(new OverrideManager(event.getConditionContext()));
-        event.addListener(new StatsManager(event.getConditionContext()));
-        event.addListener(new ItemStatManager(event.getConditionContext()));
-        event.addListener(new ShieldStatManager(event.getConditionContext()));
+        conditionContext = event.getConditionContext();
+        event.addListener(new DamageTypeManager(conditionContext, event.getRegistryAccess()));
+        event.addListener(new OverrideManager(conditionContext, event.getRegistryAccess()));
+        event.addListener(new StatsManager(conditionContext));
+        event.addListener(new ItemStatManager(conditionContext));
+        event.addListener(new ShieldStatManager(conditionContext));
+    }
+
+    @SubscribeEvent
+    static void resetConditionContext(TagsUpdatedEvent event) {
+        conditionContext = null;
     }
 
     @SubscribeEvent
@@ -116,10 +121,11 @@ public class ForgeEvents {
         // TODO: note/1
         if (stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
             int level = stack.getEnchantmentLevel(Enchantments.FIRE_ASPECT);
-            Attribute fireDamage = DamageTypeManager.getDamageType("fire_damage").getAttribute();
+            AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
             if(fireDamage == null) return;
+            Attribute fireDamageAttr = fireDamage.getAttribute();
             if(!event.getSlotType().equals(EquipmentSlot.MAINHAND)) return;
-            event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
+            event.addModifier(fireDamageAttr, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
             event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -(1+level), AttributeModifier.Operation.ADDITION));
         }
 
@@ -240,15 +246,17 @@ public class ForgeEvents {
         if(!event.getEntity().level().isClientSide){
             if(event.getEntity().isInWaterOrRain()){
                 // if the entity is in water or rain, increase fire resistance by +6
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
-                if(fireRes == null) return;
+                AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
+                if(fireDamage == null) return;
+                Attribute fireRes = fireDamage.getResistanceAttribute();
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
                 event.getEntity().getAttribute(fireRes).addPermanentModifier(FIRE_WATER_ATT_MOD);
             } else {
                 // if the entity is not in water or rain, remove the fire resistance modifier
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
-                if(fireRes == null) return;
+                AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
+                if(fireDamage == null) return;
+                Attribute fireRes = fireDamage.getResistanceAttribute();
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
                 event.getEntity().getAttribute(fireRes).removeModifier(FIRE_WATER_ATT_MOD);
