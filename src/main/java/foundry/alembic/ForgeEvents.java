@@ -1,10 +1,13 @@
 package foundry.alembic;
 
+import foundry.alembic.attribute.AlembicAttribute;
 import foundry.alembic.attribute.UUIDSavedData;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
 import foundry.alembic.event.AlembicFoodChangeEvent;
+import foundry.alembic.networking.AlembicPacketHandler;
+import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.StatsManager;
 import foundry.alembic.stats.item.ItemStatManager;
@@ -37,12 +40,12 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableFloat;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -60,14 +63,31 @@ public class ForgeEvents {
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
 
+    // This is only valid during data reload
     private static ICondition.IContext conditionContext;
     public static ICondition.IContext getCurrentContext() {
         return conditionContext;
     }
 
     @SubscribeEvent
-    public static void registerCommands(RegisterCommandsEvent event) {
+    static void onServerClose(final ServerStoppedEvent event) {
+        AlembicAttribute.clearCache();
+    }
+
+    @SubscribeEvent
+    static void registerCommands(RegisterCommandsEvent event) {
         AlembicCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    static void syncItemStats(final OnDatapackSyncEvent event) {
+        PacketDistributor.PacketTarget packetTarget;
+        if (event.getPlayer() != null) {
+            packetTarget = PacketDistributor.PLAYER.with(event::getPlayer);
+        } else {
+            packetTarget = PacketDistributor.ALL.noArg();
+        }
+        AlembicPacketHandler.INSTANCE.send(packetTarget, new ClientboundSyncItemStatsPacket(ItemStatManager.getStats()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -264,8 +284,6 @@ public class ForgeEvents {
             }
         }
     }
-
-
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // We don't want to modify, but we do want to get the final values
     static void hungerChanged(AlembicFoodChangeEvent event) {

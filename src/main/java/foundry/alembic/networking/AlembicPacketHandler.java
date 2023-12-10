@@ -28,6 +28,11 @@ public class AlembicPacketHandler {
                 .decoder(ClientboundAlembicFireTypePacket::decode)
                 .consumerMainThread(ClientboundAlembicFireTypePacket::handle)
                 .add();
+        INSTANCE.messageBuilder(ClientboundSyncItemStatsPacket.class, id++)
+                .encoder(ClientboundSyncItemStatsPacket::encode)
+                .decoder(ClientboundSyncItemStatsPacket::decode)
+                .consumerMainThread(ClientboundSyncItemStatsPacket::handle)
+                .add();
     }
 
     public static void sendFirePacket(Entity entity, String type) {

@@ -4,6 +4,8 @@ import foundry.alembic.caps.AlembicFlammableHandler;
 import foundry.alembic.compat.TESCompat;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.networking.ClientboundAlembicFireTypePacket;
+import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
+import foundry.alembic.stats.item.ItemStatManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -32,5 +34,9 @@ public class ClientPacketHandler {
                 handler.setFireType(msg.fireType());
             });
         }
+    }
+
+    public static void handleSyncItemStats(ClientboundSyncItemStatsPacket packet) {
+        ItemStatManager.syncPacket(packet.map());
     }
 }

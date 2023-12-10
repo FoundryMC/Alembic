@@ -1,17 +1,12 @@
 package foundry.alembic;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import foundry.alembic.attribute.AlembicAttribute;
 import foundry.alembic.attribute.AttributeSetRegistry;
-import foundry.alembic.client.TooltipHelper;
-import foundry.alembic.stats.item.ItemStat;
 import foundry.alembic.stats.item.ItemStatManager;
-import foundry.alembic.stats.item.slots.VanillaSlotType;
 import foundry.alembic.stats.shield.ShieldStatManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -22,12 +17,11 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import static net.minecraft.world.item.ItemStack.ATTRIBUTE_MODIFIER_FORMAT;
@@ -101,6 +95,12 @@ public class ForgeClientEvents {
 //            });
 //        }
 
+    }
+
+    @SubscribeEvent
+    static void onLoggingOut(final ClientPlayerNetworkEvent.LoggingOut event) {
+        AlembicAttribute.clearCache();
+        ItemStatManager.syncPacket(null);
     }
 
     private static boolean isDefaultAttack(Attribute attribute) {
