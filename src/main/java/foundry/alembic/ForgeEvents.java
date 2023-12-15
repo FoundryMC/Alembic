@@ -203,8 +203,7 @@ public class ForgeEvents {
         LivingEntity target = event.getEntity();
         if (target.level().isClientSide) return;
         if (isBeingDamaged) {
-            Alembic.LOGGER.warn("Alembic is being damaged twice in one tick! This is a bug!");
-            return;
+            Alembic.printInDebug(() -> "Warning, damaging twice. If this is not a highly modded environment, report this.");
         }
         isBeingDamaged = true;
         AlembicDamageHandler.handleDamage(event);
