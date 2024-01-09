@@ -1,5 +1,6 @@
 package foundry.alembic.client;
 
+import foundry.alembic.Alembic;
 import foundry.alembic.caps.AlembicFlammableHandler;
 import foundry.alembic.compat.TESCompat;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
@@ -19,8 +20,8 @@ public class ClientPacketHandler {
         if(ModList.get().isLoaded("tslatentitystatus")){
             try{
                 TESCompat.spawnParticle(Minecraft.getInstance().level, msg.entityID(), msg.damageType(), msg.damageAmount(), msg.color());
-            } catch (Exception e){
-                e.printStackTrace();
+            } catch (Exception e) { // TODO: Why is this necessary?
+                Alembic.LOGGER.error(e.getMessage(), e);
             }
         }
     }
