@@ -22,7 +22,7 @@ public class UUIDSavedData extends SavedData {
     @ApiStatus.ScheduledForRemoval(inVersion = "1.21")
     @Deprecated(forRemoval = true)
     public static final String OLD_ATTR_MOD_ID = "attr_mod_uuids";
-    public static final String ATTR_MODIFIER_ID = "alembic:attr_mod_uuids";
+    public static final String ATTR_MODIFIER_ID = "alembic_attr_mod_uuids";
 
     private final Map<ResourceLocation, UUID> uniqueIds;
 
