@@ -24,6 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -239,11 +240,14 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void onEffect(MobEffectEvent event) {
-        if (event.getEffectInstance() == null) return;
+        MobEffectInstance instance = event.getEffectInstance();
+        if (instance == null) return;
         AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 * (1 + event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
         if (event instanceof MobEffectEvent.Added) {
-            if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
+            if(instance.getEffect() == MobEffects.FIRE_RESISTANCE) {
+                AlembicDamageType damageType = DamageTypeManager.getDamageType("fire_damage");
+                if (damageType == null) return;
+                Attribute fireRes = damageType.getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(attmod.getId()) != null) return;
@@ -251,8 +255,10 @@ public class ForgeEvents {
             }
         }
         if (event instanceof MobEffectEvent.Remove) {
-            if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
+            if(instance.getEffect() == MobEffects.FIRE_RESISTANCE) {
+                AlembicDamageType damageType = DamageTypeManager.getDamageType("fire_damage");
+                if (damageType == null) return;
+                Attribute fireRes = damageType.getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 event.getEntity().getAttribute(fireRes).removeModifier(attmod);
@@ -260,27 +266,29 @@ public class ForgeEvents {
         }
     }
 
-    private static AttributeModifier FIRE_WATER_ATT_MOD = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 6, AttributeModifier.Operation.ADDITION);
+    private static final AttributeModifier FIRE_WATER_ATT_MOD = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 6, AttributeModifier.Operation.ADDITION);
 
     @SubscribeEvent
-    public static void livingTick(LivingEvent.LivingTickEvent event){
-        if(!event.getEntity().level().isClientSide){
-            if(event.getEntity().isInWaterOrRain()){
+    public static void livingTick(LivingEvent.LivingTickEvent event) {
+        if (!event.getEntity().level().isClientSide) {
+            if (event.getEntity().isInWaterOrRain()) {
                 // if the entity is in water or rain, increase fire resistance by +6
                 AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
-                if(fireDamage == null) return;
+                if (fireDamage == null) return;
                 Attribute fireRes = fireDamage.getResistanceAttribute();
-                if(event.getEntity().getAttribute(fireRes) == null) return;
-                if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
-                event.getEntity().getAttribute(fireRes).addPermanentModifier(FIRE_WATER_ATT_MOD);
+                AttributeInstance attributeInstance = event.getEntity().getAttribute(fireRes);
+                if (attributeInstance == null) return;
+                if (attributeInstance.getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
+                attributeInstance.addPermanentModifier(FIRE_WATER_ATT_MOD);
             } else {
                 // if the entity is not in water or rain, remove the fire resistance modifier
                 AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
-                if(fireDamage == null) return;
+                if (fireDamage == null) return;
                 Attribute fireRes = fireDamage.getResistanceAttribute();
-                if(event.getEntity().getAttribute(fireRes) == null) return;
-                if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
-                event.getEntity().getAttribute(fireRes).removeModifier(FIRE_WATER_ATT_MOD);
+                AttributeInstance attributeInstance = event.getEntity().getAttribute(fireRes);
+                if (attributeInstance == null) return;
+                if (attributeInstance.getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
+                attributeInstance.removeModifier(FIRE_WATER_ATT_MOD);
             }
         }
     }
@@ -349,5 +357,4 @@ public class ForgeEvents {
         CompoundTag tagData = persistentData.getCompound("AlembicTagData");
         tagData.putInt(id, region);
     }
-
 }
