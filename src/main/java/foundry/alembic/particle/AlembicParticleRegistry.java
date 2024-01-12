@@ -2,6 +2,8 @@ package foundry.alembic.particle;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import foundry.alembic.Alembic;
+import foundry.alembic.AlembicConfig;
 import foundry.alembic.resources.ResourceProviderHelper;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -27,9 +29,15 @@ public class AlembicParticleRegistry {
             JsonArray array = entry.getValue().getAsJsonObject().getAsJsonArray("values");
             for (JsonElement particleName : array) {
                 String particleStr = particleName.getAsString();
-                ResourceLocation rl = particleStr.contains(":") ? new ResourceLocation(particleStr) : new ResourceLocation(entry.getKey().getNamespace(), particleStr);
+                ResourceLocation rl = particleStr.contains(":") ? new ResourceLocation(Alembic.MODID, particleStr) : new ResourceLocation(entry.getKey().getNamespace(), particleStr);
                 RegistryObject<ParticleType<SimpleParticleType>> regObj = getRegister(rl.getNamespace()).register(rl.getPath(), () -> new SimpleParticleType(true));
-                PARTICLES.putIfAbsent(rl, regObj);
+                if (PARTICLES.putIfAbsent(rl, regObj) == null) {
+                    if (AlembicConfig.dumpStaticRegistries.get()) {
+                        Alembic.LOGGER.info("Alembic particle registry entry: {}", rl);
+                    }
+                } else {
+                    Alembic.LOGGER.error("A particle entry is already associated with the id {}!", rl);
+                }
             }
         }
 

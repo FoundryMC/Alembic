@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.AlembicConfig;
 import foundry.alembic.ForgeEvents;
 import foundry.alembic.mobeffect.AlembicMobEffect;
 import foundry.alembic.mobeffect.mobeffects.ImmunityMobEffect;
@@ -83,11 +84,15 @@ public class AttributeSetRegistry {
             ResourceLocation id = CONVERTER.fileToId(entry.getKey());
 
             if (ID_TO_SET_BIMAP.containsKey(id)) {
-                Alembic.LOGGER.error("Attribute set already present " + id);
+                Alembic.LOGGER.error("Attribute set already present {}", id);
                 continue;
             }
 
             ID_TO_SET_BIMAP.put(id, set);
+
+            if (AlembicConfig.dumpStaticRegistries.get()) {
+                Alembic.LOGGER.info("Alembic attribute set registry entry: {}", id);
+            }
 
             DeferredRegister<Attribute> deferredRegister = getAttributeRegister(id.getNamespace());
             set.getDamageData().ifPresent(data -> {
