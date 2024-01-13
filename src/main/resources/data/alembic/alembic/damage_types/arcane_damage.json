@@ -19,6 +19,7 @@
             "else": {
               "tag_type": "alembic:particle_tag",
               "particle_speed": 0.35,
+              "scalar": 3,
               "particle_options": {
                 "type": "alembic:arcane_spark"
               }
