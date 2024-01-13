@@ -90,7 +90,7 @@ public class AttributeSetRegistry {
 
             ID_TO_SET_BIMAP.put(id, set);
 
-            if (AlembicConfig.dumpStaticRegistries.get()) {
+            if (Alembic.DUMP_STATIC_REGISTRIES) {
                 Alembic.LOGGER.info("Alembic attribute set registry entry: {}", id);
             }
 

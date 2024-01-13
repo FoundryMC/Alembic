@@ -29,10 +29,10 @@ public class AlembicParticleRegistry {
             JsonArray array = entry.getValue().getAsJsonObject().getAsJsonArray("values");
             for (JsonElement particleName : array) {
                 String particleStr = particleName.getAsString();
-                ResourceLocation rl = particleStr.contains(":") ? new ResourceLocation(Alembic.MODID, particleStr) : new ResourceLocation(entry.getKey().getNamespace(), particleStr);
+                ResourceLocation rl = particleStr.contains(":") ? new ResourceLocation(particleStr) : new ResourceLocation(entry.getKey().getNamespace(), particleStr);
                 RegistryObject<ParticleType<SimpleParticleType>> regObj = getRegister(rl.getNamespace()).register(rl.getPath(), () -> new SimpleParticleType(true));
                 if (PARTICLES.putIfAbsent(rl, regObj) == null) {
-                    if (AlembicConfig.dumpStaticRegistries.get()) {
+                    if (Alembic.DUMP_STATIC_REGISTRIES) {
                         Alembic.LOGGER.info("Alembic particle registry entry: {}", rl);
                     }
                 } else {
