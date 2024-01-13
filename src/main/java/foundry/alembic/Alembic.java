@@ -28,7 +28,6 @@ import java.util.function.Supplier;
 public class Alembic {
     public static final String MODID = "alembic";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
     public static final boolean DUMP_STATIC_REGISTRIES = true;
 
     public Alembic() {
