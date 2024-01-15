@@ -2,9 +2,7 @@ package foundry.alembic.attribute;
 
 import dev.shadowsoffire.attributeslib.api.IFormattableAttribute;
 import foundry.alembic.stats.item.ItemStatManager;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.IdentityHashMap;

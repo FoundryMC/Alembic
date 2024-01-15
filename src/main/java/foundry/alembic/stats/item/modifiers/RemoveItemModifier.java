@@ -9,16 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public final class RemoveItemModifier implements ItemModifier {
+public record RemoveItemModifier(Attribute attribute) implements ItemModifier {
     public static final Codec<RemoveItemModifier> CODEC = BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("attribute")
             .xmap(RemoveItemModifier::new, removeItemModifier -> removeItemModifier.attribute)
             .codec();
-
-    private final Attribute attribute;
-
-    public RemoveItemModifier(Attribute attribute) {
-        this.attribute = attribute;
-    }
 
     @Override
     public void compute(ItemStat.AttributeContainer container) {
