@@ -319,7 +319,7 @@ public class ForgeEvents {
             if (instance != null) { // maybe log warning?
                 float scalar = tag.getScaleAmount() * ((20 / tag.getHungerTrigger()) - (int)affectedFraction);
 
-                UUID uuid = uuidManager.getOrCreate(type.getId().withSuffix(".%s_hunger_mod".formatted(tag.getTypeModifier())));
+                UUID uuid = uuidManager.getOrCreate(type.getId().withSuffix(".%s_hunger_mod".formatted(tag.getTypeModifier().getSerializedName())));
 
                 AttributeModifier modifier = new AttributeModifier(uuid, modifierId, scalar, tag.getOperation());
 
