@@ -15,7 +15,9 @@ public class AttributeHelper {
         if (livingEntity.level() instanceof ServerLevel serverLevel) {
             AttributeInstance instance = livingEntity.getAttribute(attribute);
             UUIDSavedData savedData = UUIDSavedData.getOrLoad(serverLevel.getServer());
-            addOrModifyModifier(instance, modifierId, savedData.getOrCreate(modifierId), bonus);
+            if (instance != null) {
+                addOrModifyModifier(instance, modifierId, savedData.getOrCreate(modifierId), bonus);
+            }
         }
     }
 
