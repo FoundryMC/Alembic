@@ -8,15 +8,15 @@ import foundry.alembic.util.ComposedData;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public record NotCondition(List<TagCondition> conditions) implements TagCondition {
-    public static final Codec<NotCondition> CODEC = TagCondition.DISPATCH_CODEC.listOf().fieldOf("conditions").xmap(
+public record NotCondition(TagCondition condition) implements TagCondition {
+    public static final Codec<NotCondition> CODEC = TagCondition.DISPATCH_CODEC.fieldOf("condition").xmap(
             NotCondition::new,
-            NotCondition::conditions
+            NotCondition::condition
     ).codec();
 
     @Override
     public boolean test(ComposedData composedData) {
-        return conditions.stream().noneMatch(tagCondition -> tagCondition.test(composedData));
+        return condition.test(composedData);
     }
 
     @Nonnull
