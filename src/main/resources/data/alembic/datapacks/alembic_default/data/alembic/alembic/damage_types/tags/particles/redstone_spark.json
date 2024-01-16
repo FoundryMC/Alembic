@@ -7,15 +7,10 @@
   },
   "conditions": [
     {
-      "condition_type": "alembic:any",
-      "conditions": [
-        {
-          "condition_type": "alembic:damage_source",
-          "direct_entity": {
-            "held_item": "minecraft:redstone_torch"
-          }
-        }
-      ]
+      "condition_type": "alembic:damage_source",
+      "direct_entity": {
+        "held_item": "minecraft:redstone_torch"
+      }
     }
   ]
 }
