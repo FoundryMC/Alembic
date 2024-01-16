@@ -9,14 +9,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public record RemoveItemModifier(Attribute attribute) implements ItemModifier {
-    public static final Codec<RemoveItemModifier> CODEC = BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("attribute")
-            .xmap(RemoveItemModifier::new, removeItemModifier -> removeItemModifier.attribute)
+public record RemoveItemModifier(Attribute target) implements ItemModifier {
+    public static final Codec<RemoveItemModifier> CODEC = BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("target")
+            .xmap(RemoveItemModifier::new, removeItemModifier -> removeItemModifier.target)
             .codec();
 
     @Override
     public void compute(ItemStat.AttributeContainer container) {
-        container.remove(attribute);
+        container.remove(target);
     }
 
     @Override
@@ -31,7 +31,7 @@ public record RemoveItemModifier(Attribute attribute) implements ItemModifier {
 
     @Override
     public @Nullable Attribute getTarget() {
-        return attribute;
+        return target;
     }
 
     @Override
