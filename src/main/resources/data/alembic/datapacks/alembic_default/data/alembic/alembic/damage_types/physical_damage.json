@@ -3,8 +3,5 @@
   "color": "#F10000",
   "enchant_reduction": true,
   "enchant_source": "mob",
-  "tags": [
-    {
-    }
-  ]
+  "tags": []
 }
