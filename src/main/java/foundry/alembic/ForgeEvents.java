@@ -232,6 +232,7 @@ public class ForgeEvents {
         if (target.level().isClientSide) return;
         if (isBeingDamaged) {
             Alembic.printInDebug(() -> "Warning, damaging twice. If this is not a highly modded environment, report this.");
+            if(AlembicConfig.ignoreDoubleDamage.get()) return;
         }
         isBeingDamaged = true;
         AlembicDamageHandler.handleDamage(event);
