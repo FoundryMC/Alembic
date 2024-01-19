@@ -1,10 +1,13 @@
 {
   "attribute.alembic.alchemical_damage": "Alchemical Damage",
   "attribute.alembic.alchemical_damage.resistance": "Alchemical Resistance",
+  "effect.alembic.alchemical_damage_resistance": "Alchemical Resistance",
   "attribute.alembic.arcane_damage": "Arcane Damage",
   "attribute.alembic.arcane_damage.resistance": "Arcane Resistance",
+  "effect.alembic.arcane_damage_resistance": "Arcane Resistance",
   "attribute.alembic.fire_damage": "Fire Damage",
   "attribute.alembic.fire_damage.resistance": "Fire Resistance",
+  "effect.alembic.fire_damage_resistance": "Fire Resistance",
   "attribute.alembic.physical_damage": "Physical Damage",
   "attribute.alembic.true_damage": "True Damage",
   "attribute.alembic.true_damage.resistance": "[Unused] True Resistance",

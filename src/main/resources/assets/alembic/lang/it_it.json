@@ -3,14 +3,14 @@
 	
   "attribute.alembic.alchemical_damage": "Danno alchemico",
   "attribute.alembic.alchemical_damage.resistance": "Resistenza alchemica",
+  "effect.alembic.alchemical_damage_resistance": "Resistenza alchemica",
   "attribute.alembic.arcane_damage": "Danno arcano",
   "attribute.alembic.arcane_damage.resistance": "Resistenza arcana",
+  "effect.alembic.arcane_damage_resistance": "Resistenza arcana",
   "attribute.alembic.fire_damage": "Danno da fuoco",
   "attribute.alembic.fire_damage.resistance": "Resistenza al fuoco",
-  "attribute.alembic.physical_damage": "Danno fisico",
-  "effect.alembic.alchemical_damage_resistance": "Resistenza alchemica",
-  "effect.alembic.arcane_damage_resistance": "Resistenza arcana",
   "effect.alembic.fire_damage_resistance": "Resistenza al fuoco",
+  "attribute.alembic.physical_damage": "Danno fisico",
   "attribute.alembic.true_damage": "Danno puro",
   "attribute.alembic.true_damage.resistance": "[Inutilizzato] Resistenza Pura",
 
