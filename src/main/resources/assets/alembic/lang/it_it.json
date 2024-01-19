@@ -9,15 +9,32 @@
   "attribute.alembic.fire_damage.resistance": "Resistenza al fuoco",
   "attribute.alembic.physical_damage": "Danno fisico",
   "attribute.alembic.true_damage": "Danno puro",
+  "attribute.alembic.true_damage.resistance": "Absolute Resistance",
+  
   "effect.alembic.alchemical_damage_resistance": "Resistenza alchemica",
   "effect.alembic.arcane_damage_resistance": "Resistenza arcana",
   "effect.alembic.fire_damage_resistance": "Resistenza al fuoco",
+
   "effect.alembic.alchemical_damage_absorption": "Assorbimento alchemico",
   "effect.alembic.arcane_damage_absorption": "Assorbimento arcano",
   "effect.alembic.fire_damage_absorption": "Assorbimento ardente",
+  "effect.alembic.physical_damage_absorption": "Assorbimento fisico",
+  "attribute.alembic.alchemical_damage_absorption": "Assorbimento alchemico",
+  "attribute.alembic.arcane_damage_absorption": "Assorbimento arcano",
+  "attribute.alembic.fire_damage_absorption": "Assorbimento ardente",
+  "attribute.alembic.physical_damage.absorption": "Assorbimento fisico",
+
   "effect.alembic.alchemical_damage_shielding": "Scudo alchemico",
   "effect.alembic.arcane_damage_shielding": "Scudo arcano",
   "effect.alembic.fire_damage_shielding": "Scudo ignifugo",
+  "effect.alembic.physical_damage_shielding": "Scudo fisico",
+  "effect.alembic.true_damage_shielding": "Scudo assoluto",
+  "attribute.alembic.alchemical_damage_shielding": "Scudo alchemico",
+  "attribute.alembic.arcane_damage_shielding": "Scudo arcano",
+  "attribute.alembic.fire_damage_shielding": "Scudo ignifugo",
+  "attribute.alembic.physical_damage.shielding": "Scudo fisico",
+  "attribute.alembic.true_damage.shielding": "Scudo assoluto",
+
   "effect.alembic.fire_resistance": "Resistenza al fuoco",
   
   "alembic:alchemical_damage_resistance": "Resistenza alchemica",
