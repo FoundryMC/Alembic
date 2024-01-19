@@ -1,9 +1,13 @@
 package foundry.alembic;
 
+import foundry.alembic.attribute.AlembicAttribute;
+import foundry.alembic.attribute.UUIDSavedData;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
 import foundry.alembic.event.AlembicFoodChangeEvent;
+import foundry.alembic.networking.AlembicPacketHandler;
+import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.StatsManager;
 import foundry.alembic.stats.item.ItemStatManager;
@@ -20,6 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -29,19 +34,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.Collection;
@@ -60,14 +64,31 @@ public class ForgeEvents {
     public static UUID TEMP_MOD_UUID = UUID.fromString("c3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
     public static UUID TEMP_MOD_UUID2 = UUID.fromString("d3f2b2f0-2b8a-4b9b-9b9b-2b8a4b9b9b9b");
 
-    @SubscribeEvent
-    static void onServerStarted(final ServerStartedEvent event) {
-        OverrideManager.setupOverrides(event.getServer().registryAccess());
+    // This is only valid during data reload
+    private static ICondition.IContext conditionContext;
+    public static ICondition.IContext getCurrentContext() {
+        return conditionContext;
     }
 
     @SubscribeEvent
-    public static void registerCommands(RegisterCommandsEvent event) {
+    static void onServerClose(final ServerStoppedEvent event) {
+        AlembicAttribute.clearCache();
+    }
+
+    @SubscribeEvent
+    static void registerCommands(RegisterCommandsEvent event) {
         AlembicCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    static void syncItemStats(final OnDatapackSyncEvent event) {
+        PacketDistributor.PacketTarget packetTarget;
+        if (event.getPlayer() != null) {
+            packetTarget = PacketDistributor.PLAYER.with(event::getPlayer);
+        } else {
+            packetTarget = PacketDistributor.ALL.noArg();
+        }
+        AlembicPacketHandler.INSTANCE.send(packetTarget, new ClientboundSyncItemStatsPacket(ItemStatManager.getStats()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -103,11 +124,17 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void onJsonListener(AddReloadListenerEvent event) {
-        event.addListener(new DamageTypeManager(event.getConditionContext()));
-        event.addListener(new OverrideManager(event.getConditionContext()));
-        event.addListener(new StatsManager(event.getConditionContext()));
-        event.addListener(new ItemStatManager(event.getConditionContext()));
-        event.addListener(new ShieldStatManager(event.getConditionContext()));
+        conditionContext = event.getConditionContext();
+        event.addListener(new DamageTypeManager(conditionContext, event.getRegistryAccess()));
+        event.addListener(new OverrideManager(conditionContext, event.getRegistryAccess()));
+        event.addListener(new StatsManager(conditionContext));
+        event.addListener(new ItemStatManager(conditionContext));
+        event.addListener(new ShieldStatManager(conditionContext));
+    }
+
+    @SubscribeEvent
+    static void resetConditionContext(TagsUpdatedEvent event) {
+        conditionContext = null;
     }
 
     @SubscribeEvent
@@ -116,10 +143,11 @@ public class ForgeEvents {
         // TODO: note/1
         if (stack.getAllEnchantments().containsKey(Enchantments.FIRE_ASPECT)) {
             int level = stack.getEnchantmentLevel(Enchantments.FIRE_ASPECT);
-            Attribute fireDamage = DamageTypeManager.getDamageType("fire_damage").getAttribute();
+            AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
             if(fireDamage == null) return;
+            Attribute fireDamageAttr = fireDamage.getAttribute();
             if(!event.getSlotType().equals(EquipmentSlot.MAINHAND)) return;
-            event.addModifier(fireDamage, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
+            event.addModifier(fireDamageAttr, new AttributeModifier(ALEMBIC_FIRE_DAMAGE_UUID, "Fire Aspect", level, AttributeModifier.Operation.ADDITION));
             event.addModifier(Attributes.ATTACK_DAMAGE, new AttributeModifier(ALEMBIC_NEGATIVE_DAMAGE_UUID, "Fire aspect", -(1+level), AttributeModifier.Operation.ADDITION));
         }
 
@@ -211,11 +239,14 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void onEffect(MobEffectEvent event) {
-        if (event.getEffectInstance() == null) return;
+        MobEffectInstance instance = event.getEffectInstance();
+        if (instance == null) return;
         AttributeModifier attmod = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 0.1 * (1 + event.getEffectInstance().getAmplifier()), AttributeModifier.Operation.MULTIPLY_TOTAL);
         if (event instanceof MobEffectEvent.Added) {
-            if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
+            if(instance.getEffect() == MobEffects.FIRE_RESISTANCE) {
+                AlembicDamageType damageType = DamageTypeManager.getDamageType("fire_damage");
+                if (damageType == null) return;
+                Attribute fireRes = damageType.getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 if(event.getEntity().getAttribute(fireRes).getModifier(attmod.getId()) != null) return;
@@ -223,8 +254,10 @@ public class ForgeEvents {
             }
         }
         if (event instanceof MobEffectEvent.Remove) {
-            if(event.getEffectInstance().getEffect().equals(MobEffects.FIRE_RESISTANCE)){
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
+            if(instance.getEffect() == MobEffects.FIRE_RESISTANCE) {
+                AlembicDamageType damageType = DamageTypeManager.getDamageType("fire_damage");
+                if (damageType == null) return;
+                Attribute fireRes = damageType.getResistanceAttribute();
                 if(fireRes == null) return;
                 if(event.getEntity().getAttribute(fireRes) == null) return;
                 event.getEntity().getAttribute(fireRes).removeModifier(attmod);
@@ -232,30 +265,32 @@ public class ForgeEvents {
         }
     }
 
-    private static AttributeModifier FIRE_WATER_ATT_MOD = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 6, AttributeModifier.Operation.ADDITION);
+    private static final AttributeModifier FIRE_WATER_ATT_MOD = new AttributeModifier(ALEMBIC_FIRE_RESIST_UUID, "Fire Resistance", 6, AttributeModifier.Operation.ADDITION);
 
     @SubscribeEvent
-    public static void livingTick(LivingEvent.LivingTickEvent event){
-        if(!event.getEntity().level().isClientSide){
-            if(event.getEntity().isInWaterOrRain()){
+    public static void livingTick(LivingEvent.LivingTickEvent event) {
+        if (!event.getEntity().level().isClientSide) {
+            if (event.getEntity().isInWaterOrRain()) {
                 // if the entity is in water or rain, increase fire resistance by +6
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
-                if(fireRes == null) return;
-                if(event.getEntity().getAttribute(fireRes) == null) return;
-                if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
-                event.getEntity().getAttribute(fireRes).addPermanentModifier(FIRE_WATER_ATT_MOD);
+                AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
+                if (fireDamage == null) return;
+                Attribute fireRes = fireDamage.getResistanceAttribute();
+                AttributeInstance attributeInstance = event.getEntity().getAttribute(fireRes);
+                if (attributeInstance == null) return;
+                if (attributeInstance.getModifier(FIRE_WATER_ATT_MOD.getId()) != null) return;
+                attributeInstance.addPermanentModifier(FIRE_WATER_ATT_MOD);
             } else {
                 // if the entity is not in water or rain, remove the fire resistance modifier
-                Attribute fireRes = DamageTypeManager.getDamageType("fire_damage").getResistanceAttribute();
-                if(fireRes == null) return;
-                if(event.getEntity().getAttribute(fireRes) == null) return;
-                if(event.getEntity().getAttribute(fireRes).getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
-                event.getEntity().getAttribute(fireRes).removeModifier(FIRE_WATER_ATT_MOD);
+                AlembicDamageType fireDamage = DamageTypeManager.getDamageType("fire_damage");
+                if (fireDamage == null) return;
+                Attribute fireRes = fireDamage.getResistanceAttribute();
+                AttributeInstance attributeInstance = event.getEntity().getAttribute(fireRes);
+                if (attributeInstance == null) return;
+                if (attributeInstance.getModifier(FIRE_WATER_ATT_MOD.getId()) == null) return;
+                attributeInstance.removeModifier(FIRE_WATER_ATT_MOD);
             }
         }
     }
-
-
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // We don't want to modify, but we do want to get the final values
     static void hungerChanged(AlembicFoodChangeEvent event) {
@@ -263,6 +298,7 @@ public class ForgeEvents {
 
         Player player = event.getPlayer();
         int hungerValue = event.getFoodLevel();
+        UUIDSavedData uuidManager = UUIDSavedData.getOrLoad(event.getPlayer().level().getServer());
 
         for (Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
             AlembicDamageType type = entry.getKey();
@@ -282,10 +318,12 @@ public class ForgeEvents {
             if (instance != null) { // maybe log warning?
                 float scalar = tag.getScaleAmount() * ((20 / tag.getHungerTrigger()) - (int)affectedFraction);
 
-                AttributeModifier modifier = new AttributeModifier(tag.getUUID(), modifierId, scalar, tag.getOperation());
+                UUID uuid = uuidManager.getOrCreate(type.getId().withSuffix(".%s_hunger_mod".formatted(tag.getTypeModifier().getSerializedName())));
 
-                if (instance.getModifier(tag.getUUID()) != null) {
-                    instance.removeModifier(tag.getUUID());
+                AttributeModifier modifier = new AttributeModifier(uuid, modifierId, scalar, tag.getOperation());
+
+                if (instance.getModifier(uuid) != null) {
+                    instance.removeModifier(uuid);
                     instance.addTransientModifier(modifier);
                 } else {
                     instance.addTransientModifier(modifier);
@@ -318,5 +356,4 @@ public class ForgeEvents {
         CompoundTag tagData = persistentData.getCompound("AlembicTagData");
         tagData.putInt(id, region);
     }
-
 }

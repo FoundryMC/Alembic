@@ -36,7 +36,7 @@
   "effect.alembic.soul_fire": "Fuoco spettrale",
   "effect.alembic.frostbite": "Assideramento",
 
-  "death.attack.soulFire": "%s è stato incenerito da delle fiamme spettrali",
+  "death.attack.onSoulFire": "%s è stato incenerito da delle fiamme spettrali",
   
   "item.minecraft.potion.effect.alchemical_damage_resistance": "Pozione di resistenza alchemica",
   "item.minecraft.splash_potion.effect.alchemical_damage_resistance": "Pozione da lancio di resistenza alchemica",

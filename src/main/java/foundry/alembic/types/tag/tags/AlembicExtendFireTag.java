@@ -2,13 +2,15 @@ package foundry.alembic.types.tag.tags;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import foundry.alembic.ForgeEvents;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
 import foundry.alembic.util.TagOrElements;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -25,16 +27,16 @@ public class AlembicExtendFireTag extends AbstractTag {
             createBase(instance).and(
                     instance.group(
                             Codec.FLOAT.fieldOf("multiplier").forGetter(alembicExtendFireTag -> alembicExtendFireTag.multiplier),
-                            CodecUtil.setOf(TagOrElements.lazyCodec(Registries.DAMAGE_TYPE)).fieldOf("ignored_sources").forGetter(alembicExtendFireTag -> alembicExtendFireTag.ignoredDamageTypesRaw)
+                            CodecUtil.setOf(TagOrElements.codec(Registries.DAMAGE_TYPE, ForgeEvents.getCurrentContext())).fieldOf("ignored_sources").forGetter(alembicExtendFireTag -> alembicExtendFireTag.ignoredDamageTypesRaw)
                     )
             ).apply(instance, AlembicExtendFireTag::new)
     );
 
     private final float multiplier;
-    private final Set<TagOrElements.Lazy<DamageType>> ignoredDamageTypesRaw;
+    private final Set<TagOrElements.Immediate<DamageType>> ignoredDamageTypesRaw;
     private Set<DamageType> ignoredDamageTypes;
 
-    public AlembicExtendFireTag(List<TagCondition> conditions, float multiplier, Set<TagOrElements.Lazy<DamageType>> ignoredDamageTypesRaw) {
+    public AlembicExtendFireTag(List<TagCondition> conditions, float multiplier, Set<TagOrElements.Immediate<DamageType>> ignoredDamageTypesRaw) {
         super(conditions);
         this.multiplier = multiplier;
         this.ignoredDamageTypesRaw = ignoredDamageTypesRaw;
@@ -43,7 +45,7 @@ public class AlembicExtendFireTag extends AbstractTag {
     @Override
     public void onDamage(ComposedData data) {
         if (ignoredDamageTypes == null) {
-            ignoredDamageTypes = ignoredDamageTypesRaw.stream().flatMap(damageTypeLazy -> damageTypeLazy.getElements(data.get(ComposedDataTypes.SERVER_LEVEL).registryAccess()).stream()).collect(Collectors.toSet());
+            ignoredDamageTypes = ignoredDamageTypesRaw.stream().flatMap(damageTypeLazy -> damageTypeLazy.getElements().stream().map(Holder::get)).collect(Collectors.toSet());
         }
 
         LivingEntity entity = data.get(ComposedDataTypes.TARGET_ENTITY);

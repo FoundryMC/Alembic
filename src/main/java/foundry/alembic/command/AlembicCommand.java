@@ -13,6 +13,7 @@ import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.world.damagesource.DamageType;
@@ -128,9 +129,9 @@ public class AlembicCommand {
         dispatcher.register(cmd);
     }
 
-    public static String statsToString(Object2FloatMap<AlembicDamageType> stats) {
+    public static String statsToString(Reference2FloatMap<AlembicDamageType> stats) {
         StringBuilder builder = new StringBuilder();
-        for (Object2FloatMap.Entry<AlembicDamageType> entry : stats.object2FloatEntrySet()) {
+        for (Reference2FloatMap.Entry<AlembicDamageType> entry : stats.reference2FloatEntrySet()) {
             builder.append(entry.getKey().getId().toString()).append(" -> ").append(entry.getFloatValue()).append("\n");
         }
         return builder.toString();

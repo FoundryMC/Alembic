@@ -6,7 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.TagOrElements;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageType;

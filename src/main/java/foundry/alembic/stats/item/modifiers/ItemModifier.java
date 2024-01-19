@@ -3,7 +3,7 @@ package foundry.alembic.stats.item.modifiers;
 import com.mojang.serialization.Codec;
 import foundry.alembic.stats.item.ItemModifierType;
 import foundry.alembic.stats.item.ItemStat;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,8 @@ public sealed interface ItemModifier permits AppendItemModifier, RemoveItemModif
 
     ItemModifierType getType();
 
-    @Nullable Attribute getAttribute();
+    @Nullable
+    Attribute getAttribute();
 
     @Nullable Attribute getTarget();
 

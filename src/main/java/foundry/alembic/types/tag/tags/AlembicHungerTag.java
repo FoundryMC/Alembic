@@ -8,7 +8,7 @@ import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.types.tag.AbstractTag;
 import foundry.alembic.types.tag.AlembicTagType;
 import foundry.alembic.types.tag.condition.TagCondition;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.ComposedData;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,6 @@ public class AlembicHungerTag extends AbstractTag {
                             AlembicTypeModifier.CODEC.fieldOf("modifier_type").forGetter(AlembicHungerTag::getTypeModifier),
                             Codec.INT.fieldOf("hunger_amount").forGetter(alembicHungerTag -> alembicHungerTag.hungerTrigger),
                             Codec.FLOAT.fieldOf("amount").forGetter(alembicHungerTag -> alembicHungerTag.scaleAmount),
-                            CodecUtil.STRING_UUID.fieldOf("uuid").forGetter(alembicHungerTag -> alembicHungerTag.uuid),
                             CodecUtil.OPERATION_CODEC.fieldOf("operation").forGetter(alembicHungerTag -> alembicHungerTag.operation)
                     )
             ).apply(instance, AlembicHungerTag::new)
@@ -33,16 +32,14 @@ public class AlembicHungerTag extends AbstractTag {
 
     private final AlembicTypeModifier attribute;
 
-    private final UUID uuid;
 
     private final AttributeModifier.Operation operation;
 
-    public AlembicHungerTag(List<TagCondition> conditions, AlembicTypeModifier attribute, int hungerTrigger, float scaleAmount, UUID uuid, AttributeModifier.Operation operation) {
+    public AlembicHungerTag(List<TagCondition> conditions, AlembicTypeModifier attribute, int hungerTrigger, float scaleAmount, AttributeModifier.Operation operation) {
         super(conditions);
         this.hungerTrigger = hungerTrigger;
         this.scaleAmount = scaleAmount;
         this.attribute = attribute;
-        this.uuid = uuid;
         this.operation = operation;
     }
 
@@ -64,10 +61,6 @@ public class AlembicHungerTag extends AbstractTag {
 
     public float getScaleAmount() {
         return scaleAmount;
-    }
-
-    public UUID getUUID() {
-        return uuid;
     }
 
     public AttributeModifier.Operation getOperation() {
