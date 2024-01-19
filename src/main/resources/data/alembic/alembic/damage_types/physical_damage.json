@@ -5,12 +5,6 @@
   "enchant_source": "mob",
   "tags": [
     {
-      "tag_type": "alembic:particle_tag",
-      "particle_speed": 0.15,
-      "particle_options": {
-        "type": "alembic:sculk_hit"
-      },
-      "conditions": "alembic:damage_from_warden"
     }
   ]
 }

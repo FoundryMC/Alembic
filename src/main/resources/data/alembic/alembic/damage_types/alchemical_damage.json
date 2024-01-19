@@ -8,11 +8,15 @@
       "tag_type": "alembic:branch_tag",
       "run": "alembic:particles/redstone_spark",
       "else": {
-        "tag_type": "alembic:particle_tag",
-        "particle_speed": 0.025,
-        "scalar": 6,
-        "particle_options": {
-          "type": "alembic:alchemical_reaction"
+        "tag_type": "alembic:branch_tag",
+        "run": "alembic:particles/sculk",
+        "else": {
+          "tag_type": "alembic:particle_tag",
+          "particle_speed": 0.025,
+          "scalar": 6,
+          "particle_options": {
+           "type": "alembic:alchemical_reaction"
+         }
         }
       }
     },
