@@ -6,14 +6,15 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.AlembicConfig;
 import foundry.alembic.ForgeEvents;
 import foundry.alembic.mobeffect.AlembicMobEffect;
 import foundry.alembic.mobeffect.mobeffects.ImmunityMobEffect;
 import foundry.alembic.potion.AlembicPotionDataHolder;
 import foundry.alembic.resources.ResourceProviderHelper;
-import foundry.alembic.types.AlembicAttribute;
 import foundry.alembic.types.AlembicTypeModifier;
 import foundry.alembic.util.Utils;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -22,7 +23,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -42,6 +42,8 @@ public class AttributeSetRegistry {
     private static final Map<String, DeferredRegister<Attribute>> ATTRIBUTE_REGISTRY_MAP = new HashMap<>();
     private static final Map<String, DeferredRegister<Potion>> POTION_REGISTRY_MAP = new HashMap<>();
     private static final Map<String, DeferredRegister<MobEffect>> MOB_EFFECT_REGISTRY_MAP = new HashMap<>();
+
+    private static final FileToIdConverter CONVERTER = FileToIdConverter.json("attribute_sets");
 
     public static Collection<AttributeSet> getValues() {
         return Collections.unmodifiableCollection(ID_TO_SET_BIMAP.values());
@@ -73,20 +75,24 @@ public class AttributeSetRegistry {
     }
 
     public static void initAndRegister(IEventBus modBus) {
-        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets", jsonElement -> CraftingHelper.processConditions(jsonElement.getAsJsonObject(), "forge:conditions", ICondition.IContext.TAGS_INVALID)).entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : ResourceProviderHelper.readAsJson("attribute_sets", jsonElement -> Utils.shouldParse(jsonElement, ICondition.IContext.TAGS_INVALID)).entrySet()) {
             DataResult<AttributeSet> setResult = AttributeSet.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
             if (setResult.error().isPresent()) {
                 throw new IllegalStateException("Error loading {" + entry.getKey() + "}: " + setResult.error().get().message());
             }
             AttributeSet set = setResult.result().get();
-            ResourceLocation id = Utils.sanitize(entry.getKey(), "attribute_sets/", ".json"); // TODO: replace with FileToIdConverter
+            ResourceLocation id = CONVERTER.fileToId(entry.getKey());
 
             if (ID_TO_SET_BIMAP.containsKey(id)) {
-                Alembic.LOGGER.error("Attribute set already present " + id);
+                Alembic.LOGGER.error("Attribute set already present {}", id);
                 continue;
             }
 
             ID_TO_SET_BIMAP.put(id, set);
+
+            if (Alembic.DUMP_STATIC_REGISTRIES) {
+                Alembic.LOGGER.info("Alembic attribute set registry entry: {}", id);
+            }
 
             DeferredRegister<Attribute> deferredRegister = getAttributeRegister(id.getNamespace());
             set.getDamageData().ifPresent(data -> {

@@ -6,34 +6,20 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class ClientboundAlembicDamagePacket {
-    public final int entityID;
-    public final String damageType;
-    public final float damageAmount;
-    public final int color;
+public record ClientboundAlembicDamagePacket(int entityID, String damageType, float damageAmount, int color) {
 
-    public ClientboundAlembicDamagePacket(int entityID, String damageType, float damageAmount, int color) {
-        this.entityID = entityID;
-        this.damageType = damageType;
-        this.damageAmount = damageAmount;
-        this.color = color;
-    }
-
-    public static void encode(ClientboundAlembicDamagePacket msg, FriendlyByteBuf buf){
-        buf.writeInt(msg.entityID);
-        buf.writeUtf(msg.damageType);
-        buf.writeFloat(msg.damageAmount);
-        buf.writeInt(msg.color);
+    public void encode(FriendlyByteBuf buf){
+        buf.writeInt(entityID);
+        buf.writeUtf(damageType);
+        buf.writeFloat(damageAmount);
+        buf.writeInt(color);
     }
 
     public static ClientboundAlembicDamagePacket decode(FriendlyByteBuf buf){
         return new ClientboundAlembicDamagePacket(buf.readInt(), buf.readUtf(), buf.readFloat(), buf.readInt());
     }
 
-    public static void handle(ClientboundAlembicDamagePacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ClientPacketHandler.handleDamagePacket(msg, ctx);
-        });
-        ctx.get().setPacketHandled(true);
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
+        ClientPacketHandler.handleDamagePacket(this, ctx);
     }
 }

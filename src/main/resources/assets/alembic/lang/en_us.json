@@ -34,7 +34,7 @@
   "effect.alembic.soul_fire": "Soul Fire",
   "effect.alembic.frostbite": "Frostbite",
 
-  "death.attack.soulFire": "%s burned in otherworldly flames",
+  "death.attack.onSoulFire": "%s burned in otherworldly flames",
   
   "item.minecraft.potion.effect.alchemical_damage_resistance": "Potion of Alchemical Resistance",
   "item.minecraft.splash_potion.effect.alchemical_damage_resistance": "Splash Potion of Alchemical Resistance",
@@ -85,5 +85,7 @@
   "item.modifiers.blocking.alembic.true_damage": "%s%% of True Damage",
   "item.modifiers.blocking.alembic.alchemical_damage": "%s%% of Alchemical Damage",
   "item.modifiers.blocking.alembic.arcane_damage": "%s%% of Arcane Damage",
-  "item.modifiers.blocking.alembic.fire_damage": "%s%% of Fire Damage"
+  "item.modifiers.blocking.alembic.fire_damage": "%s%% of Fire Damage",
+
+  "dataPack.alembic_default_pack.name": "Alembic Defaults"
 }

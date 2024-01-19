@@ -5,10 +5,12 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.TagOrElements;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
+import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +27,7 @@ public class AlembicEntityStats {
                     Codec.INT.fieldOf("priority").forGetter(AlembicEntityStats::getPriority),
                     Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
                             map -> {
-                                Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
+                                Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>();
                                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                                     if (!DamageTypeManager.containsKey(entry.getKey())) {
                                         return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
@@ -35,8 +37,8 @@ public class AlembicEntityStats {
                                 return DataResult.success(retMap);
                             },
                             resistance -> {
-                                Object2FloatMap<ResourceLocation> retMap = new Object2FloatOpenHashMap<>();
-                                for (Map.Entry<AlembicDamageType, Float> entry : resistance.object2FloatEntrySet()) {
+                                Reference2FloatMap<ResourceLocation> retMap = new Reference2FloatOpenHashMap<>();
+                                for (Map.Entry<AlembicDamageType, Float> entry : resistance.reference2FloatEntrySet()) {
                                     retMap.put(entry.getKey().getId(), entry.getValue());
                                 }
                                 return DataResult.success(retMap);
@@ -44,7 +46,7 @@ public class AlembicEntityStats {
                     ).fieldOf("resistances").forGetter(AlembicEntityStats::getResistances),
                     Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
                             map -> {
-                                Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();
+                                Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>();
                                 for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
                                     if (!DamageTypeManager.containsKey(entry.getKey())) {
                                         return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
@@ -54,8 +56,8 @@ public class AlembicEntityStats {
                                 return DataResult.success(retMap);
                             },
                             damage -> {
-                                Object2FloatMap<ResourceLocation> retMap = new Object2FloatOpenHashMap<>();
-                                for (Map.Entry<AlembicDamageType, Float> entry : damage.object2FloatEntrySet()) {
+                                Reference2FloatMap<ResourceLocation> retMap = new Reference2FloatOpenHashMap<>();
+                                for (Map.Entry<AlembicDamageType, Float> entry : damage.reference2FloatEntrySet()) {
                                     retMap.put(entry.getKey().getId(), entry.getValue());
                                 }
                                 return DataResult.success(retMap);
@@ -68,12 +70,12 @@ public class AlembicEntityStats {
     private final EntityType<?> entityType;
     private final int priority;
     private ResourceLocation id;
-    private final Object2FloatMap<AlembicDamageType> resistances;
-    private final Object2FloatMap<AlembicDamageType> damage;
+    private final Reference2FloatMap<AlembicDamageType> resistances;
+    private final Reference2FloatMap<AlembicDamageType> damage;
 
     private final Set<TagOrElements.Lazy<DamageType>> ignoredSourcesRaw;
 
-    public AlembicEntityStats(EntityType<?> entityType, int priority, Object2FloatMap<AlembicDamageType> resistances, Object2FloatMap<AlembicDamageType> damageTypes, Set<TagOrElements.Lazy<DamageType>> ignoredSourcesRaw) {
+    public AlembicEntityStats(EntityType<?> entityType, int priority, Reference2FloatMap<AlembicDamageType> resistances, Reference2FloatMap<AlembicDamageType> damageTypes, Set<TagOrElements.Lazy<DamageType>> ignoredSourcesRaw) {
         this.entityType = entityType;
         this.priority = priority;
         this.resistances = resistances;
@@ -101,11 +103,11 @@ public class AlembicEntityStats {
         return id;
     }
 
-    public Object2FloatMap<AlembicDamageType> getResistances() {
+    public Reference2FloatMap<AlembicDamageType> getResistances() {
         return resistances;
     }
 
-    public Object2FloatMap<AlembicDamageType> getDamage() {
+    public Reference2FloatMap<AlembicDamageType> getDamage() {
         return damage;
     }
 

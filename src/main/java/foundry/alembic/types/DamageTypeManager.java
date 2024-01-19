@@ -6,8 +6,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
 import foundry.alembic.util.ConditionalJsonResourceReloadListener;
-import foundry.alembic.util.FileReferenceOps;
+import foundry.alembic.codecs.FileReferenceRegistryOps;
 import foundry.alembic.util.Utils;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -15,18 +16,19 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
 
     public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = ResourceLocation.CODEC.xmap(DAMAGE_TYPES::get, AlembicDamageType::getId);
 
-    public DamageTypeManager(ICondition.IContext conditionContext) {
+    private final RegistryAccess registryAccess;
+
+    public DamageTypeManager(ICondition.IContext conditionContext, RegistryAccess registryAccess) {
         super(conditionContext, Utils.GSON, "alembic/damage_types");
+        this.registryAccess = registryAccess;
     }
 
     public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {
@@ -42,9 +44,8 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
         return DAMAGE_TYPES.get(id);
     }
 
-    @Nullable
-    public static AlembicDamageType getDamageType(Attribute attribute) {
-        return DAMAGE_TYPES.values().stream().filter(damageType -> damageType.getAttribute() == attribute).findFirst().orElse(null);
+    public static Set<AlembicDamageType> getDamageTypes(Attribute attribute) {
+        return DAMAGE_TYPES.values().stream().filter(damageType -> damageType.getAttribute() == attribute).collect(Collectors.toSet());
     }
 
     @Nullable
@@ -60,12 +61,13 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager rm, ProfilerFiller profiler) {
         DAMAGE_TYPES.clear();
         AlembicGlobalTagPropertyHolder.clearAll();
+        FileReferenceRegistryOps<JsonElement> ops = FileReferenceRegistryOps.create(JsonOps.INSTANCE, registryAccess, rm);
         for (Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()) {
             ResourceLocation id = entry.getKey();
             if (id.getPath().startsWith("tags/") || id.getPath().startsWith("conditions/")) {
                 continue;
             }
-            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(FileReferenceOps.create(JsonOps.INSTANCE, rm), entry.getValue());
+            DataResult<AlembicDamageType> result = AlembicDamageType.CODEC.parse(ops, entry.getValue());
             if (result.error().isPresent()) {
                 Alembic.LOGGER.error("Could not read %s. %s".formatted(id, result.error().get().message()));
                 continue;
@@ -73,10 +75,9 @@ public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
             AlembicDamageType type = result.getOrThrow(false, Alembic.LOGGER::error);
             type.handlePostParse(id);
 
-
             if (containsKey(id)) {
-                if (type.getPriority() < getDamageType(type.getId()).getPriority()) {
-                    Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(type.getId()));
+                if (type.getPriority() < getDamageType(id).getPriority()) {
+                    Alembic.LOGGER.debug("Damage type %s already exists with a higher priority. Skipping.".formatted(id));
                 }
             } else {
                 registerDamageType(id, type);

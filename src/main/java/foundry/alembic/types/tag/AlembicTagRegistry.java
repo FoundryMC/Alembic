@@ -5,7 +5,7 @@ import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import foundry.alembic.Alembic;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;

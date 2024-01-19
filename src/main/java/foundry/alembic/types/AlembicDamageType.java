@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.attribute.AttributeSet;
 import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.types.tag.AlembicTag;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;

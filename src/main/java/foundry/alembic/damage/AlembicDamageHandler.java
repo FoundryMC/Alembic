@@ -20,6 +20,8 @@ import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
+import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
@@ -41,6 +43,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -55,6 +58,7 @@ public class AlembicDamageHandler {
     public static void handleDamage(LivingHurtEvent event) {
         LivingEntity target = event.getEntity();
         DamageSource originalSource = event.getSource();
+
         if (originalSource.getDirectEntity() instanceof LivingEntity || !isIndirect(originalSource)) {
             LivingEntity attacker = getAttacker(originalSource);
             if (attacker == null) {
@@ -65,7 +69,7 @@ public class AlembicDamageHandler {
             Multimap<Attribute, AttributeModifier> enchantmentMap = ArrayListMultimap.create();
             if (handleEnchantments(attacker, target, enchantmentMap)) return;
             float totalDamage = event.getAmount();
-            float damageOffset = 0;
+            float damageOffset;
             if (attacker instanceof Player pl) {
                 damageOffset = handlePlayerDamage(target, pl, totalDamage, originalSource);
             } else {
@@ -74,10 +78,7 @@ public class AlembicDamageHandler {
             totalDamage -= damageOffset;
             int time = target.invulnerableTime;
             target.invulnerableTime = 0;
-            float fudge = AlembicConfig.enableCompatFudge.get() ? 0.0001f : 0.0f;
-            if (totalDamage + fudge >= fudge) {
-                target.hurt(originalSource, totalDamage + fudge);
-            }
+            target.hurt(originalSource, totalDamage);
             target.invulnerableTime = time;
             attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
                 if (attributeInstance.getModifier(TEMP_MOD_UUID) != null) {
@@ -101,8 +102,8 @@ public class AlembicDamageHandler {
         AlembicEntityStats attackerStats = StatsManager.get(attacker.getType());
         if(attackerStats == null) return 0;
         MutableFloat total = new MutableFloat();
-        Object2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
-        Object2FloatMap<AlembicDamageType> finalTypedDamage = new Object2FloatOpenHashMap<>();
+        Reference2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
+        Reference2FloatMap<AlembicDamageType> finalTypedDamage = new Reference2FloatOpenHashMap<>();
         damageMap.forEach((damageType, multiplier) -> {
             AttributeInstance attribute = target.getAttribute(damageType.getAttribute());
             if (attribute == null) return;
@@ -188,6 +189,7 @@ public class AlembicDamageHandler {
             float finalDamage = damage;
             Alembic.printInDebug(() -> "Dealing " + finalDamage + " " + damageType.getId().toString() + " damage to " + target);
             totalDamage -= damage;
+            // TODO: Blacklist thing
             if (AlembicConfig.ownerAttributeProjectiles.get() && originalSource.getDirectEntity() != null) {
                 if (originalSource.getDirectEntity() instanceof LivingEntity owner) {
                     if (owner.getAttribute(damageType.getAttribute()) != null) {
@@ -261,6 +263,7 @@ public class AlembicDamageHandler {
             MobEffectInstance instance = entity.getEffect(effect);
             if (instance != null) {
                 int amplifier = instance.getAmplifier();
+                // Find t * (a * 0.1), correlating to the potion resistance amount
                 totalDamage -= totalDamage * (((float)amplifier) * 0.1f);
             }
         }
@@ -274,16 +277,15 @@ public class AlembicDamageHandler {
             float finalDamage = damage;
             float d = finalDamage;
             Alembic.printInDebug(() -> "Dealing " + d + " " + damageType.getId().toString() + " damage to " + target);
+            ComposedData data = ComposedData.createEmpty()
+                    .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level())
+                    .add(ComposedDataTypes.TARGET_ENTITY, target)
+                    .add(ComposedDataTypes.FINAL_DAMAGE, d)
+                    .add(ComposedDataTypes.ORIGINAL_SOURCE, originalSource)
+                    .add(ComposedDataTypes.DAMAGE_TYPE, damageType);
+            AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
+            MinecraftForge.EVENT_BUS.post(event);
             damageType.getTags().forEach(tag -> {
-                ComposedData data = ComposedData.createEmpty()
-                        .add(ComposedDataTypes.SERVER_LEVEL, (ServerLevel) target.level())
-                        .add(ComposedDataTypes.TARGET_ENTITY, target)
-                        .add(ComposedDataTypes.FINAL_DAMAGE, d)
-                        .add(ComposedDataTypes.ORIGINAL_SOURCE, originalSource)
-                        .add(ComposedDataTypes.DAMAGE_TYPE, damageType);
-                AlembicDamageDataModificationEvent event = new AlembicDamageDataModificationEvent(data);
-                MinecraftForge.EVENT_BUS.post(event);
-                data = event.getData();
                 if (tag.testConditions(data)) {
                     Alembic.printInDebug(() -> "Handling tag: " + AlembicTagRegistry.getRegisteredName(tag.getType()));
                     tag.onDamage(data);
@@ -312,6 +314,9 @@ public class AlembicDamageHandler {
     }
 
     private static boolean isIndirect(DamageSource source) {
+        if (source.getDirectEntity() == null) {
+            return true;
+        }
         boolean isIndirect = source.getDirectEntity() == null;
         if (!AlembicConfig.ownerAttributeProjectiles.get()) {
             if (source.getDirectEntity() instanceof AbstractArrow || source.getDirectEntity() instanceof AbstractHurtingProjectile || source.getDirectEntity() instanceof Projectile) {
@@ -322,8 +327,7 @@ public class AlembicDamageHandler {
     }
 
     private static void sendDamagePacket(LivingEntity target, AlembicDamageType damageType, float damage) {
-        AlembicPacketHandler.INSTANCE.send(PacketDistributor.NEAR.with(() ->
-                        new PacketDistributor.TargetPoint(target.getX(), target.getY(), target.getZ(), 128, target.level().dimension())),
+        AlembicPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> target),
                 new ClientboundAlembicDamagePacket(target.getId(), damageType.getId().toString(), damage, damageType.getColor()));
     }
 

@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class TagOrElementPredicate<T> {
-    public static final TagOrElementPredicate<?> EMPTY = new TagOrElementPredicate<>(new ExtraCodecs.TagOrElementLocation(Alembic.location("empty"), false), holder -> true);
+    private static final TagOrElementPredicate<?> EMPTY = new TagOrElementPredicate<>(new ExtraCodecs.TagOrElementLocation(Alembic.location("empty"), false), holder -> true);
     public static <T> TagOrElementPredicate<T> alwaysTrue() {
         return (TagOrElementPredicate<T>)EMPTY;
     }

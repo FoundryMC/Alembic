@@ -2,7 +2,7 @@ package foundry.alembic.stats.item.slots;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import foundry.alembic.util.CodecUtil;
+import foundry.alembic.codecs.CodecUtil;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 
