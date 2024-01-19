@@ -15,7 +15,7 @@
     "max": 1024
   },
   "resistance_attribute": {
-    "base": 1,
+    "base": 0,
     "min": -1024,
     "max": 1024
   },
@@ -25,7 +25,7 @@
     "base_duration": 600,
     "amplification_per_level": 1,
     "max_amplifier": 2,
-	"max_level": 2,
+	  "max_level": 2,
     "color": "#9760FB",
     "recipe": {
       "reagent": "minecraft:lapis_lazuli",

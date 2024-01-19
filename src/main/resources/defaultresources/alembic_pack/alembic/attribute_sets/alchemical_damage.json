@@ -15,7 +15,7 @@
     "max": 1024
   },
   "resistance_attribute": {
-    "base": 1,
+    "base": 0,
     "min": -1024,
     "max": 1024
   },

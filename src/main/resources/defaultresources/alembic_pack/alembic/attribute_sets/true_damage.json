@@ -2,7 +2,7 @@
   "damage_attribute": {
     "base": 0,
     "min": 0,
-    "max": 8
+    "max": 1024
   },
   "shielding_attribute": {
     "base": 0,
@@ -15,7 +15,7 @@
     "max": 1024
   },
   "resistance_attribute": {
-    "base": 1,
+    "base": 0,
     "min": -1024,
     "max": 1024
   }
