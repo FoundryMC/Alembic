@@ -19,8 +19,8 @@ public class AttributeSet {
     public static final Codec<AttributeSet> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     DATA_OR_REGISTERED.fieldOf("damage_attribute").forGetter(attributeSet -> attributeSet.damage),
-                    DATA_OR_REGISTERED.fieldOf("shielding_attribute").forGetter(attributeSet -> attributeSet.shielding),
-                    DATA_OR_REGISTERED.fieldOf("absorption_attribute").forGetter(attributeSet -> attributeSet.absorption),
+                    DATA_OR_REGISTERED.optionalFieldOf("shielding_attribute", Either.left(RangedAttributeData.DEFAULT_SHIELDING)).forGetter(attributeSet -> attributeSet.shielding),
+                    DATA_OR_REGISTERED.optionalFieldOf("absorption_attribute", Either.left(RangedAttributeData.DEFAULT_ABSORPTION)).forGetter(attributeSet -> attributeSet.absorption),
                     DATA_OR_REGISTERED.fieldOf("resistance_attribute").forGetter(attributeSet -> attributeSet.resistance),
                     AlembicPotionDataHolder.CODEC.optionalFieldOf("resistance_potion", AlembicPotionDataHolder.EMPTY).forGetter(attributeSet -> attributeSet.potionDataHolder),
                     Codec.FLOAT.optionalFieldOf("shielding_ignore", 0.0f).forGetter(attributeSet -> attributeSet.shieldingIgnore),
