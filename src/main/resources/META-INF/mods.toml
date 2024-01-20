@@ -68,5 +68,17 @@ Data-driven damage types, resistances and more.
    modId="defaultresources"
    mandatory=true
    versionRange="[2.0.0,)"
-   ordering="BEFORE"
+   ordering="AFTER"
+   side="BOTH"
+[[dependencies.alembic]]
+   modId="placebo"
+   mandatory=true
+   versionRange="[8.6.0,)"
+   ordering="AFTER"
+   side="BOTH"
+[[dependencies.alembic]]
+   modId="attributeslib"
+   mandatory=true
+   versionRange="[1.2.1,)"
+   ordering="AFTER"
    side="BOTH"
