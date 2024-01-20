@@ -156,7 +156,7 @@ dependencies {
         jarJar.ranged(it, "[0.2.0-beta.5,)")
     }
 
-    implementation(fg.deobf( "dev.shadowsoffire:ApothicAttributes:1.20.1-1.2.0"))
+    implementation(fg.deobf( "dev.shadowsoffire:ApothicAttributes:1.20.1-1.2.1"))
     implementation(fg.deobf("dev.shadowsoffire:Placebo:1.20.1-8.6.0"))
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     if (System.getProperty("idea.sync.active") != "true") {
