@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public record ClientboundSyncItemStatsPacket(Map<Item, Multimap<EquipmentSlotType, ItemStat>> map) {
     public void encode(FriendlyByteBuf buf) {
-        buf.writeMap(ItemStatManager.getStats(),
+        buf.writeMap(map,
                 (friendlyByteBuf, item) -> friendlyByteBuf.writeInt(BuiltInRegistries.ITEM.getId(item)),
                 (friendlyByteBuf, multimap) -> {
                     Collection<Map.Entry<EquipmentSlotType, ItemStat>> entries = multimap.entries();
