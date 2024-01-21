@@ -5,15 +5,13 @@
       "type": "append",
       "attribute": "alembic:arcane_damage",
       "value": 2,
-      "operation": "ADDITION",
-      "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"
+      "operation": "ADDITION"
     },
     {
       "type": "replace",
       "target": "minecraft:generic.attack_damage",
       "value": 6,
-      "operation": "ADDITION",
-      "uuid": "CB3F55D3-645C-4F38-A497-9C13A33DB5CF"
+      "operation": "ADDITION"
     }
   ],
   "equipment_slot": "MAINHAND"

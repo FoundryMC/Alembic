@@ -3,10 +3,12 @@ package foundry.alembic.stats.item.modifiers;
 import com.mojang.serialization.Codec;
 import foundry.alembic.stats.item.ItemModifierType;
 import foundry.alembic.stats.item.ItemStat;
+import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public record RemoveItemModifier(Attribute target) implements ItemModifier {
@@ -15,7 +17,7 @@ public record RemoveItemModifier(Attribute target) implements ItemModifier {
             .codec();
 
     @Override
-    public void compute(ItemStat.AttributeContainer container) {
+    public void compute(ItemStat.AttributeContainer container, EquipmentSlotType slotType) {
         container.remove(target);
     }
 
@@ -35,7 +37,7 @@ public record RemoveItemModifier(Attribute target) implements ItemModifier {
     }
 
     @Override
-    public @Nullable UUID getUUID() {
-        return null;
+    public @Nullable Optional<UUID> getUUID() {
+        return Optional.empty();
     }
 }

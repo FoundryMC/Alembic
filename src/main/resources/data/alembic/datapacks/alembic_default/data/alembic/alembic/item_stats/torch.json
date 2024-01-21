@@ -5,8 +5,7 @@
       "type": "append",
       "attribute": "alembic:fire_damage",
       "value": 1,
-      "operation": "ADDITION",
-      "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"
+      "operation": "ADDITION"
     }
   ],
   "equipment_slot": "MAINHAND"

@@ -40,7 +40,8 @@ public record ItemStat(TagOrElements.BuiltInLazy<Item> items, List<ItemModifier>
 
     public void computeAttributes(Multimap<Attribute, AttributeModifier> originalModifiers,
                                   BiPredicate<Attribute, AttributeModifier> onPut,
-                                  Consumer<Attribute> onRemove) {
+                                  Consumer<Attribute> onRemove,
+                                  EquipmentSlotType slotType) {
         AttributeContainer container = new AttributeContainer() {
             @Override
             public boolean contains(Attribute attribute) {
@@ -64,7 +65,7 @@ public record ItemStat(TagOrElements.BuiltInLazy<Item> items, List<ItemModifier>
         };
 
         for (ItemModifier data : attributeData) {
-            data.compute(container);
+            data.compute(container, slotType);
         }
     }
 
