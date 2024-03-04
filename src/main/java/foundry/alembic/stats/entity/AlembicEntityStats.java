@@ -19,49 +19,32 @@ import net.minecraft.world.entity.EntityType;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class AlembicEntityStats {
     public static final Codec<AlembicEntityStats> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(AlembicEntityStats::getEntityType),
                     Codec.INT.fieldOf("priority").forGetter(AlembicEntityStats::getPriority),
-                    Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
+                    Codec.unboundedMap(DamageTypeManager.DAMAGE_TYPE_CODEC, Codec.FLOAT).comapFlatMap(
                             map -> {
-                                Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>();
-                                for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
-                                    if (!DamageTypeManager.containsKey(entry.getKey())) {
-                                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
-                                    }
-                                    retMap.put(DamageTypeManager.getDamageType(entry.getKey()), entry.getValue());
+                                if (map.isEmpty()) {
+                                    return DataResult.error(() -> "Must have entries under \"resistances\"");
                                 }
+                                Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>(map);
                                 return DataResult.success(retMap);
                             },
-                            resistance -> {
-                                Reference2FloatMap<ResourceLocation> retMap = new Reference2FloatOpenHashMap<>();
-                                for (Map.Entry<AlembicDamageType, Float> entry : resistance.reference2FloatEntrySet()) {
-                                    retMap.put(entry.getKey().getId(), entry.getValue());
-                                }
-                                return DataResult.success(retMap);
-                            }
+                            Function.identity()
                     ).fieldOf("resistances").forGetter(AlembicEntityStats::getResistances),
-                    Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).flatXmap(
+                    Codec.unboundedMap(DamageTypeManager.DAMAGE_TYPE_CODEC, Codec.FLOAT).comapFlatMap(
                             map -> {
-                                Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>();
-                                for (Map.Entry<ResourceLocation, Float> entry : map.entrySet()) {
-                                    if (!DamageTypeManager.containsKey(entry.getKey())) {
-                                        return DataResult.error(() -> "Damage type %s does not exist!".formatted(entry.getKey()));
-                                    }
-                                    retMap.put(DamageTypeManager.getDamageType(entry.getKey()), entry.getValue());
+                                if (map.isEmpty()) {
+                                    return DataResult.error(() -> "Must have entries under \"damage\"");
                                 }
+                                Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>(map);
                                 return DataResult.success(retMap);
                             },
-                            damage -> {
-                                Reference2FloatMap<ResourceLocation> retMap = new Reference2FloatOpenHashMap<>();
-                                for (Map.Entry<AlembicDamageType, Float> entry : damage.reference2FloatEntrySet()) {
-                                    retMap.put(entry.getKey().getId(), entry.getValue());
-                                }
-                                return DataResult.success(retMap);
-                            }
+                            Function.identity()
                     ).fieldOf("damage").forGetter(AlembicEntityStats::getDamage),
                     CodecUtil.setOf(TagOrElements.lazyCodec(Registries.DAMAGE_TYPE)).fieldOf("ignored_sources").forGetter(alembicResistance -> alembicResistance.ignoredSourcesRaw)
             ).apply(instance, AlembicEntityStats::new)

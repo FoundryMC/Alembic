@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import foundry.alembic.Alembic;
+import foundry.alembic.codecs.CodecUtil;
 import foundry.alembic.util.ConditionalJsonResourceReloadListener;
 import foundry.alembic.codecs.FileReferenceRegistryOps;
 import foundry.alembic.util.Utils;
@@ -22,7 +23,16 @@ import java.util.stream.Collectors;
 public class DamageTypeManager extends ConditionalJsonResourceReloadListener {
     private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
 
-    public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = ResourceLocation.CODEC.xmap(DAMAGE_TYPES::get, AlembicDamageType::getId);
+    public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = CodecUtil.ALEMBIC_RL_CODEC.comapFlatMap(
+            resourceLocation -> {
+                AlembicDamageType type = DAMAGE_TYPES.get(resourceLocation);
+                if (type == null) {
+                    return DataResult.error(() -> "Damage type " + resourceLocation + " does not exist!");
+                }
+                return DataResult.success(type);
+            },
+            AlembicDamageType::getId
+    );
 
     private final RegistryAccess registryAccess;
 
