@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.codecs.CodecUtil;
+import foundry.alembic.types.AlembicDamageType;
+import foundry.alembic.types.DamageTypeManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -27,10 +29,10 @@ public record ShieldBlockStat(ItemStack item, List<TypeModifier> typeModifiers) 
     );
 
 
-    public record TypeModifier(ResourceLocation type, float modifier) {
+    public record TypeModifier(AlembicDamageType type, float modifier) {
         public static final Codec<TypeModifier> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        ResourceLocation.CODEC.fieldOf("type").forGetter(TypeModifier::type),
+                        DamageTypeManager.DAMAGE_TYPE_CODEC.fieldOf("type").forGetter(TypeModifier::type),
                         Codec.FLOAT.fieldOf("modifier").forGetter(TypeModifier::modifier)
                 ).apply(instance, TypeModifier::new)
         );

@@ -189,7 +189,7 @@ public class ForgeEvents {
                         damagePart -= (float) instance.getValue();
                         for(ShieldBlockStat stat : stats){
                             for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
-                                if(mod.type().equals(alembicDamageType.getId())){
+                                if(mod.type() == alembicDamageType) {
                                     damagePart *= mod.modifier();
                                 }
                             }
@@ -211,7 +211,7 @@ public class ForgeEvents {
                         damagePart -= (float) instance.getValue();
                         for(ShieldBlockStat stat : stats){
                             for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
-                                if(mod.type().equals(alembicDamageType.getId())){
+                                if (mod.type() == alembicDamageType) {
                                     damagePart *= mod.modifier();
                                 }
                             }

@@ -53,7 +53,7 @@ public class ForgeClientEvents {
                 stat.typeModifiers().forEach(typeModifier -> {
                     tooltip.add(CommonComponents.space().append(
                             Component.translatable(
-                                    "item.modifiers.blocking." + typeModifier.type().toLanguageKey(),
+                                    "item.modifiers.blocking." + typeModifier.type().getId().toLanguageKey(),
                                             ATTRIBUTE_MODIFIER_FORMAT.format((1.0f-typeModifier.modifier()) * 100)
                                     ).withStyle(ChatFormatting.BLUE)
                             )
