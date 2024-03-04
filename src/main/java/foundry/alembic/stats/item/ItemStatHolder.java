@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class ItemStatHolder {
     private final Map<Item, Multimap<EquipmentSlotType, ItemStat>> stats = new Reference2ObjectOpenHashMap<>();
+    private final Map<Item, Multimap<EquipmentSlotType, ItemStat>> statsView = Collections.unmodifiableMap(stats);
 
     public Collection<ItemStat> get(Item item, EquipmentSlotType slot) {
         if (!stats.containsKey(item)) {
@@ -29,7 +30,7 @@ public class ItemStatHolder {
     }
 
     public Map<Item, Multimap<EquipmentSlotType, ItemStat>> get() {
-        return Collections.unmodifiableMap(stats);
+        return statsView;
     }
 
     public void clear() {
