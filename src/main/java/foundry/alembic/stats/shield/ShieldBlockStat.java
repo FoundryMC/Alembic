@@ -15,7 +15,7 @@ import java.util.function.Function;
 public record ShieldBlockStat(ItemStack item, List<TypeModifier> typeModifiers) {
     public static final Codec<ShieldBlockStat> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    CodecUtil.ITEM_OR_STACK_CODEC.fieldOf("item").forGetter(ShieldBlockStat::item),
+                    CodecUtil.ITEM_OR_STACK_CODEC.fieldOf("item").forGetter(ShieldBlockStat::item), // TODO: wehhh??
                     TypeModifier.CODEC.listOf().comapFlatMap(
                             typeModifiers1 -> {
                                 if (typeModifiers1.isEmpty()) {
