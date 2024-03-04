@@ -1,18 +1,28 @@
 package foundry.alembic.stats.shield;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.codecs.CodecUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import java.util.function.Function;
 
 public record ShieldBlockStat(ItemStack item, List<TypeModifier> typeModifiers) {
     public static final Codec<ShieldBlockStat> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     CodecUtil.ITEM_OR_STACK_CODEC.fieldOf("item").forGetter(ShieldBlockStat::item),
-                    Codec.list(TypeModifier.CODEC).fieldOf("blocking_stats").forGetter(ShieldBlockStat::typeModifiers)
+                    TypeModifier.CODEC.listOf().comapFlatMap(
+                            typeModifiers1 -> {
+                                if (typeModifiers1.isEmpty()) {
+                                    return DataResult.error(() -> "Shield stat must define \"blocking_stats\"");
+                                }
+                                return DataResult.success(typeModifiers1);
+                            },
+                            Function.identity()
+                    ).fieldOf("blocking_stats").forGetter(ShieldBlockStat::typeModifiers)
             ).apply(instance, ShieldBlockStat::new)
     );
 
