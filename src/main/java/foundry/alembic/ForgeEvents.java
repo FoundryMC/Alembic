@@ -9,7 +9,7 @@ import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
 import foundry.alembic.override.OverrideManager;
-import foundry.alembic.stats.entity.StatsManager;
+import foundry.alembic.stats.entity.EntityStatsManager;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.item.slots.VanillaSlotType;
 import foundry.alembic.stats.shield.ShieldBlockStat;
@@ -127,7 +127,7 @@ public class ForgeEvents {
         conditionContext = event.getConditionContext();
         event.addListener(new DamageTypeManager(conditionContext, event.getRegistryAccess()));
         event.addListener(new OverrideManager(conditionContext, event.getRegistryAccess()));
-        event.addListener(new StatsManager(conditionContext));
+        event.addListener(new EntityStatsManager(conditionContext));
         event.addListener(new ItemStatManager(conditionContext));
         event.addListener(new ShieldStatManager(conditionContext));
     }
@@ -199,7 +199,7 @@ public class ForgeEvents {
                     });
             if(event.getDamageSource().getDirectEntity() != null){
                 if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
-                    StatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
+                    EntityStatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
                         float damagePart = event.getBlockedDamage() * aFloat;
 
                         RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();

@@ -6,17 +6,18 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.AlembicEntityStats;
-import foundry.alembic.stats.entity.StatsManager;
+import foundry.alembic.stats.entity.EntityStatsManager;
 import foundry.alembic.stats.item.ItemStat;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 
 import java.io.File;
@@ -24,10 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AlembicCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -35,7 +33,7 @@ public class AlembicCommand {
         cmd.then(Commands.literal("dump")
                 .then(Commands.literal("damage_types")
                         .executes((context) -> {
-                            List<AlembicDamageType> types = DamageTypeManager.getDamageTypes().stream().toList();
+                            Collection<AlembicDamageType> types = DamageTypeManager.getDamageTypes();
                             // write all damage types to a file
                             Path writer = null;
                             try {
@@ -81,7 +79,7 @@ public class AlembicCommand {
                         }))
                 .then(Commands.literal("resistances")
                         .executes((context) -> {
-                            Collection<AlembicEntityStats> overrides = StatsManager.getValuesView();
+                            Map<EntityType<?>, AlembicEntityStats> overrides = EntityStatsManager.getView();
                             // write all damage types to a file
                             Path writer = null;
                             try {
@@ -91,10 +89,10 @@ public class AlembicCommand {
                                     dir.mkdir();
                                 }
                                 writer = Paths.get("./alembic/resistances.txt");
-                                List<String> lines = new ArrayList<>();
-                                for (AlembicEntityStats entry : overrides) {
-                                    lines.add(entry.getEntityType().toString() + " -> \n" + statsToString(entry.getResistances()));
-                                }
+                                List<String> lines = overrides.entrySet().stream()
+                                        .sorted(Comparator.comparing(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.getKey())))
+                                        .map(entry -> entry.getKey().toString() + " -> \n" + statsToString(entry.getValue().getResistances()))
+                                        .toList();
                                 Files.write(writer, lines);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);

@@ -2,7 +2,6 @@ package foundry.alembic.damage;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.mojang.datafixers.util.Pair;
 import foundry.alembic.Alembic;
 import foundry.alembic.AlembicConfig;
 import foundry.alembic.event.AlembicDamageDataModificationEvent;
@@ -12,14 +11,14 @@ import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.override.AlembicOverride;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.AlembicEntityStats;
-import foundry.alembic.stats.entity.StatsManager;
+import foundry.alembic.stats.entity.EntityStatsManager;
 import foundry.alembic.types.AlembicDamageType;
 import foundry.alembic.types.DamageTypeManager;
 import foundry.alembic.types.tag.AlembicTagRegistry;
 import foundry.alembic.util.ComposedData;
 import foundry.alembic.util.ComposedDataTypes;
+import it.unimi.dsi.fastutil.doubles.DoubleFloatPair;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -43,12 +42,12 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -98,8 +97,8 @@ public class AlembicDamageHandler {
     }
 
     private static float handleLivingEntityDamage(LivingEntity target, LivingEntity attacker, float originalDamage, DamageSource originalSource) {
-        AlembicEntityStats targetStats = StatsManager.get(target.getType());
-        AlembicEntityStats attackerStats = StatsManager.get(attacker.getType());
+        AlembicEntityStats targetStats = EntityStatsManager.get(target.getType());
+        AlembicEntityStats attackerStats = EntityStatsManager.get(attacker.getType());
         if(attackerStats == null) return 0;
         MutableFloat total = new MutableFloat();
         Reference2FloatMap<AlembicDamageType> damageMap = attackerStats.getDamage();
@@ -115,7 +114,7 @@ public class AlembicDamageHandler {
             finalTypedDamage.put(damageType, damage);
         });
         finalTypedDamage.forEach((damageType, damage) -> {
-            float resistanceModifier = getResistanceForType(damageType, target, targetStats).getSecond();
+            float resistanceModifier = getResistanceForType(damageType, target, targetStats).secondFloat();
             if (resistanceModifier < 1) {
                 resistanceModifier = 1 + (1 - resistanceModifier);
             } else {
@@ -134,7 +133,7 @@ public class AlembicDamageHandler {
 
     private static float handlePlayerDamage(LivingEntity target, Player attacker, float originalDamage, DamageSource originalSource) {
         float totalTypedDamage = 0f;
-        AlembicEntityStats targetStats = StatsManager.get(target.getType());
+        AlembicEntityStats targetStats = EntityStatsManager.get(target.getType());
         for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
             Alembic.printInDebug(() -> "Handling damage type: " + damageType.getId() + "for player " + attacker.getDisplayName().getString());
             if (!attacker.getAttributes().hasAttribute(damageType.getAttribute())) continue;
@@ -147,7 +146,7 @@ public class AlembicDamageHandler {
                     targetResistance = (float) target.getAttributeValue(damageType.getResistanceAttribute());
                 }
                 damageAttributeValue *= attacker.getAttackStrengthScale(0.5f);
-                float resMod = getResistanceForType(damageType, target, targetStats).getSecond();
+                float resMod = getResistanceForType(damageType, target, targetStats).secondFloat();
                 if (resMod <= 1) {
                     resMod = 1 + (1 - resMod);
                 } else {
@@ -378,18 +377,10 @@ public class AlembicDamageHandler {
         return attacker;
     }
 
-    private static Pair<Double, Float> getResistanceForType(AlembicDamageType type, LivingEntity entity, AlembicEntityStats stats) {
+    private static DoubleFloatPair getResistanceForType(AlembicDamageType type, LivingEntity entity, @Nullable AlembicEntityStats stats) {
         double resAtt = entity.getAttribute(type.getResistanceAttribute()).getValue();
-        float resMod = 0.0f;
-        if (entity instanceof Player) {
-            resMod = 1.0f;
-        }
-        if (stats != null) {
-            if (stats.getResistances().containsKey(type)) {
-                resMod = stats.getResistances().getFloat(type);
-            }
-        }
-        return Pair.of(resAtt, resMod);
+        float resMod = stats != null ? stats.getResistance(type) : (entity instanceof Player ? 1f : 0f);
+        return DoubleFloatPair.of(resAtt, resMod);
     }
 
     private static DamageSource entitySource(LivingEntity entity) {

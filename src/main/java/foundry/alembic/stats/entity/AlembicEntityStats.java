@@ -52,7 +52,6 @@ public class AlembicEntityStats {
 
     private final EntityType<?> entityType;
     private final int priority;
-    private ResourceLocation id;
     private final Reference2FloatMap<AlembicDamageType> resistances;
     private final Reference2FloatMap<AlembicDamageType> damage;
 
@@ -78,14 +77,6 @@ public class AlembicEntityStats {
         return priority;
     }
 
-    void setId(ResourceLocation id) {
-        this.id = id;
-    }
-
-    public ResourceLocation getId() {
-        return id;
-    }
-
     public Reference2FloatMap<AlembicDamageType> getResistances() {
         return resistances;
     }
@@ -95,10 +86,10 @@ public class AlembicEntityStats {
     }
 
     public float getResistance(AlembicDamageType damageType) {
-        return resistances.getOrDefault(damageType, 0f);
+        return resistances.getFloat(damageType);
     }
 
     public float getDamageType(AlembicDamageType damageType) {
-        return damage.getOrDefault(damageType, 0f);
+        return damage.getFloat(damageType);
     }
 }
