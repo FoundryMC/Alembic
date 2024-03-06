@@ -27,11 +27,12 @@ java {
 minecraft {
     mappings channel: 'parchment', version: '2023.09.03-1.20.1'
 
-     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
             workingDirectory project.file('run')
+
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
@@ -100,11 +101,7 @@ mixin {
     debug.export = true
 }
 
-sourceSets {
-    main.resources {
-        srcDir 'src/generated/resources'
-    }
-}
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
@@ -122,18 +119,12 @@ repositories {
         name = "TslatEntityStatus (TEL) Maven Repo"
         url = "https://dl.cloudsmith.io/public/tslat/tel/maven/"
     }
-//    maven {
-//        url = 'https://maven.lukebemish.dev/releases'
-//    }
     maven {
         name = "DefaultResources Maven Repo"
         url = "https://maven.lukebemish.dev/releases"
     }
     maven {
         url = "https://maven.shadowsoffire.dev/releases"
-    }
-    flatDir {
-        dirs "libs"
     }
 }
 
@@ -159,9 +150,6 @@ dependencies {
     implementation(fg.deobf( "dev.shadowsoffire:ApothicAttributes:1.20.1-1.2.1"))
     implementation(fg.deobf("dev.shadowsoffire:Placebo:1.20.1-8.6.0"))
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    if (System.getProperty("idea.sync.active") != "true") {
-        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    }
 }
 
 jar {
