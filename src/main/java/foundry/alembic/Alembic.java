@@ -31,8 +31,6 @@ public class Alembic {
     public static final boolean DUMP_STATIC_REGISTRIES = true;
 
     public Alembic() {
-        ResourceProvider.forceInitialization();
-
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AlembicMobEffectRegistry.MOB_EFFECTS.register(modEventBus);
 
