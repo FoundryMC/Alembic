@@ -58,6 +58,7 @@ public class AlembicDamageHandler {
         LivingEntity target = event.getEntity();
         DamageSource originalSource = event.getSource();
 
+        // if attacker is living or attacker is not null
         if (originalSource.getDirectEntity() instanceof LivingEntity || !isIndirect(originalSource)) {
             LivingEntity attacker = getAttacker(originalSource);
             if (attacker == null) {
@@ -66,6 +67,7 @@ public class AlembicDamageHandler {
                 return;
             }
             Multimap<Attribute, AttributeModifier> enchantmentMap = ArrayListMultimap.create();
+            // Add attribute modifiers if enchantments exist
             if (handleEnchantments(attacker, target, enchantmentMap)) return;
             float totalDamage = event.getAmount();
             float damageOffset;
@@ -80,6 +82,7 @@ public class AlembicDamageHandler {
             target.hurt(originalSource, totalDamage);
             target.invulnerableTime = time;
             attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
+                // Remove these if they exist. Existence check is in the called method
                 if (attributeInstance.getModifier(TEMP_MOD_UUID) != null) {
                     attributeInstance.removeModifier(TEMP_MOD_UUID);
                 }
@@ -147,12 +150,12 @@ public class AlembicDamageHandler {
                 }
                 damageAttributeValue *= attacker.getAttackStrengthScale(0.5f);
                 float resMod = getResistanceForType(damageType, target, targetStats).secondFloat();
-                if (resMod <= 1) {
+                if (resMod <= 1) { // TODO: This sequence is done in three different places, once slightly differently
                     resMod = 1 + (1 - resMod);
                 } else {
                     resMod = 1 - ((resMod - 1) * damageType.getResistanceIgnore());
                 }
-                damageAttributeValue *= resMod;
+                damageAttributeValue *= resMod; // TODO: Resistance factored in before event fired, which can modify resistance?
                 AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, damageAttributeValue, targetResistance);
                 MinecraftForge.EVENT_BUS.post(preEvent);
                 float damage = preEvent.getDamage();
@@ -164,7 +167,7 @@ public class AlembicDamageHandler {
                 MinecraftForge.EVENT_BUS.post(postEvent);
             }
         }
-        return totalTypedDamage;
+        return totalTypedDamage; // TODO: This is only the sum of each damage type's attribute value
     }
 
     private static void handleIndirectDamage(LivingHurtEvent event, LivingEntity target, DamageSource originalSource) {
@@ -185,8 +188,9 @@ public class AlembicDamageHandler {
             AlembicDamageType damageType = entry.getKey();
             float percent = entry.getFloatValue();
             float damage = totalDamage * percent;
-            float finalDamage = damage;
-            Alembic.printInDebug(() -> "Dealing " + finalDamage + " " + damageType.getId().toString() + " damage to " + target);
+            if (Alembic.isDebugEnabled()) {
+                Alembic.LOGGER.debug("Dealing " + damage + " " + damageType.getId().toString() + " damage to " + target);
+            }
             totalDamage -= damage;
             // TODO: Blacklist thing
             if (AlembicConfig.ownerAttributeProjectiles.get() && originalSource.getDirectEntity() != null) {
@@ -194,7 +198,7 @@ public class AlembicDamageHandler {
                     if (owner.getAttribute(damageType.getAttribute()) != null) {
                         double attributeValue = owner.getAttributeValue(damageType.getAttribute());
                         Alembic.printInDebug(() -> "Owner has " + attributeValue + " " + damageType.getAttribute().getDescriptionId());
-                        damage += attributeValue;
+                        damage += (float) attributeValue;
                     }
                 }
             }
@@ -218,7 +222,7 @@ public class AlembicDamageHandler {
             attacker = livingEntity;
         }
 
-        AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, totalDamage, attributeValue);
+        AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, totalDamage, attributeValue); // TODO: Should only be fired once
         MinecraftForge.EVENT_BUS.post(preEvent);
 
         totalDamage = preEvent.getDamage();
@@ -381,9 +385,5 @@ public class AlembicDamageHandler {
         double resAtt = entity.getAttribute(type.getResistanceAttribute()).getValue();
         float resMod = stats != null ? stats.getResistance(type) : (entity instanceof Player ? 1f : 0f);
         return DoubleFloatPair.of(resAtt, resMod);
-    }
-
-    private static DamageSource entitySource(LivingEntity entity) {
-        return entity instanceof Player p ? p.level().damageSources().playerAttack(p) : entity.level().damageSources().mobAttack(entity);
     }
 }

@@ -23,8 +23,8 @@ public class AlembicDamageHelper {
             damage = Math.max(f / 25.0F, 0.0F);
             float f2 = f - damage;
             if(f2 > 0.0F && f2 < 3.4028235E37F){
-                if(target instanceof Player){
-                    ((Player)target).awardStat(Stats.DAMAGE_RESISTED, Math.round(f2 * 10.0F));
+                if(target instanceof Player player){
+                    player.awardStat(Stats.DAMAGE_RESISTED, Math.round(f2 * 10.0F));
                 }
             }
             return damage;

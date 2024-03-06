@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AlembicOverride {
-    public static final Codec<AlembicOverride> CODEC = Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).comapFlatMap(
+    public static final Codec<AlembicOverride> CODEC = Codec.unboundedMap(CodecUtil.ALEMBIC_RL_CODEC, Codec.FLOAT).comapFlatMap( // TODO: Change this to AlembicDamageType.CODEC and ReferenceMap
             map -> {
                 float total = 0;
                 Object2FloatMap<AlembicDamageType> retMap = new Object2FloatOpenHashMap<>();

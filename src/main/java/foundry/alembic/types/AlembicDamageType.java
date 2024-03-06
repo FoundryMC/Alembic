@@ -27,6 +27,7 @@ public class AlembicDamageType {
     private int priority;
     private ResourceLocation id;
     private AttributeSet attributeSet;
+    @Deprecated(forRemoval = true, since = "1.0.0")
     private String damageSource;
     private int color;
     private List<AlembicTag> tags;
