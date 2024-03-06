@@ -77,10 +77,6 @@ public class AlembicDamageHandler {
                 damageOffset = handleLivingEntityDamage(target, attacker, totalDamage, originalSource);
             }
             totalDamage -= damageOffset;
-            int time = target.invulnerableTime;
-            target.invulnerableTime = 0;
-            target.hurt(originalSource, totalDamage);
-            target.invulnerableTime = time;
             attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
                 // Remove these if they exist. Existence check is in the called method
                 if (attributeInstance.getModifier(TEMP_MOD_UUID) != null) {
