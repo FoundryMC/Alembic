@@ -130,7 +130,7 @@ public class AlembicCommand {
                                     lines.add(entry.getKey() + ": ");
                                     for (EntityType<?> type : entry.getValue()) {
                                         ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(type);
-                                        AlembicEntityStats stats = StatsManager.get(type);
+                                        AlembicEntityStats stats = EntityStatsManager.get(type);
                                         StringBuilder builder = new StringBuilder();
                                         builder.append(id.toString()).append(" -> \n");
                                         if (stats != null) {
