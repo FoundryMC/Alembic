@@ -69,6 +69,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'alembic'
 
+            args "--mixin.config", "alembic.tests.mixins.json"
+
             mods {
                 alembic {
                     source sourceSets.main
@@ -96,7 +98,6 @@ minecraft {
 mixin {
     add sourceSets.main, "alembic.refmap.json"
     config "alembic.mixins.json"
-    config "alembic.tests.mixins.json"
 
     debug.verbose = true
     debug.export = true
@@ -154,6 +155,7 @@ dependencies {
 }
 
 jar {
+    finalizedBy('reobfJar')
     classifier 'slim'
     manifest {
         attributes([
@@ -187,7 +189,6 @@ tasks.assemble {
 tasks.jarJar.configure {
     classifier ''
 }
-jar.finalizedBy('reobfJar')
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
