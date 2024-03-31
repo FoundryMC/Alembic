@@ -9,6 +9,7 @@ plugins {
 
 apply plugin: 'maven-publish'
 
+
 configurations {
     library
 }
@@ -72,7 +73,6 @@ minecraft {
             mods {
                 alembic {
                     source sourceSets.main
-                    source sourceSets.test
                 }
             }
         }
@@ -96,7 +96,6 @@ minecraft {
 mixin {
     add sourceSets.main, "alembic.refmap.json"
     config "alembic.mixins.json"
-    config "alembic.tests.mixins.json"
 
     debug.verbose = true
     debug.export = true
@@ -192,7 +191,6 @@ jar.finalizedBy('reobfJar')
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
