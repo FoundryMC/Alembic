@@ -57,7 +57,9 @@ public class AlembicDamageHandler {
     public static void handleDamage(LivingHurtEvent event) {
         LivingEntity target = event.getEntity();
         DamageSource originalSource = event.getSource();
-
+        Alembic.printInDebug(() -> {
+            return "Handling damage for " + target + " with source " + originalSource.getMsgId() + ". Is indirect: " + isIndirect(originalSource) + ". Is projectile: " + isProjectile(originalSource) + " with damage: " + event.getAmount();
+        });
         if(isIndirect(originalSource)) {
             isBeingDamaged = false;
             handleIndirectDamage(event, target, originalSource);
@@ -150,6 +152,11 @@ public class AlembicDamageHandler {
         float totalTypedDamage = 0f;
         AlembicEntityStats targetStats = EntityStatsManager.get(target.getType());
         for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
+            // if an override exists for the original source, and the current damageType matches one in the override, add the damage to the total
+            AlembicOverride override = OverrideManager.getOverridesForSource(originalSource);
+            if (override != null && override.getDamagePercents().containsKey(damageType)) {
+                totalTypedDamage += originalDamage * override.getDamagePercents().getFloat(damageType);
+            }
             Alembic.printInDebug(() -> "Handling damage type: " + damageType.getId() + "for player " + attacker.getDisplayName().getString());
             if (!attacker.getAttributes().hasAttribute(damageType.getAttribute())) continue;
             Alembic.printInDebug(() -> "Attacker has attribute: " + damageType.getAttribute().getDescriptionId());
