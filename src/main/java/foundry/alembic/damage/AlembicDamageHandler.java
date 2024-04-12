@@ -151,12 +151,13 @@ public class AlembicDamageHandler {
     private static float handlePlayerDamage(LivingEntity target, Player attacker, float originalDamage, DamageSource originalSource) {
         float totalTypedDamage = 0f;
         AlembicEntityStats targetStats = EntityStatsManager.get(target.getType());
+        AlembicOverride potentialOverride = OverrideManager.getOverridesForSource(originalSource);
+        Alembic.printInDebug(() -> "Original source has override?" + (potentialOverride != null));
+        if(potentialOverride != null) {
+            Alembic.printInDebug(() -> "Handling override for " + originalSource);
+            handleDirectTypedDamage(target, originalDamage, potentialOverride, originalSource);
+        }
         for (AlembicDamageType damageType : DamageTypeManager.getDamageTypes()) {
-            // if an override exists for the original source, and the current damageType matches one in the override, add the damage to the total
-            AlembicOverride override = OverrideManager.getOverridesForSource(originalSource);
-            if (override != null && override.getDamagePercents().containsKey(damageType)) {
-                totalTypedDamage += originalDamage * override.getDamagePercents().getFloat(damageType);
-            }
             Alembic.printInDebug(() -> "Handling damage type: " + damageType.getId() + "for player " + attacker.getDisplayName().getString());
             if (!attacker.getAttributes().hasAttribute(damageType.getAttribute())) continue;
             Alembic.printInDebug(() -> "Attacker has attribute: " + damageType.getAttribute().getDescriptionId());
@@ -220,6 +221,22 @@ public class AlembicDamageHandler {
                     }
                 }
             }
+            if (damage <= 0) {
+                Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for " + damageType.getId().toString());
+            }
+            handleResistances(target, damage, damageType, originalSource);
+        }
+    }
+
+    private static void handleDirectTypedDamage(LivingEntity target, float totalDamage, AlembicOverride override, DamageSource originalSource) {
+        for (Object2FloatMap.Entry<AlembicDamageType> entry : override.getDamagePercents().object2FloatEntrySet()) {
+            AlembicDamageType damageType = entry.getKey();
+            float percent = entry.getFloatValue();
+            float damage = totalDamage * percent;
+            if (Alembic.isDebugEnabled()) {
+                Alembic.LOGGER.debug("Dealing " + damage + " " + damageType.getId().toString() + " damage to " + target);
+            }
+            totalDamage -= damage;
             if (damage <= 0) {
                 Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for " + damageType.getId().toString());
             }
