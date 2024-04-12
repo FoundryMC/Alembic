@@ -58,41 +58,57 @@ public class AlembicDamageHandler {
         LivingEntity target = event.getEntity();
         DamageSource originalSource = event.getSource();
 
-        // if attacker is living or attacker is not null
-        if (originalSource.getDirectEntity() instanceof LivingEntity || !isIndirect(originalSource)) {
-            LivingEntity attacker = getAttacker(originalSource);
-            if (attacker == null) {
-                Alembic.printInDebug(() -> "Attacker is null, skipping. Damage source: " + originalSource);
-                isBeingDamaged = false;
-                return;
-            }
-            Multimap<Attribute, AttributeModifier> enchantmentMap = ArrayListMultimap.create();
-            // Add attribute modifiers if enchantments exist
-            if (handleEnchantments(attacker, target, enchantmentMap)) return;
-            float totalDamage = event.getAmount();
-            float damageOffset;
-            if (attacker instanceof Player pl) {
-                damageOffset = handlePlayerDamage(target, pl, totalDamage, originalSource);
-            } else {
-                damageOffset = handleLivingEntityDamage(target, attacker, totalDamage, originalSource);
-            }
-            totalDamage -= damageOffset;
-            attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
-                // Remove these if they exist. Existence check is in the called method
-                if (attributeInstance.getModifier(TEMP_MOD_UUID) != null) {
-                    attributeInstance.removeModifier(TEMP_MOD_UUID);
-                }
-                if (attributeInstance.getModifier(TEMP_MOD_UUID2) != null) {
-                    attributeInstance.removeModifier(TEMP_MOD_UUID2);
-                }
-            });
-        } else if (isIndirect(originalSource)) {
+        if(isIndirect(originalSource)) {
             isBeingDamaged = false;
             handleIndirectDamage(event, target, originalSource);
-            return;
+        } else if (isProjectile(originalSource)) {
+            isBeingDamaged = false;
+            handleIndirectDamage(event, target, originalSource);
+            if(shouldHandleOwnerAttributes(originalSource)){
+                handleDirectDamage(event, originalSource, target);
+                event.setCanceled(true);
+            } else {
+                event.setCanceled(true);
+            }
+        } else if (originalSource.getDirectEntity() instanceof LivingEntity || !isIndirect(originalSource)){
+            handleDirectDamage(event, originalSource, target);
         }
         isBeingDamaged = false;
         event.setCanceled(true);
+    }
+
+    private static boolean isProjectile(DamageSource source) {
+        return source.getDirectEntity() instanceof AbstractArrow || source.getDirectEntity() instanceof AbstractHurtingProjectile || source.getDirectEntity() instanceof Projectile;
+    }
+
+    private static void handleDirectDamage(LivingHurtEvent event, DamageSource originalSource, LivingEntity target) {
+        LivingEntity attacker = getAttacker(originalSource);
+        if (attacker == null) {
+            Alembic.printInDebug(() -> "Attacker is null, skipping. Damage source: " + originalSource);
+            isBeingDamaged = false;
+            return;
+        }
+        Multimap<Attribute, AttributeModifier> enchantmentMap = ArrayListMultimap.create();
+        // Add attribute modifiers if enchantments exist
+        if (handleEnchantments(attacker, target, enchantmentMap)) return;
+        float totalDamage = event.getAmount();
+        // if the attacker is a projectile and owner attribute projectiles is on, get the damage type
+        float damageOffset;
+        if (attacker instanceof Player pl) {
+            damageOffset = handlePlayerDamage(target, pl, totalDamage, originalSource);
+        } else {
+            damageOffset = handleLivingEntityDamage(target, attacker, totalDamage, originalSource);
+        }
+        totalDamage -= damageOffset;
+        attacker.getAttributes().attributes.forEach((attribute, attributeInstance) -> {
+            // Remove these if they exist. Existence check is in the called method
+            if (attributeInstance.getModifier(TEMP_MOD_UUID) != null) {
+                attributeInstance.removeModifier(TEMP_MOD_UUID);
+            }
+            if (attributeInstance.getModifier(TEMP_MOD_UUID2) != null) {
+                attributeInstance.removeModifier(TEMP_MOD_UUID2);
+            }
+        });
     }
 
     private static float handleLivingEntityDamage(LivingEntity target, LivingEntity attacker, float originalDamage, DamageSource originalSource) {
@@ -173,7 +189,6 @@ public class AlembicDamageHandler {
         if (override != null) {
             handleIndirectTypedDamage(target, totalDamage, override, originalSource);
             isBeingDamaged = false;
-            event.setCanceled(true);
         } else {
             isBeingDamaged = false;
         }
@@ -316,13 +331,14 @@ public class AlembicDamageHandler {
         if (source.getDirectEntity() == null) {
             return true;
         }
-        boolean isIndirect = source.getDirectEntity() == null;
-        if (!AlembicConfig.ownerAttributeProjectiles.get()) {
-            if (source.getDirectEntity() instanceof AbstractArrow || source.getDirectEntity() instanceof AbstractHurtingProjectile || source.getDirectEntity() instanceof Projectile) {
-                isIndirect = true;
-            }
+        return source.getDirectEntity() == null;
+    }
+
+    private static boolean shouldHandleOwnerAttributes(DamageSource source) {
+        if (AlembicConfig.ownerAttributeProjectiles.get()) {
+            return source.getDirectEntity() instanceof AbstractArrow || source.getDirectEntity() instanceof AbstractHurtingProjectile || source.getDirectEntity() instanceof Projectile;
         }
-        return isIndirect;
+        return false;
     }
 
     private static void sendDamagePacket(LivingEntity target, AlembicDamageType damageType, float damage) {
