@@ -60,12 +60,15 @@ public class AlembicDamageHandler {
         Alembic.printInDebug(() -> {
             return "Handling damage for " + target + " with source " + originalSource.getMsgId() + ". Is indirect: " + isIndirect(originalSource) + ". Is projectile: " + isProjectile(originalSource) + " with damage: " + event.getAmount();
         });
+
+        boolean damageDealt = true;
+
         if(isIndirect(originalSource)) {
             isBeingDamaged = false;
-            handleIndirectDamage(event, target, originalSource);
+            damageDealt = handleIndirectDamage(event, target, originalSource);
         } else if (isProjectile(originalSource)) {
             isBeingDamaged = false;
-            handleIndirectDamage(event, target, originalSource);
+            damageDealt = handleIndirectDamage(event, target, originalSource);
             if(shouldHandleOwnerAttributes(originalSource)){
                 handleDirectDamage(event, originalSource, target);
                 event.setCanceled(true);
@@ -76,7 +79,7 @@ public class AlembicDamageHandler {
             handleDirectDamage(event, originalSource, target);
         }
         isBeingDamaged = false;
-        event.setCanceled(true);
+        event.setCanceled(damageDealt);
     }
 
     private static boolean isProjectile(DamageSource source) {
@@ -190,15 +193,17 @@ public class AlembicDamageHandler {
         return totalTypedDamage; // TODO: This is only the sum of each damage type's attribute value
     }
 
-    private static void handleIndirectDamage(LivingHurtEvent event, LivingEntity target, DamageSource originalSource) {
+    private static boolean handleIndirectDamage(LivingHurtEvent event, LivingEntity target, DamageSource originalSource) {
         float totalDamage = event.getAmount();
         AlembicOverride override = OverrideManager.getOverridesForSource(originalSource);
         Alembic.printInDebug(() -> "Found override for " + originalSource + " with damage" + totalDamage + ": " + override);
         if (override != null) {
             handleIndirectTypedDamage(target, totalDamage, override, originalSource);
             isBeingDamaged = false;
+            return true;
         } else {
             isBeingDamaged = false;
+            return false;
         }
     }
 
