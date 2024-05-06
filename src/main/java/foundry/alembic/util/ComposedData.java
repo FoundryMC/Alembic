@@ -1,11 +1,12 @@
 package foundry.alembic.util;
 
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+
 import java.util.Map;
 import java.util.Optional;
 
 public class ComposedData {
-    private final Map<ComposedDataType<?>, Object> data = new HashMap<>();
+    private final Map<ComposedDataType<?>, Object> data = new Reference2ObjectOpenHashMap<>();
     private ComposedData() {}
     public static ComposedData createEmpty() {
         return new ComposedData();
