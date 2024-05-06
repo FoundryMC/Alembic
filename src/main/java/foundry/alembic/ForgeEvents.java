@@ -180,13 +180,6 @@ public class ForgeEvents {
                     .forEach((alembicDamageType, aFloat) -> {
                         float damagePart = event.getBlockedDamage() * aFloat;
 
-                        RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
-                        AttributeInstance instance = entity.getAttribute(resistanceAttribute);
-                        if (instance == null) {
-                            return;
-                        }
-
-                        damagePart -= (float) instance.getValue();
                         for(ShieldBlockStat stat : stats){
                             for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
                                 if(mod.type() == alembicDamageType) {
@@ -197,29 +190,29 @@ public class ForgeEvents {
                         finalDamage.add(Math.max(damagePart, 0));
 
                     });
-            if(event.getDamageSource().getDirectEntity() != null){
-                if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
-                    EntityStatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
-                        float damagePart = event.getBlockedDamage() * aFloat;
-
-                        RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
-                        AttributeInstance instance = entity.getAttribute(resistanceAttribute);
-                        if (instance == null) {
-                            return;
-                        }
-
-                        damagePart -= (float) instance.getValue();
-                        for(ShieldBlockStat stat : stats){
-                            for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
-                                if (mod.type() == alembicDamageType) {
-                                    damagePart *= mod.modifier();
-                                }
-                            }
-                        }
-                        finalDamage.add(Math.max(damagePart, 0));
-                    });
-                }
-            }
+//            if(event.getDamageSource().getDirectEntity() != null){
+//                if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
+//                    EntityStatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
+//                        float damagePart = event.getBlockedDamage() * aFloat;
+//
+//                        RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
+//                        AttributeInstance instance = entity.getAttribute(resistanceAttribute);
+//                        if (instance == null) {
+//                            return;
+//                        }
+//
+//                        damagePart -= (float) instance.getValue();
+//                        for(ShieldBlockStat stat : stats){
+//                            for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
+//                                if (mod.type() == alembicDamageType) {
+//                                    damagePart *= mod.modifier();
+//                                }
+//                            }
+//                        }
+//                        finalDamage.add(Math.max(damagePart, 0));
+//                    });
+//                }
+//            }
             event.setBlockedDamage(event.getBlockedDamage() - finalDamage.getValue());
         }
     }
