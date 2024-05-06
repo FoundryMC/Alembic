@@ -101,6 +101,7 @@ public class ForgeClientEvents {
     static void onLoggingOut(final ClientPlayerNetworkEvent.LoggingOut event) {
         AlembicAttribute.clearCache();
         ItemStatManager.syncPacket(null);
+        ShieldStatManager.syncPacket(null);
     }
 
     private static boolean isDefaultAttack(Attribute attribute) {

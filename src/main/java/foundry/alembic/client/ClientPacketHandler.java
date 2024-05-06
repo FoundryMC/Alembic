@@ -6,7 +6,9 @@ import foundry.alembic.compat.TESCompat;
 import foundry.alembic.networking.ClientboundAlembicDamagePacket;
 import foundry.alembic.networking.ClientboundAlembicFireTypePacket;
 import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
+import foundry.alembic.networking.ClientboundSyncShieldStatsPacket;
 import foundry.alembic.stats.item.ItemStatManager;
+import foundry.alembic.stats.shield.ShieldStatManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -39,5 +41,9 @@ public class ClientPacketHandler {
 
     public static void handleSyncItemStats(ClientboundSyncItemStatsPacket packet) {
         ItemStatManager.syncPacket(packet.map());
+    }
+
+    public static void handleSyncShieldStats(ClientboundSyncShieldStatsPacket packet) {
+        ShieldStatManager.syncPacket(packet.stats());
     }
 }

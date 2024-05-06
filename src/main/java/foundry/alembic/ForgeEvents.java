@@ -8,6 +8,7 @@ import foundry.alembic.damage.AlembicDamageHandler;
 import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
 import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
+import foundry.alembic.networking.ClientboundSyncShieldStatsPacket;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.EntityStatsManager;
 import foundry.alembic.stats.item.ItemStatManager;
@@ -81,7 +82,7 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    static void syncItemStats(final OnDatapackSyncEvent event) {
+    static void syncStats(final OnDatapackSyncEvent event) {
         PacketDistributor.PacketTarget packetTarget;
         if (event.getPlayer() != null) {
             packetTarget = PacketDistributor.PLAYER.with(event::getPlayer);
@@ -89,6 +90,7 @@ public class ForgeEvents {
             packetTarget = PacketDistributor.ALL.noArg();
         }
         AlembicPacketHandler.INSTANCE.send(packetTarget, new ClientboundSyncItemStatsPacket(ItemStatManager.getStats()));
+        AlembicPacketHandler.INSTANCE.send(packetTarget, new ClientboundSyncShieldStatsPacket(ShieldStatManager.getStats()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

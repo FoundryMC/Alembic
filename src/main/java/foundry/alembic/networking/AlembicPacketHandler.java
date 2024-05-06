@@ -1,7 +1,6 @@
 package foundry.alembic.networking;
 
 import foundry.alembic.Alembic;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
@@ -32,6 +31,11 @@ public class AlembicPacketHandler {
                 .encoder(ClientboundSyncItemStatsPacket::encode)
                 .decoder(ClientboundSyncItemStatsPacket::decode)
                 .consumerMainThread(ClientboundSyncItemStatsPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(ClientboundSyncShieldStatsPacket.class, id++)
+                .encoder(ClientboundSyncShieldStatsPacket::encode)
+                .decoder(ClientboundSyncShieldStatsPacket::decode)
+                .consumerMainThread(ClientboundSyncShieldStatsPacket::handle)
                 .add();
     }
 

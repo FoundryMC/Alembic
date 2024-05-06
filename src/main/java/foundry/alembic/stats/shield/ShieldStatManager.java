@@ -12,20 +12,23 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.crafting.conditions.ICondition;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ShieldStatManager extends ConditionalJsonResourceReloadListener {
     private static final List<ShieldBlockStat> HOLDER = new ArrayList<>();
+    private static List<ShieldBlockStat> clientStats;
 
     public ShieldStatManager(ICondition.IContext conditionContext) {
         super(conditionContext, Utils.GSON, "alembic/shield_stats");
     }
 
-    public static Collection<ShieldBlockStat> getStats(Item item){
+    public static List<ShieldBlockStat> getStats() {
+        return Collections.unmodifiableList(clientStats != null ? clientStats : HOLDER);
+    }
+
+    public static Collection<ShieldBlockStat> getStats(Item item) {
         List<ShieldBlockStat> stats = new ArrayList<>();
         for(ShieldBlockStat stat : HOLDER){
             if(stat.item().is(item)){
@@ -33,6 +36,10 @@ public class ShieldStatManager extends ConditionalJsonResourceReloadListener {
             }
         }
         return stats;
+    }
+
+    public static void syncPacket(@Nullable List<ShieldBlockStat> shieldStats) {
+        clientStats = shieldStats;
     }
 
     @Override
