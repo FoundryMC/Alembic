@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:shield",
+  "blocking_stats": [
+    {
+      "type": "alembic:test_damage",
+      "modifier": 0.2
+    }
+  ]
+}

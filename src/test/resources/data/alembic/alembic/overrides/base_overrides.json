@@ -1,0 +1,6 @@
+{
+  "priority": 1,
+  "source_overrides": {
+    "minecraft:wither": {"test_damage": 1.0}
+  }
+}

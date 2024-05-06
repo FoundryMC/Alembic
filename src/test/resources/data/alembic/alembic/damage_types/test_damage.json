@@ -1,0 +1,24 @@
+{
+  "priority": 1,
+  "enchant_reduction": false,
+  "enchant_source": "mob",
+  "color": "#FFFFFF",
+  "tags": [
+    {
+      "tag_type": "alembic:particle_tag",
+      "particle_options": {
+        "type": "alembic:frostbite"
+      },
+      "conditions": [
+        {
+          "condition_type": "alembic:damage_source",
+          "damage_source": "minecraft:freeze"
+        }
+      ]
+    },
+    {
+      "tag_type": "alembic:reference_tag",
+      "ref": "alembic:particles/wither"
+    }
+  ]
+}
