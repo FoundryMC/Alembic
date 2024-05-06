@@ -55,6 +55,9 @@ import static foundry.alembic.ForgeEvents.*;
 
 public class AlembicDamageHandler {
     public static void handleDamage(LivingHurtEvent event) {
+        if (event.getAmount() <= 0) {
+            return;
+        }
         LivingEntity target = event.getEntity();
         DamageSource originalSource = event.getSource();
         Alembic.printInDebug(() -> {
@@ -357,9 +360,6 @@ public class AlembicDamageHandler {
     }
 
     private static boolean isIndirect(DamageSource source) {
-        if (source.getDirectEntity() == null) {
-            return true;
-        }
         return source.getDirectEntity() == null;
     }
 
