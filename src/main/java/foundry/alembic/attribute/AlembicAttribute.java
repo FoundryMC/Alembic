@@ -2,6 +2,7 @@ package foundry.alembic.attribute;
 
 import dev.shadowsoffire.attributeslib.api.IFormattableAttribute;
 import foundry.alembic.stats.item.ItemStatManager;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,19 +22,19 @@ public class AlembicAttribute extends RangedAttribute implements IFormattableAtt
         cache.clear();
     }
 
-    public void setBaseValue(double value){
+    public void setBaseValue(double value) {
         this.defaultValue = value;
     }
 
-    public void setMinValue(double value){
+    public void setMinValue(double value) {
         this.minValue = value;
     }
 
-    public void setMaxValue(double value){
+    public void setMaxValue(double value) {
         this.maxValue = value;
     }
 
-    public void setDescriptionId(String id){
+    public void setDescriptionId(String id) {
         this.descriptionId = id;
     }
 
@@ -43,21 +44,6 @@ public class AlembicAttribute extends RangedAttribute implements IFormattableAtt
             return null;
         }
 
-        AtomicReference<UUID> uuid = new AtomicReference<>(null);
-        if (cache.containsKey(this)) {
-            uuid.set(cache.get(this));
-        } else {
-            ItemStatManager.getStats().values().forEach((itemStat) -> {
-                itemStat.asMap().values().forEach((itemModifier) -> {
-                    itemModifier.stream().findFirst().ifPresent(mod -> {
-                        mod.attributeData().stream().filter(att -> att.getAttribute() != null && att.getAttribute().equals(this)).findFirst().ifPresent(att -> {
-                            uuid.set(att.getUUID());
-                        });
-                    });
-                });
-            });
-            cache.put(this, uuid.get());
-        }
-        return uuid.get();
+        return UUIDManager.getOrCreate(BuiltInRegistries.ATTRIBUTE.getKey(this));
     }
 }

@@ -1,7 +1,8 @@
 package foundry.alembic;
 
 import foundry.alembic.attribute.AlembicAttribute;
-import foundry.alembic.attribute.UUIDSavedData;
+import foundry.alembic.attribute.UUIDFactory;
+import foundry.alembic.attribute.UUIDManager;
 import foundry.alembic.caps.AlembicFlammableProvider;
 import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
@@ -12,6 +13,7 @@ import foundry.alembic.networking.ClientboundSyncShieldStatsPacket;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.EntityStatsManager;
 import foundry.alembic.stats.item.ItemStatManager;
+import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import foundry.alembic.stats.item.slots.VanillaSlotType;
 import foundry.alembic.stats.shield.ShieldBlockStat;
 import foundry.alembic.stats.shield.ShieldStatManager;
@@ -157,8 +159,9 @@ public class ForgeEvents {
             return;
         }
         // TODO: if curios compat is implemented, make sure to do something for it
-        ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(event.getSlotType()))
-                .forEach(itemStat -> itemStat.computeAttributes(event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
+        EquipmentSlotType slotType = new VanillaSlotType(event.getSlotType());
+        ItemStatManager.getStats(stack.getItem(), slotType)
+                .forEach(itemStat -> itemStat.computeAttributes(event.getModifiers(), event::addModifier, event::removeAttribute, slotType));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -294,7 +297,6 @@ public class ForgeEvents {
 
         Player player = event.getPlayer();
         int hungerValue = event.getFoodLevel();
-        UUIDSavedData uuidManager = UUIDSavedData.getOrLoad(event.getPlayer().level().getServer());
 
         for (Map.Entry<AlembicDamageType, AlembicHungerTag> entry : AlembicGlobalTagPropertyHolder.getHungerBonuses().entrySet()) {
             AlembicDamageType type = entry.getKey();
@@ -314,7 +316,7 @@ public class ForgeEvents {
             if (instance != null) { // maybe log warning?
                 float scalar = tag.getScaleAmount() * ((20 / tag.getHungerTrigger()) - (int)affectedFraction);
 
-                UUID uuid = uuidManager.getOrCreate(type.getId().withSuffix(".%s_hunger_mod".formatted(tag.getTypeModifier().getSerializedName())));
+                UUID uuid = UUIDFactory.getOrCreate(player.level(), type.getId().withSuffix(".%s_hunger_mod".formatted(tag.getTypeModifier().getSerializedName())));
 
                 AttributeModifier modifier = new AttributeModifier(uuid, modifierId, scalar, tag.getOperation());
 
