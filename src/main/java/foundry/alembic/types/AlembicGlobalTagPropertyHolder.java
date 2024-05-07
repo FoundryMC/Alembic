@@ -4,8 +4,9 @@ import foundry.alembic.types.tag.tags.AlembicHungerTag;
 import foundry.alembic.types.tag.tags.AlembicPerLevelTag;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class AlembicGlobalTagPropertyHolder {
     private static final Int2ObjectMap<Set<AlembicPerLevelTag>> LEVELUP_BONUS = new Int2ObjectOpenHashMap<>();
-    private static final Map<AlembicDamageType, AlembicHungerTag> HUNGER_BONUS = new HashMap<>();
+    private static final Map<AlembicDamageType, AlembicHungerTag> HUNGER_BONUS = new Reference2ObjectOpenHashMap<>();
 
     static void clearAll() {
         LEVELUP_BONUS.clear();
@@ -21,7 +22,7 @@ public class AlembicGlobalTagPropertyHolder {
     }
 
     public static void addLevelupBonus(AlembicPerLevelTag perLevelTag) {
-        LEVELUP_BONUS.computeIfAbsent(perLevelTag.getLevelDifference(), i -> new HashSet<>()).add(perLevelTag);
+        LEVELUP_BONUS.computeIfAbsent(perLevelTag.getLevelDifference(), i -> new ObjectOpenHashSet<>()).add(perLevelTag);
     }
 
     public static void addHungerBonus(AlembicDamageType type, AlembicHungerTag hungerTag) {
@@ -29,7 +30,10 @@ public class AlembicGlobalTagPropertyHolder {
     }
 
     public static Set<AlembicPerLevelTag> getLevelupBonuses(int experienceLevels) {
-        return LEVELUP_BONUS.int2ObjectEntrySet().stream().filter(setEntry -> experienceLevels % setEntry.getIntKey() == 0).flatMap(setEntry -> setEntry.getValue().stream()).collect(Collectors.toSet());
+        return LEVELUP_BONUS.int2ObjectEntrySet().stream()
+                .filter(setEntry -> experienceLevels % setEntry.getIntKey() == 0)
+                .flatMap(setEntry -> setEntry.getValue().stream())
+                .collect(Collectors.toSet());
     }
 
     public static AlembicHungerTag getHungerBonus(AlembicDamageType type) {
