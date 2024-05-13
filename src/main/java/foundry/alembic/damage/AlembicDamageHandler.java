@@ -79,7 +79,7 @@ public class AlembicDamageHandler {
                 event.setCanceled(true);
             }
         } else if (originalSource.getDirectEntity() instanceof LivingEntity || !isIndirect(originalSource)){
-            handleDirectDamage(event, originalSource, target);
+            damageDealt = handleDirectDamage(event, originalSource, target);
         }
         isBeingDamaged = false;
         event.setCanceled(damageDealt);
@@ -89,16 +89,16 @@ public class AlembicDamageHandler {
         return source.getDirectEntity() instanceof AbstractArrow || source.getDirectEntity() instanceof AbstractHurtingProjectile || source.getDirectEntity() instanceof Projectile;
     }
 
-    private static void handleDirectDamage(LivingHurtEvent event, DamageSource originalSource, LivingEntity target) {
+    private static boolean handleDirectDamage(LivingHurtEvent event, DamageSource originalSource, LivingEntity target) {
         LivingEntity attacker = getAttacker(originalSource);
         if (attacker == null) {
             Alembic.printInDebug(() -> "Attacker is null, skipping. Damage source: " + originalSource);
             isBeingDamaged = false;
-            return;
+            return false;
         }
         Multimap<Attribute, AttributeModifier> enchantmentMap = ArrayListMultimap.create();
         // Add attribute modifiers if enchantments exist
-        if (handleEnchantments(attacker, target, enchantmentMap)) return;
+        if (handleEnchantments(attacker, target, enchantmentMap)) return false;
         float totalDamage = event.getAmount();
         // if the attacker is a projectile and owner attribute projectiles is on, get the damage type
         float damageOffset;
@@ -117,6 +117,7 @@ public class AlembicDamageHandler {
                 attributeInstance.removeModifier(TEMP_MOD_UUID2);
             }
         });
+        return true;
     }
 
     private static float handleLivingEntityDamage(LivingEntity target, LivingEntity attacker, float originalDamage, DamageSource originalSource) {
