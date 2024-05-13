@@ -7,6 +7,7 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -15,6 +16,8 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import org.apache.commons.lang3.Range;
@@ -74,30 +77,50 @@ public class BasicDamageTests {
 
     // Tests that ShieldStats work correctly. Currently only ensures vanilla-like behavior for physical_damage being fully blocked.
     @PrefixGameTestTemplate(false)
-    @GameTest(template = "9x9x9")
+    @GameTest(template = "9x9x9", timeoutTicks = 300)
     public void shieldTest(final GameTestHelper helper) {
         Player player = helper.makeMockSurvivalPlayer();
-        Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, player.blockPosition().east());
-        player.lookAt(EntityAnchorArgument.Anchor.EYES, zombie.getEyePosition());
+        player.setPos(helper.relativeVec(new Vec3(0, 2, 0)));
+        player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.SHIELD));
+        Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, player.blockPosition().relative(player.getDirection()));
+        zombie.lookAt(EntityAnchorArgument.Anchor.EYES, player.position());
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, zombie.position());
+
+        helper.assertTrue(1 + player.getLookAngle().dot(zombie.getLookAngle()) < 1 - .999d, "Not looking at one another");
 
         float playerHealth = player.getHealth();
 
         helper.startSequence()
                 .thenExecute(() -> {
-                    player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.SHIELD));
                     player.startUsingItem(InteractionHand.MAIN_HAND);
                 })
-                .thenExecuteAfter(2, () -> zombie.doHurtTarget(player));
+                .thenExecuteFor(6, player::tick)
+                .thenExecute(() -> helper.assertTrue(player.getHealth() == playerHealth, "Player was damaged before being hurt!"))
+                .thenExecuteAfter(20, () -> {
+                    helper.assertTrue(player.isUsingItem(), "Player stopped using shield!");
+                    zombie.doHurtTarget(player);
+                })
+                .thenExecute(() -> helper.assertTrue(player.getHealth() == playerHealth, "Player took damage while using shield! Took " + (player.getHealth() - playerHealth)))
+                .thenSucceed();
+    }
 
-        helper.assertTrue(player.getHealth() == playerHealth, "Player took damage while using shield!");
-
-        helper.succeed();
+    @PrefixGameTestTemplate(false)
+    @GameTest(template = "9x9x9")
+    public void anvilDamageTest(final GameTestHelper helper) {
+        Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        float zombieHealth = zombie.getHealth();
+        BlockPos zombiePos = zombie.blockPosition();
+        helper.startSequence()
+                .thenExecute(() -> helper.setBlock(new BlockPos(0, 10, 0), Blocks.ANVIL))
+                .thenExecuteAfter(60, () -> helper.assertBlockPresent(Blocks.ANVIL, new BlockPos(0, 2, 0)))
+                .thenExecute(() -> helper.assertTrue(zombieHealth != zombie.getHealth(), "Zombie was not damaged!"))
+                .thenSucceed();
     }
 
     // TODO: Finish test. This should test that a custom `test_damage` damage type runs on a zombie being hurt
     @PrefixGameTestTemplate(false)
     @GameTest(template = "9x9x9")
-    public void testTestDamage(final GameTestHelper helper) {
+    public void testDamageTest(final GameTestHelper helper) {
         DamageSource source = helper.getLevel().damageSources().wither();
 
         Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, helper.relativePos(BlockPos.ZERO));
