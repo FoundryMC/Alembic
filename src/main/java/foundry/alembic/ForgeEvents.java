@@ -97,25 +97,25 @@ public class ForgeEvents {
     static void onLevelUp(PlayerXpEvent.LevelChange event) {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
+
         int newLevel = player.experienceLevel + event.getLevels();
+        if (newLevel < 0) {
+            return;
+        }
+
         for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(newLevel)) {
             RangedAttribute attribute = tag.getAffectedAttribute();
             if (player.getAttributes().hasAttribute(attribute)) {
                 ResourceLocation modifierId = tag.getModifierId();
 
-                int upgrades = Math.floorDiv(newLevel, tag.getLevelDifference());
+                int numBonuses = Math.floorDiv(newLevel, tag.getLevelDifference());
+                float sign = Math.signum(tag.getBonus());
+                float newBonus = sign < 0 ? Math.max(numBonuses * tag.getBonus(), tag.getCap()) : Math.min(numBonuses * tag.getBonus(), tag.getCap());
 
-                float playerRegion = getTagFloatElement(player, modifierId.toString());
-
-                if (playerRegion < tag.getCap()) {
-                    AttributeHelper.addOrModifyModifier(player, attribute, modifierId, amount -> tag.getBonus());
-
-                    // Write the number of level-ups for the attribute
-                    setTagFloatElement(player, modifierId.toString(), playerRegion+=Math.signum(event.getLevels())*tag.getBonus());
-                }
+                AttributeHelper.addOrModifyModifier(player, attribute, modifierId, amount -> newBonus);
 
                 if (Alembic.isDebugEnabled()) {
-                    player.displayClientMessage(Component.literal(modifierId + ": " + playerRegion), true);
+                    player.displayClientMessage(Component.literal(modifierId + ": " + newBonus), true);
                 }
             }
         }
