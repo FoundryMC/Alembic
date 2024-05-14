@@ -1,9 +1,6 @@
 package foundry.alembic;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
-import dev.lukebemish.defaultresources.api.ResourceProvider;
 import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.compat.TESCompat;
 import foundry.alembic.mobeffect.AlembicMobEffectRegistry;
@@ -28,7 +25,7 @@ import java.util.function.Supplier;
 public class Alembic {
     public static final String MODID = "alembic";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final boolean DUMP_STATIC_REGISTRIES = true;
+    public static final boolean DUMP_STATIC_REGISTRIES = System.getProperty("alembic.dump_static_registries") != null;
 
     public Alembic() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
