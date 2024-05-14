@@ -1,13 +1,13 @@
 package foundry.alembic.override;
 
 import com.google.gson.JsonElement;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.Alembic;
-import foundry.alembic.util.ConditionalJsonResourceReloadListener;
+import foundry.alembic.util.ConditionalCodecReloadListener;
 import foundry.alembic.util.TagOrElements;
 import foundry.alembic.util.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -24,11 +24,9 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
-public class OverrideManager extends ConditionalJsonResourceReloadListener {
+public class OverrideManager extends ConditionalCodecReloadListener<OverrideManager.OverrideStorage> {
     private static Codec<OverrideStorage> createCodec(ICondition.IContext context) {
         return RecordCodecBuilder.create(instance ->
                 instance.group(
@@ -42,7 +40,7 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
     private final RegistryAccess registryAccess;
 
     public OverrideManager(ICondition.IContext conditionContext, RegistryAccess registryAccess) {
-        super(conditionContext, Utils.GSON, "alembic/overrides");
+        super(null, conditionContext, Utils.GSON, "alembic/overrides");
         this.registryAccess = registryAccess;
     }
 
@@ -84,36 +82,38 @@ public class OverrideManager extends ConditionalJsonResourceReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> jsonMap, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        OVERRIDES.clear();
-        RegistryOps<JsonElement> regOps = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
-        Codec<OverrideStorage> storageCodec = createCodec(context);
-        for (Map.Entry<ResourceLocation, JsonElement> dataEntry : jsonMap.entrySet()) {
-            DataResult<OverrideStorage> dataResult = storageCodec.parse(regOps, dataEntry.getValue());
-            if (dataResult.error().isPresent()) {
-                Alembic.LOGGER.error("Could not read %s. %s".formatted(dataEntry.getKey(), dataResult.error().get().message()));
-                continue;
-            }
+    public DynamicOps<JsonElement> makeOps(ResourceManager resourceManager) {
+        return RegistryOps.create(JsonOps.INSTANCE, registryAccess);
+    }
 
-            OverrideStorage storage = dataResult.result().get();
-            for (Map.Entry<TagOrElements.Immediate<DamageType>, AlembicOverride> parsedEntry : storage.map.entrySet()) {
-                AlembicOverride override = parsedEntry.getValue();
+    @Override
+    protected void onSuccessfulParse(OverrideStorage value, ResourceLocation id) {
+        for (Map.Entry<TagOrElements.Immediate<DamageType>, AlembicOverride> parsedEntry : value.map.entrySet()) {
+            AlembicOverride override = parsedEntry.getValue();
 
-                override.setId(dataEntry.getKey());
-                override.setPriority(storage.priority);
+            override.setId(id);
+            override.setPriority(value.priority);
 
-                for (Holder<DamageType> type : parsedEntry.getKey().getElements()) {
-                    smartAddOverride(type.get(), override);
-                }
+            for (Holder<DamageType> type : parsedEntry.getKey().getElements()) {
+                smartAddOverride(type.get(), override);
             }
         }
-        // write the map to a human-readable string
+    }
+
+    @Override
+    protected void preApply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+        OVERRIDES.clear();
+        codec = createCodec(context);
+    }
+
+    @Override
+    protected void postApply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         String logPut = getOverrides().entrySet().stream()
                 .map(entry -> entry.getKey() + " -> " + entry.getValue())
                 .reduce((s, s2) -> s + ", " + s2)
                 .orElse("Empty");
-        Alembic.LOGGER.debug("Loaded overrides: %s".formatted(logPut));
+        logger.debug("Loaded overrides: %s".formatted(logPut));
     }
 
-    record OverrideStorage(int priority, Map<TagOrElements.Immediate<DamageType>, AlembicOverride> map) {}
+    public record OverrideStorage(int priority, Map<TagOrElements.Immediate<DamageType>, AlembicOverride> map) {}
 }

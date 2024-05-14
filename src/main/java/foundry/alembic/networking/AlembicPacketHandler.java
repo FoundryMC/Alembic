@@ -7,6 +7,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class AlembicPacketHandler {
+
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
             Alembic.location("main"),
@@ -37,11 +38,20 @@ public class AlembicPacketHandler {
                 .decoder(ClientboundSyncShieldStatsPacket::decode)
                 .consumerMainThread(ClientboundSyncShieldStatsPacket::handle)
                 .add();
+        INSTANCE.messageBuilder(ClientboundSyncDamageTypesPacket.class, id++)
+                .encoder(ClientboundSyncDamageTypesPacket::encode)
+                .decoder(ClientboundSyncDamageTypesPacket::decode)
+                .consumerMainThread(ClientboundSyncDamageTypesPacket::handle)
+                .add();
     }
 
     public static void sendFirePacket(Entity entity, String type) {
         if (!entity.level().isClientSide) {
             AlembicPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new ClientboundAlembicFireTypePacket(type, entity.getId()));
         }
+    }
+
+    public static void syncDataPackElements() {
+
     }
 }

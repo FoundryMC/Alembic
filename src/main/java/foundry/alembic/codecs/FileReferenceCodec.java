@@ -73,6 +73,6 @@ public abstract class FileReferenceCodec<T> implements Codec<T> {
 
     @Override
     public <T1> DataResult<T1> encode(T input, DynamicOps<T1> ops, T1 prefix) {
-        return null;
+        return referenceCodec.encode(input, ops, prefix);
     }
 }

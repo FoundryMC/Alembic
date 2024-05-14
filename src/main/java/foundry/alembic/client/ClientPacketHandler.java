@@ -3,12 +3,10 @@ package foundry.alembic.client;
 import foundry.alembic.Alembic;
 import foundry.alembic.caps.AlembicFlammableHandler;
 import foundry.alembic.compat.TESCompat;
-import foundry.alembic.networking.ClientboundAlembicDamagePacket;
-import foundry.alembic.networking.ClientboundAlembicFireTypePacket;
-import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
-import foundry.alembic.networking.ClientboundSyncShieldStatsPacket;
+import foundry.alembic.networking.*;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.shield.ShieldStatManager;
+import foundry.alembic.types.DamageTypeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -45,5 +43,9 @@ public class ClientPacketHandler {
 
     public static void handleSyncShieldStats(ClientboundSyncShieldStatsPacket packet) {
         ShieldStatManager.syncPacket(packet.stats());
+    }
+
+    public static void handleSyncDamageTypes(ClientboundSyncDamageTypesPacket packet) {
+        DamageTypeManager.syncPacket(packet.damageTypeMap());
     }
 }

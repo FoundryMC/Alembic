@@ -2,9 +2,7 @@ package foundry.alembic.stats.shield;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
-import foundry.alembic.Alembic;
-import foundry.alembic.util.ConditionalJsonResourceReloadListener;
+import foundry.alembic.util.ConditionalCodecReloadListener;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -16,12 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ShieldStatManager extends ConditionalJsonResourceReloadListener {
+public class ShieldStatManager extends ConditionalCodecReloadListener<ShieldBlockStat> {
     private static final List<ShieldBlockStat> HOLDER = new ArrayList<>();
     private static List<ShieldBlockStat> clientStats;
 
     public ShieldStatManager(ICondition.IContext conditionContext) {
-        super(conditionContext, Utils.GSON, "alembic/shield_stats");
+        super(ShieldBlockStat.CODEC, conditionContext, Utils.GSON, "alembic/shield_stats");
     }
 
     public static List<ShieldBlockStat> getStats() {
@@ -30,7 +28,7 @@ public class ShieldStatManager extends ConditionalJsonResourceReloadListener {
 
     public static Collection<ShieldBlockStat> getStats(Item item) {
         List<ShieldBlockStat> stats = new ArrayList<>();
-        for(ShieldBlockStat stat : HOLDER){
+        for (ShieldBlockStat stat : HOLDER) {
             if(stat.item().is(item)){
                 stats.add(stat);
             }
@@ -43,26 +41,22 @@ public class ShieldStatManager extends ConditionalJsonResourceReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+    protected void preApply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         HOLDER.clear();
-        int numStatsLoaded = 0;
-        for(Map.Entry<ResourceLocation, JsonElement> jsonEntry : pObject.entrySet()) {
-            DataResult<ShieldBlockStat> stat = ShieldBlockStat.CODEC.parse(JsonOps.INSTANCE, jsonEntry.getValue());
-            if (stat.error().isPresent()) {
-                Alembic.LOGGER.error("Could not read %s. %s".formatted(jsonEntry.getKey(), stat.error().get().message()));
-                continue;
+    }
+
+    @Override
+    protected DataResult<ShieldBlockStat> onParse(DataResult<ShieldBlockStat> result, ResourceLocation path) {
+        return result.flatMap(shieldBlockStat -> {
+            if (!shieldBlockStat.item().canPerformAction(ToolActions.SHIELD_BLOCK)) {
+                return DataResult.error(() -> "Item cannot block");
             }
-            Alembic.printInDebug(() -> "Adding shield stat %s".formatted(jsonEntry.getKey()));
-            ShieldBlockStat blockStat = stat.result().get();
-            if(!blockStat.item().canPerformAction(ToolActions.SHIELD_BLOCK)){
-                Alembic.LOGGER.error("Could not read %s. %s".formatted(jsonEntry.getKey(), "Item cannot block"));
-                continue;
-            }
-            HOLDER.add(blockStat);
-            numStatsLoaded++;
-        }
-        if (Alembic.isDebugEnabled()) {
-            Alembic.LOGGER.debug("Loaded " + numStatsLoaded + " shield stats");
-        }
+            return DataResult.success(shieldBlockStat);
+        });
+    }
+
+    @Override
+    protected void onSuccessfulParse(ShieldBlockStat value, ResourceLocation path) {
+        HOLDER.add(value);
     }
 }

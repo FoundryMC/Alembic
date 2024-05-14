@@ -23,8 +23,17 @@ public class AlembicDamageType {
                     Codec.STRING.fieldOf("enchant_source").forGetter(AlembicDamageType::getEnchantSource)
             ).apply(instance, AlembicDamageType::new)
     );
+    public static final Codec<AlembicDamageType> NETWORK_CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("priority").forGetter(AlembicDamageType::getPriority),
+                    CodecUtil.COLOR_CODEC.fieldOf("color").forGetter(AlembicDamageType::getColor),
+                    Codec.BOOL.fieldOf("enchant_reduction").forGetter(AlembicDamageType::hasEnchantReduction),
+                    Codec.STRING.fieldOf("enchant_source").forGetter(AlembicDamageType::getEnchantSource)
+            ).apply(instance, AlembicDamageType::new)
+    );
 
     private int priority;
+    @Deprecated(forRemoval = true, since = "1.0.7")
     private ResourceLocation id;
     private AttributeSet attributeSet;
     @Deprecated(forRemoval = true, since = "1.0.0")
@@ -34,6 +43,14 @@ public class AlembicDamageType {
 
     private boolean enchantReduction;
     private String enchantSource;
+
+    AlembicDamageType(int priority, int color, boolean enchantReduction, String enchantSource) {
+        this.priority = priority;
+        this.color = color;
+        this.tags = List.of();
+        this.enchantReduction = enchantReduction;
+        this.enchantSource = enchantSource;
+    }
 
     public AlembicDamageType(int priority, int color, List<AlembicTag> tags, boolean enchantReduction, String enchantSource) {
         this.priority = priority;
