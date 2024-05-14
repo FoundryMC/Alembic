@@ -9,26 +9,26 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.UUID;
+import java.util.function.DoubleUnaryOperator;
 
 public class AttributeHelper {
-    public static void addOrModifyModifier(LivingEntity livingEntity, Attribute attribute, ResourceLocation modifierId, double bonus) {
+    public static void addOrModifyModifier(LivingEntity livingEntity, Attribute attribute, ResourceLocation modifierId, DoubleUnaryOperator modifierOperator) {
         if (livingEntity.level() instanceof ServerLevel serverLevel) {
             AttributeInstance instance = livingEntity.getAttribute(attribute);
             UUIDSavedData savedData = UUIDSavedData.getOrLoad(serverLevel.getServer());
             if (instance != null) {
-                addOrModifyModifier(instance, modifierId, savedData.getOrCreate(modifierId), bonus);
+                modifyModifier(instance, modifierId, savedData.getOrCreate(modifierId), modifierOperator);
             }
         }
     }
 
-    public static void addOrModifyModifier(AttributeInstance instance, ResourceLocation modifierId, UUID modifierUuid, double bonus) {
-        if (instance.getModifier(modifierUuid) == null) {
-            instance.addPermanentModifier(new AttributeModifier(modifierUuid, modifierId.toString(), bonus, AttributeModifier.Operation.ADDITION));
-        } else {
-            AttributeModifier modifier = instance.getModifier(modifierUuid);
+    public static void modifyModifier(AttributeInstance instance, ResourceLocation modifierId, UUID modifierUuid, DoubleUnaryOperator modifierOperator) {
+        AttributeModifier modifier = instance.getModifier(modifierUuid);
+        if (modifier != null) {
             instance.removePermanentModifier(modifierUuid);
-            instance.addPermanentModifier(new AttributeModifier(modifierUuid, modifierId.toString(), modifier.getAmount()+bonus, AttributeModifier.Operation.ADDITION));
         }
+
+        instance.addPermanentModifier(new AttributeModifier(modifierUuid, modifierId.toString(), modifierOperator.applyAsDouble(modifier != null ? modifier.getAmount() : 0), AttributeModifier.Operation.ADDITION));
     }
 
 //    public static double applyModifiersTo(AttributeInstance instance, double num) {

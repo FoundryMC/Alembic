@@ -96,20 +96,22 @@ public class ForgeEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     static void onLevelUp(PlayerXpEvent.LevelChange event) {
         Player player = event.getEntity();
-        if(player.level().isClientSide) return;
-        for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(player.experienceLevel + event.getLevels())) {
-            // Get the upgrade region
+        if (player.level().isClientSide) return;
+        int newLevel = player.experienceLevel + event.getLevels();
+        for (AlembicPerLevelTag tag : AlembicGlobalTagPropertyHolder.getLevelupBonuses(newLevel)) {
             RangedAttribute attribute = tag.getAffectedAttribute();
-            ResourceLocation modifierId = tag.getModifierId();
-
-            int playerRegion = getTagDataElement(player, modifierId.toString());
-
             if (player.getAttributes().hasAttribute(attribute)) {
+                ResourceLocation modifierId = tag.getModifierId();
+
+                int upgrades = Math.floorDiv(newLevel, tag.getLevelDifference());
+
+                float playerRegion = getTagFloatElement(player, modifierId.toString());
+
                 if (playerRegion < tag.getCap()) {
-                    AttributeHelper.addOrModifyModifier(player, attribute, modifierId, tag.getBonus());
+                    AttributeHelper.addOrModifyModifier(player, attribute, modifierId, amount -> tag.getBonus());
 
                     // Write the number of level-ups for the attribute
-                    setTagDataElement(player, modifierId.toString(), playerRegion+=tag.getBonus());
+                    setTagFloatElement(player, modifierId.toString(), playerRegion+=Math.signum(event.getLevels())*tag.getBonus());
                 }
 
                 if (Alembic.isDebugEnabled()) {
@@ -167,14 +169,13 @@ public class ForgeEvents {
             return;
         }
         ItemStack blockingItem = ItemStack.EMPTY;
-        if(event.getEntity().getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+        if (event.getEntity().getItemInHand(InteractionHand.MAIN_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)) {
             blockingItem = event.getEntity().getItemInHand(InteractionHand.MAIN_HAND);
-        } else if(event.getEntity().getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)){
+        } else if (event.getEntity().getItemInHand(InteractionHand.OFF_HAND).canPerformAction(ToolActions.SHIELD_BLOCK)) {
             blockingItem = event.getEntity().getItemInHand(InteractionHand.OFF_HAND);
         }
-        if(!blockingItem.isEmpty()){
+        if (!blockingItem.isEmpty()) {
             Collection<ShieldBlockStat> stats = ShieldStatManager.getStats(blockingItem.getItem());
-            LivingEntity entity = event.getEntity();
             MutableFloat finalDamage = new MutableFloat();
 
             // Need to partition damage to each damage type, then block whatever amount from each, and sum up to put back into the event.
@@ -190,31 +191,7 @@ public class ForgeEvents {
                             }
                         }
                         finalDamage.add(Math.max(damagePart, 0));
-
                     });
-//            if(event.getDamageSource().getDirectEntity() != null){
-//                if(event.getDamageSource().getDirectEntity() instanceof LivingEntity le){
-//                    EntityStatsManager.get(le.getType()).getDamage().forEach((alembicDamageType, aFloat) -> {
-//                        float damagePart = event.getBlockedDamage() * aFloat;
-//
-//                        RangedAttribute resistanceAttribute = alembicDamageType.getResistanceAttribute();
-//                        AttributeInstance instance = entity.getAttribute(resistanceAttribute);
-//                        if (instance == null) {
-//                            return;
-//                        }
-//
-//                        damagePart -= (float) instance.getValue();
-//                        for(ShieldBlockStat stat : stats){
-//                            for(ShieldBlockStat.TypeModifier mod : stat.typeModifiers()){
-//                                if (mod.type() == alembicDamageType) {
-//                                    damagePart *= mod.modifier();
-//                                }
-//                            }
-//                        }
-//                        finalDamage.add(Math.max(damagePart, 0));
-//                    });
-//                }
-//            }
             event.setBlockedDamage(event.getBlockedDamage() - finalDamage.getValue());
         }
     }
@@ -302,11 +279,11 @@ public class ForgeEvents {
             float affectedFraction = (float)hungerValue / (float)tag.getHungerTrigger();
             String modifierId = "%s.%s_hunger_mod".formatted(type.createTranslationString(), tag.getTypeModifier());
 
-            int playerRegion = getTagDataElement(player, modifierId);
+            int playerRegion = getTagIntElement(player, modifierId);
             if (playerRegion == (int)affectedFraction && affectedFraction % 1 != 0) {
                 return;
             }
-            setTagDataElement(player, modifierId, (int)affectedFraction);
+            setTagIntElement(player, modifierId, (int)affectedFraction);
 
             RangedAttribute attribute = tag.getTypeModifier().getAffectedAttribute(type);
             AttributeInstance instance = player.getAttribute(attribute);
@@ -332,7 +309,28 @@ public class ForgeEvents {
         }
     }
 
-    private static int getTagDataElement(Player player, String id) {
+    private static float getTagFloatElement(Player player, String id) {
+        CompoundTag persistentData = player.getPersistentData();
+        if (!persistentData.contains("AlembicTagData")) {
+            return 0;
+        }
+        CompoundTag tagData = persistentData.getCompound("AlembicTagData");
+        if (!tagData.contains(id)) {
+            return 0;
+        }
+        return tagData.getFloat(id);
+    }
+
+    private static void setTagFloatElement(Player player, String id, float region) {
+        CompoundTag persistentData = player.getPersistentData();
+        if (!persistentData.contains("AlembicTagData")) {
+            persistentData.put("AlembicTagData", new CompoundTag());
+        }
+        CompoundTag tagData = persistentData.getCompound("AlembicTagData");
+        tagData.putFloat(id, region);
+    }
+
+    private static int getTagIntElement(Player player, String id) {
         CompoundTag persistentData = player.getPersistentData();
         if (!persistentData.contains("AlembicTagData")) {
             return 0;
@@ -344,7 +342,7 @@ public class ForgeEvents {
         return tagData.getInt(id);
     }
 
-    private static void setTagDataElement(Player player, String id, int region) {
+    private static void setTagIntElement(Player player, String id, int region) {
         CompoundTag persistentData = player.getPersistentData();
         if (!persistentData.contains("AlembicTagData")) {
             persistentData.put("AlembicTagData", new CompoundTag());

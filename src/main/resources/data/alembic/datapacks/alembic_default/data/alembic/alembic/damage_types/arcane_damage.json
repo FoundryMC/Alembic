@@ -38,8 +38,8 @@
     },
     {
       "tag_type": "alembic:per_level_tag",
-      "bonus_per_level": 1,
-      "max": 10,
+      "bonus_per_level": -1,
+      "max": -10,
       "level_difference": 5,
       "modifier_type": "resistance"
     }
