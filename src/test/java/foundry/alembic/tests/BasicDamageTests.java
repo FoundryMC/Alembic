@@ -7,7 +7,7 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.util.Mth;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -112,7 +112,7 @@ public class BasicDamageTests {
         BlockPos zombiePos = zombie.blockPosition();
         helper.startSequence()
                 .thenExecute(() -> helper.setBlock(new BlockPos(0, 10, 0), Blocks.ANVIL))
-                .thenExecuteAfter(60, () -> helper.assertBlockPresent(Blocks.ANVIL, new BlockPos(0, 2, 0)))
+                .thenExecuteAfter(60, () -> helper.assertBlockState(new BlockPos(0, 2, 0), state -> state.is(BlockTags.ANVIL), () -> "Unexpected block in place of anvil"))
                 .thenExecute(() -> helper.assertTrue(zombieHealth != zombie.getHealth(), "Zombie was not damaged!"))
                 .thenSucceed();
     }
