@@ -56,9 +56,10 @@ public class ItemStatManager extends ConditionalCodecReloadListener<ItemStat> {
 
     @Override
     protected void onSuccessfulParse(ItemStat value, ResourceLocation id) {
-        TagOrElements<Item> elements = value.items();
+        HOLDER.add(value);
+
         if (Alembic.isDebugEnabled()) {
-            logger.debug("Adding items stat {} to {}", id, elements.getTagOrElementLocation());
+            logger.debug("Adding items stat {} to {}", id, value.items().getTagOrElementLocation());
         }
     }
 }
