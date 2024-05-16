@@ -85,6 +85,11 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
     }
 
     @Override
+    protected void postApply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+        DAMAGE_TYPES.forEach((resourceLocation, damageType) -> damageType.handleTagsPostParse());
+    }
+
+    @Override
     protected boolean shouldParse(ResourceLocation id, JsonElement jsonElement) {
         return !id.getPath().startsWith("tags/") && !id.getPath().startsWith("conditions/");
     }
@@ -96,8 +101,6 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
 
     @Override
     protected void onSuccessfulParse(AlembicDamageType value, ResourceLocation id) {
-        value.handlePostParse(id);
-
         AlembicDamageType existing = getDamageType(id);
         if (existing != null) {
             if (value.getPriority() < existing.getPriority()) {

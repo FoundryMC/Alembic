@@ -46,6 +46,7 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
@@ -83,6 +84,9 @@ public class ForgeEvents {
 
     @SubscribeEvent
     static void syncStats(final OnDatapackSyncEvent event) {
+        if (FMLLoader.getDist().isClient()) {
+            return;
+        }
         PacketDistributor.PacketTarget packetTarget;
         if (event.getPlayer() != null) {
             packetTarget = PacketDistributor.PLAYER.with(event::getPlayer);

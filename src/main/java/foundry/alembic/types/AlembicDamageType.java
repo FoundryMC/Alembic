@@ -1,5 +1,6 @@
 package foundry.alembic.types;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import foundry.alembic.attribute.AttributeSet;
@@ -12,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class AlembicDamageType {
     public static final Codec<AlembicDamageType> CODEC = RecordCodecBuilder.create(instance ->
@@ -32,10 +34,8 @@ public class AlembicDamageType {
             ).apply(instance, AlembicDamageType::new)
     );
 
+    private final Supplier<AttributeSet> attributeSet = Suppliers.memoize(() -> AttributeSetRegistry.getValue(getId()));
     private int priority;
-    @Deprecated(forRemoval = true, since = "1.0.7")
-    private ResourceLocation id;
-    private AttributeSet attributeSet;
     @Deprecated(forRemoval = true, since = "1.0.0")
     private String damageSource;
     private int color;
@@ -61,31 +61,31 @@ public class AlembicDamageType {
     }
 
     public RangedAttribute getAttribute() {
-        return attributeSet.getDamageAttribute();
+        return getAttributeSet().getDamageAttribute();
     }
 
     public RangedAttribute getShieldingAttribute() {
-        return attributeSet.getShieldingAttribute();
+        return getAttributeSet().getShieldingAttribute();
     }
 
     public RangedAttribute getAbsorptionAttribute() {
-        return attributeSet.getAbsorptionAttribute();
+        return getAttributeSet().getAbsorptionAttribute();
     }
 
     public RangedAttribute getResistanceAttribute() {
-        return attributeSet.getResistanceAttribute();
+        return getAttributeSet().getResistanceAttribute();
     }
 
     public float getShieldingIgnore() {
-        return attributeSet.getShieldingIgnore();
+        return getAttributeSet().getShieldingIgnore();
     }
 
     public float getAbsorptionIgnore() {
-        return attributeSet.getAbsorptionIgnore();
+        return getAttributeSet().getAbsorptionIgnore();
     }
 
     public float getResistanceIgnore() {
-        return attributeSet.getResistanceIgnore();
+        return getAttributeSet().getResistanceIgnore();
     }
 
     public boolean hasEnchantReduction() {
@@ -136,6 +136,10 @@ public class AlembicDamageType {
         return damageSource;
     }
 
+    private AttributeSet getAttributeSet() {
+        return attributeSet.get();
+    }
+
     public Component getVisualString() {
         MutableComponent mutableComponent = Component.literal("ID: " + getId().toString());
         mutableComponent.append(" Base: " + getAttribute().defaultValue);
@@ -160,8 +164,7 @@ public class AlembicDamageType {
         return color;
     }
 
-    void handlePostParse(ResourceLocation id) {
-        this.attributeSet = AttributeSetRegistry.getValue(id);
+    void handleTagsPostParse() {
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }
 
