@@ -4,6 +4,7 @@ import foundry.alembic.attribute.AlembicAttribute;
 import foundry.alembic.attribute.AttributeSetRegistry;
 import foundry.alembic.stats.item.ItemStatManager;
 import foundry.alembic.stats.shield.ShieldStatManager;
+import foundry.alembic.types.DamageTypeManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -102,6 +103,7 @@ public class ForgeClientEvents {
         AlembicAttribute.clearCache();
         ItemStatManager.syncPacket(null);
         ShieldStatManager.syncPacket(null);
+        DamageTypeManager.syncPacket(null);
     }
 
     private static boolean isDefaultAttack(Attribute attribute) {

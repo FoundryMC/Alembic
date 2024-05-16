@@ -26,7 +26,7 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
 
     public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = CodecUtil.ALEMBIC_RL_CODEC.comapFlatMap(
             resourceLocation -> {
-                AlembicDamageType type = DAMAGE_TYPES.get(resourceLocation);
+                AlembicDamageType type = getDamageType(resourceLocation);
                 if (type == null) {
                     return DataResult.error(() -> "Damage type " + resourceLocation + " does not exist!");
                 }
@@ -50,26 +50,22 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
         return new ClientboundSyncDamageTypesPacket(DAMAGE_TYPES);
     }
 
-    public static void registerDamageType(ResourceLocation id, AlembicDamageType damageType) {
-        DAMAGE_TYPES.put(id, damageType);
-    }
-
     public static Collection<AlembicDamageType> getDamageTypes() {
-        return Collections.unmodifiableCollection(DAMAGE_TYPES.values());
+        return Collections.unmodifiableCollection(Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).values());
     }
 
     @Nullable
     public static AlembicDamageType getDamageType(ResourceLocation id) {
-        return DAMAGE_TYPES.get(id);
+        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).get(id);
     }
 
     @Nullable
     public static AlembicDamageType getDamageType(String id) {
-        return DAMAGE_TYPES.get(id.contains(":") ? new ResourceLocation(id) : Alembic.location(id));
+        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).get(id.contains(":") ? new ResourceLocation(id) : Alembic.location(id));
     }
 
     public static boolean containsKey(ResourceLocation id) {
-        return DAMAGE_TYPES.containsKey(id);
+        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).containsKey(id);
     }
 
     @Override
@@ -98,7 +94,7 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
                 logger.debug("Damage type {} already exists with a higher priority. Skipping.", id);
             }
         } else {
-            registerDamageType(id, value);
+            DAMAGE_TYPES.put(id, value);
         }
     }
 }
