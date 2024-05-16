@@ -90,8 +90,8 @@ public class ForgeEvents {
             packetTarget = PacketDistributor.ALL.noArg();
         }
         AlembicPacketHandler.INSTANCE.send(packetTarget, DamageTypeManager.createPacket());
-        AlembicPacketHandler.INSTANCE.send(packetTarget, new ClientboundSyncItemStatsPacket(ItemStatManager.getStats()));
-        AlembicPacketHandler.INSTANCE.send(packetTarget, new ClientboundSyncShieldStatsPacket(ShieldStatManager.getStats()));
+        AlembicPacketHandler.INSTANCE.send(packetTarget, ItemStatManager.createPacket());
+        AlembicPacketHandler.INSTANCE.send(packetTarget, ShieldStatManager.createPacket());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

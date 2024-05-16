@@ -41,7 +41,7 @@ public class AlembicPacketHandler {
         INSTANCE.messageBuilder(ClientboundSyncDamageTypesPacket.class, id++)
                 .encoder(ClientboundSyncDamageTypesPacket::encode)
                 .decoder(ClientboundSyncDamageTypesPacket::decode)
-                .consumerMainThread(ClientboundSyncDamageTypesPacket::handle)
+                .consumerNetworkThread(ClientboundSyncDamageTypesPacket::handle)
                 .add();
     }
 

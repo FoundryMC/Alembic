@@ -2,6 +2,7 @@ package foundry.alembic.stats.shield;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
+import foundry.alembic.networking.ClientboundSyncShieldStatsPacket;
 import foundry.alembic.util.ConditionalCodecReloadListener;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -22,13 +23,17 @@ public class ShieldStatManager extends ConditionalCodecReloadListener<ShieldBloc
         super(ShieldBlockStat.CODEC, conditionContext, Utils.GSON, "alembic/shield_stats");
     }
 
+//    private static List<ShieldBlockStat> getTrueStats() {
+//        return clientStats != null ? clientStats : HOLDER;
+//    }
+
     public static List<ShieldBlockStat> getStats() {
         return Collections.unmodifiableList(clientStats != null ? clientStats : HOLDER);
     }
 
     public static Collection<ShieldBlockStat> getStats(Item item) {
         List<ShieldBlockStat> stats = new ArrayList<>();
-        for (ShieldBlockStat stat : HOLDER) {
+        for (ShieldBlockStat stat : (clientStats != null ? clientStats : HOLDER)) {
             if(stat.item().is(item)){
                 stats.add(stat);
             }
@@ -38,6 +43,10 @@ public class ShieldStatManager extends ConditionalCodecReloadListener<ShieldBloc
 
     public static void syncPacket(@Nullable List<ShieldBlockStat> shieldStats) {
         clientStats = shieldStats;
+    }
+
+    public static ClientboundSyncShieldStatsPacket createPacket() {
+        return new ClientboundSyncShieldStatsPacket(HOLDER);
     }
 
     @Override

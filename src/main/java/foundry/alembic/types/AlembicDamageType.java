@@ -105,7 +105,7 @@ public class AlembicDamageType {
     }
 
     public String createTranslationString() {
-        return id.getNamespace() + ".damage." + id.getPath();
+        return getId().getNamespace() + ".damage." + getId().getPath();
     }
 
     public void addTag(AlembicTag tag) {
@@ -115,10 +115,6 @@ public class AlembicDamageType {
     public List<AlembicTag> getTags() {
         return this.tags;
     }
-
-//    public void runTags() {
-//
-//    }
 
     public void clearTags() {
         this.tags.clear();
@@ -133,7 +129,7 @@ public class AlembicDamageType {
     }
 
     public ResourceLocation getId() {
-        return id;
+        return DamageTypeManager.getId(this);
     }
 
     public String getDamageSource() {
@@ -141,7 +137,7 @@ public class AlembicDamageType {
     }
 
     public Component getVisualString() {
-        MutableComponent mutableComponent = Component.literal("ID: " + id.toString());
+        MutableComponent mutableComponent = Component.literal("ID: " + getId().toString());
         mutableComponent.append(" Base: " + getAttribute().defaultValue);
         mutableComponent.append(" Min: " + getAttribute().minValue);
         mutableComponent.append(" Max: " + getAttribute().maxValue);
@@ -165,14 +161,12 @@ public class AlembicDamageType {
     }
 
     void handlePostParse(ResourceLocation id) {
-        this.id = id;
-        this.damageSource = id.toString();
         this.attributeSet = AttributeSetRegistry.getValue(id);
         tags.forEach(alembicTag -> alembicTag.handlePostParse(this));
     }
 
     @Override
     public String toString() {
-        return id.toString();
+        return getId().toString();
     }
 }

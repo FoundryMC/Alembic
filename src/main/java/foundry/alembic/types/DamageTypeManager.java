@@ -1,5 +1,7 @@
 package foundry.alembic.types;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -21,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDamageType> {
-    private static final Map<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = new HashMap<>();
-    private static Map<ResourceLocation, AlembicDamageType> clientTypes = new HashMap<>();
+    private static final BiMap<ResourceLocation, AlembicDamageType> DAMAGE_TYPES = HashBiMap.create();
+    private static BiMap<ResourceLocation, AlembicDamageType> clientTypes;
 
     public static final Codec<AlembicDamageType> DAMAGE_TYPE_CODEC = CodecUtil.ALEMBIC_RL_CODEC.comapFlatMap(
             resourceLocation -> {
@@ -42,7 +44,7 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
         this.registryAccess = registryAccess;
     }
 
-    public static void syncPacket(@Nullable Map<ResourceLocation, AlembicDamageType> damageTypeMap) {
+    public static void syncPacket(@Nullable BiMap<ResourceLocation, AlembicDamageType> damageTypeMap) {
         clientTypes = damageTypeMap;
     }
 
@@ -50,22 +52,30 @@ public class DamageTypeManager extends ConditionalCodecReloadListener<AlembicDam
         return new ClientboundSyncDamageTypesPacket(DAMAGE_TYPES);
     }
 
+    private static BiMap<ResourceLocation, AlembicDamageType> getMap() {
+        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES);
+    }
+
+    public static ResourceLocation getId(AlembicDamageType damageType) {
+        return getMap().inverse().get(damageType);
+    }
+
     public static Collection<AlembicDamageType> getDamageTypes() {
-        return Collections.unmodifiableCollection(Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).values());
+        return Collections.unmodifiableCollection(getMap().values());
     }
 
     @Nullable
     public static AlembicDamageType getDamageType(ResourceLocation id) {
-        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).get(id);
+        return getMap().get(id);
     }
 
     @Nullable
     public static AlembicDamageType getDamageType(String id) {
-        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).get(id.contains(":") ? new ResourceLocation(id) : Alembic.location(id));
+        return getMap().get(id.contains(":") ? new ResourceLocation(id) : Alembic.location(id));
     }
 
     public static boolean containsKey(ResourceLocation id) {
-        return Objects.requireNonNullElse(clientTypes, DAMAGE_TYPES).containsKey(id);
+        return getMap().containsKey(id);
     }
 
     @Override

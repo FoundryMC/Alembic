@@ -2,6 +2,7 @@ package foundry.alembic.stats.item;
 
 import com.google.common.collect.Multimap;
 import foundry.alembic.Alembic;
+import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
 import foundry.alembic.stats.item.slots.EquipmentSlotType;
 import foundry.alembic.util.ConditionalCodecReloadListener;
 import foundry.alembic.util.TagOrElements;
@@ -43,6 +44,10 @@ public class ItemStatManager extends ConditionalCodecReloadListener<ItemStat> {
     // Set map when syncing packet, set null when client logging out
     public static void syncPacket(@Nullable Map<Item, Multimap<EquipmentSlotType, ItemStat>> statMap) {
         clientStats = statMap;
+    }
+
+    public static ClientboundSyncItemStatsPacket createPacket() {
+        return new ClientboundSyncItemStatsPacket(HOLDER.get());
     }
 
     public ItemStatManager(ICondition.IContext conditionContext) {

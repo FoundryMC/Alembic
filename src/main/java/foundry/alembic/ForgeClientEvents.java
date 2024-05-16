@@ -61,7 +61,6 @@ public class ForgeClientEvents {
                     );
                 });
             });
-            return;
         }
 
 //        int target = 0;
