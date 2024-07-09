@@ -1,6 +1,7 @@
 package foundry.alembic.stats.item;
 
 import com.google.common.collect.Multimap;
+import com.google.gson.JsonElement;
 import foundry.alembic.Alembic;
 import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
 import foundry.alembic.stats.item.slots.EquipmentSlotType;
@@ -8,6 +9,8 @@ import foundry.alembic.util.ConditionalCodecReloadListener;
 import foundry.alembic.util.TagOrElements;
 import foundry.alembic.util.Utils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.jetbrains.annotations.Nullable;
@@ -52,6 +55,11 @@ public class ItemStatManager extends ConditionalCodecReloadListener<ItemStat> {
 
     public ItemStatManager(ICondition.IContext conditionContext) {
         super(ItemStat.CODEC, conditionContext, Utils.GSON, "alembic/item_stats");
+    }
+
+    @Override
+    protected void preApply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+        HOLDER.clear();
     }
 
     @Override
