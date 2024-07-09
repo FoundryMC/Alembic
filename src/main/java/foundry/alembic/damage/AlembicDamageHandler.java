@@ -425,7 +425,7 @@ public class AlembicDamageHandler {
 
     private static DoubleFloatPair getResistanceForType(AlembicDamageType type, LivingEntity entity, @Nullable AlembicEntityStats stats) {
         double resAtt = entity.getAttribute(type.getResistanceAttribute()).getValue();
-        float resMod = stats != null ? stats.getResistance(type) : (entity instanceof Player ? 1f : 0f);
+        float resMod = stats != null ? stats.getResistance(type) : 1f;
         return DoubleFloatPair.of(resAtt, resMod);
     }
 }
