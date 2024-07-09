@@ -14,7 +14,7 @@ configurations {
 }
 
 group = 'foundry'
-version = '1.0.8'
+version = '1.0.9'
 if (System.getenv('BUILD_NUMBER') != null) {
     version += "." + System.getenv('BUILD_NUMBER')
 }
