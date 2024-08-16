@@ -70,12 +70,13 @@ public class AlembicDamageHandler {
             isBeingDamaged = false;
             damageDealt = handleIndirectDamage(event, target, originalSource);
         } else if (isProjectile(originalSource)) {
-            isBeingDamaged = false;
-            damageDealt = handleIndirectDamage(event, target, originalSource);
-            if(shouldHandleOwnerAttributes(originalSource)){
-                handleDirectDamage(event, originalSource, target);
+            if (shouldHandleOwnerAttributes(originalSource)) {
+                isBeingDamaged = false;
+                damageDealt = handleDirectDamage(event, originalSource, target);
                 event.setCanceled(true);
             } else {
+                isBeingDamaged = false;
+                damageDealt = handleIndirectDamage(event, target, originalSource);
                 event.setCanceled(true);
             }
         } else if (originalSource.getDirectEntity() instanceof LivingEntity || !isIndirect(originalSource)){
