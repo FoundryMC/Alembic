@@ -146,7 +146,7 @@ public class AlembicDamageHandler {
             }
             float reducedDamage = damage * (resistanceModifier * damageType.getResistanceIgnore());
             if (damage < 0) {
-                Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for " + damageType.getId().toString());
+                Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for {}", damageType.getId().toString());
                 return;
             }
             total.add(reducedDamage);
@@ -231,7 +231,7 @@ public class AlembicDamageHandler {
                 }
             }
             if (damage <= 0) {
-                Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for " + damageType.getId().toString());
+                Alembic.LOGGER.warn("Damage overrides are too high! Damage was reduced to 0 for {}", damageType.getId().toString());
             }
             handleResistances(target, damage, damageType, originalSource);
         }

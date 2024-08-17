@@ -6,9 +6,13 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import foundry.alembic.Alembic;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -23,6 +27,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 public class CodecUtil {
+    public static final Codec<Holder<DamageType>> DAMAGE_TYPE_HOLDER_CODEC = RegistryFileCodec.create(Registries.DAMAGE_TYPE, DamageType.CODEC, false);
+
     public static final Codec<Integer> STRINGIFIED_LITERAL_COLOR_CODEC = Codec.STRING.comapFlatMap(
             s -> {
                 try {

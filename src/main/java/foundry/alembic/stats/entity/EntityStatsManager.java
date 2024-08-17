@@ -3,9 +3,13 @@ package foundry.alembic.stats.entity;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import foundry.alembic.util.ConditionalCodecReloadListener;
 import foundry.alembic.util.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -20,8 +24,11 @@ public class EntityStatsManager extends ConditionalCodecReloadListener<AlembicEn
     private static final Map<EntityType<?>, AlembicEntityStats> STATS = new Reference2ObjectOpenHashMap<>();
     private static final Map<EntityType<?>, AlembicEntityStats> STATS_VIEW = Collections.unmodifiableMap(STATS);
 
-    public EntityStatsManager(ICondition.IContext conditionContext) {
-        super(AlembicEntityStats.CODEC, conditionContext, Utils.GSON, "alembic/entity_stats");
+    private final RegistryAccess registryAccess;
+
+    public EntityStatsManager(ICondition.IContext conditionContext, RegistryAccess registryAccess) {
+        super(AlembicEntityStats.codec(conditionContext), conditionContext, Utils.GSON, "alembic/entity_stats");
+        this.registryAccess = registryAccess;
     }
 
     public static Map<EntityType<?>, AlembicEntityStats> getView() {
@@ -44,6 +51,11 @@ public class EntityStatsManager extends ConditionalCodecReloadListener<AlembicEn
 
     public static AlembicEntityStats get(EntityType<?> entityType){
         return STATS.get(entityType);
+    }
+
+    @Override
+    public DynamicOps<JsonElement> makeOps(ResourceManager resourceManager) {
+        return RegistryOps.create(JsonOps.INSTANCE, registryAccess);
     }
 
     @Override

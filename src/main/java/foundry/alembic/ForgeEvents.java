@@ -136,7 +136,7 @@ public class ForgeEvents {
         conditionContext = event.getConditionContext();
         event.addListener(new DamageTypeManager(conditionContext, event.getRegistryAccess()));
         event.addListener(new OverrideManager(conditionContext, event.getRegistryAccess()));
-        event.addListener(new EntityStatsManager(conditionContext));
+        event.addListener(new EntityStatsManager(conditionContext, event.getRegistryAccess()));
         event.addListener(new ItemStatManager(conditionContext));
         event.addListener(new ShieldStatManager(conditionContext));
     }
