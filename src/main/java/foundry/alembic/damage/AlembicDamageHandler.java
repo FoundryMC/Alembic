@@ -284,6 +284,13 @@ public class AlembicDamageHandler {
             attacker = livingEntity;
         }
 
+        AlembicEntityStats targetStats = EntityStatsManager.get(target.getType());
+        if (targetStats != null) {
+            if (targetStats.isDamageIgnored(originalSource)) {
+                totalDamage = 0;
+            }
+        }
+
         AlembicDamageEvent.Pre preEvent = new AlembicDamageEvent.Pre(target, attacker, damageType, totalDamage, attributeValue); // TODO: Should only be fired once
         MinecraftForge.EVENT_BUS.post(preEvent);
 
