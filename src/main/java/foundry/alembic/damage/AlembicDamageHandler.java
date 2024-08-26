@@ -237,7 +237,6 @@ public class AlembicDamageHandler {
             if (Alembic.isDebugEnabled()) {
                 Alembic.LOGGER.debug("Dealing " + damage + " " + damageType.getId().toString() + " damage to " + target);
             }
-            totalDamage -= damage;
             // TODO: Blacklist thing
             if (AlembicConfig.ownerAttributeProjectiles.get() && originalSource.getDirectEntity() != null) {
                 if (originalSource.getDirectEntity() instanceof LivingEntity owner) {
