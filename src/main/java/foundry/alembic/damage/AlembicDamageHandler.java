@@ -212,10 +212,28 @@ public class AlembicDamageHandler {
     }
 
     private static void handleIndirectTypedDamage(LivingEntity target, float totalDamage, AlembicOverride override, DamageSource originalSource) {
-        for (Object2FloatMap.Entry<AlembicDamageType> entry : override.getDamagePercents().object2FloatEntrySet()) {
+        AlembicEntityStats targetStats = EntityStatsManager.get(target.getType());
+        AlembicEntityStats attackerStats = null;
+        if (originalSource.getDirectEntity() != null) {
+            attackerStats = EntityStatsManager.get(originalSource.getDirectEntity().getType());
+        }
+        var mapSet = override.getDamagePercents().entrySet();
+        if (attackerStats != null) {
+            mapSet = attackerStats.getDamage().entrySet();
+        }
+        for (Map.Entry<AlembicDamageType, Float> entry : mapSet) {
             AlembicDamageType damageType = entry.getKey();
-            float percent = entry.getFloatValue();
+            float percent = entry.getValue();
             float damage = totalDamage * percent;
+            if (targetStats != null) {
+                float resistanceModifier = getResistanceForType(damageType, target, targetStats).secondFloat();
+                if (resistanceModifier < 1) {
+                    resistanceModifier = 1 + (1 - resistanceModifier);
+                } else {
+                    resistanceModifier = 1 - (resistanceModifier - 1);
+                }
+                damage *= (resistanceModifier * damageType.getResistanceIgnore());
+            }
             if (Alembic.isDebugEnabled()) {
                 Alembic.LOGGER.debug("Dealing " + damage + " " + damageType.getId().toString() + " damage to " + target);
             }
@@ -257,7 +275,7 @@ public class AlembicDamageHandler {
     private static void handleResistances(LivingEntity target, float totalDamage, AlembicDamageType damageType, DamageSource originalSource) {
         float attributeValue = 0;
 
-        if (target.getAttributes().hasAttribute(damageType.getResistanceAttribute())) {
+        if (target.getAttributes().hasAttribute(damageType.getResistanceAttribute())) { // TODO: resistance handled again after being handled in most other methods
             attributeValue = (float) target.getAttributeValue(damageType.getResistanceAttribute()) * damageType.getResistanceIgnore();
         }
 

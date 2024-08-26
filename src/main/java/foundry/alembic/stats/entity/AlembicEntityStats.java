@@ -43,6 +43,7 @@ public class AlembicEntityStats {
                                         return DataResult.error(() -> "Must have entries under \"resistances\"");
                                     }
                                     Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>(map);
+                                    retMap.defaultReturnValue(1.0f);
                                     return DataResult.success(retMap);
                                 },
                                 Function.identity()
@@ -53,6 +54,7 @@ public class AlembicEntityStats {
                                         return DataResult.error(() -> "Must have entries under \"damage\"");
                                     }
                                     Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>(map);
+                                    retMap.defaultReturnValue(1.0f);
                                     return DataResult.success(retMap);
                                 },
                                 Function.identity()
