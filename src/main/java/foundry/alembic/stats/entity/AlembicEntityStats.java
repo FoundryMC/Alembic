@@ -53,6 +53,10 @@ public class AlembicEntityStats {
                                     if (map.isEmpty()) {
                                         return DataResult.error(() -> "Must have entries under \"damage\"");
                                     }
+                                    double sum = map.values().stream().reduce(0f, Float::sum);
+                                    if (sum != 1.0) {
+                                        return DataResult.error(() -> "Damage entry values must sum to 1.0. Currently sums to: " + sum);
+                                    }
                                     Reference2FloatMap<AlembicDamageType> retMap = new Reference2FloatOpenHashMap<>(map);
                                     retMap.defaultReturnValue(1.0f);
                                     return DataResult.success(retMap);
