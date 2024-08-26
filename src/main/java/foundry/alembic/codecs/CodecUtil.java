@@ -56,11 +56,13 @@ public class CodecUtil {
 
     @Nonnull
     private static <T extends Enum<T>> Function<String, T> enumFromString(Class<T> clazz) {
-        try {
-            return s -> T.valueOf(clazz, s);
-        } catch (IllegalArgumentException e) {
-            return s -> null;
-        }
+        return s -> {
+            try {
+                return T.valueOf(clazz, s);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        };
     }
 
     public static <A, B> Codec<A> safeDispatch(Codec<B> typeCodec, String typeKey, Function<A, B> getType, Function<B, Codec<? extends A>> getCodec) {
