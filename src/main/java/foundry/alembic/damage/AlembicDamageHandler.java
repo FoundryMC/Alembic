@@ -43,6 +43,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -372,7 +373,7 @@ public class AlembicDamageHandler {
             }
             float health = target.getHealth();
             if(AlembicConfig.compatDamageEvent.get()) {
-                finalDamage = net.minecraftforge.common.ForgeHooks.onLivingDamage(target, originalSource, finalDamage);
+                finalDamage = ForgeHooks.onLivingDamage(target, originalSource, finalDamage);
             }
             target.getCombatTracker().recordDamage(originalSource, finalDamage);
             target.setHealth(health - finalDamage);
@@ -404,7 +405,9 @@ public class AlembicDamageHandler {
         for (Map.Entry<Enchantment, Integer> entry : attacker.getItemInHand(InteractionHand.MAIN_HAND).getAllEnchantments().entrySet()) {
             if (entry.getKey().equals(Enchantments.BANE_OF_ARTHROPODS)) {
                 if (target.getMobType() == MobType.ARTHROPOD) {
-                    Attribute alchDamage = DamageTypeManager.getDamageType("arcane_damage").getAttribute();
+                    AlembicDamageType type = DamageTypeManager.getDamageType("arcane_damage");
+                    if (type == null) return true;
+                    Attribute alchDamage = type.getAttribute();
                     if (alchDamage == null) return true;
                     AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID, "Bane of Arthropods", entry.getValue(), AttributeModifier.Operation.ADDITION);
                     attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
@@ -412,7 +415,9 @@ public class AlembicDamageHandler {
                 }
             } else if (entry.getKey().equals(Enchantments.SMITE)) {
                 if (target.getMobType() == MobType.UNDEAD) {
-                    Attribute alchDamage = DamageTypeManager.getDamageType("arcane_damage").getAttribute();
+                    AlembicDamageType type = DamageTypeManager.getDamageType("arcane_damage");
+                    if (type == null) return true;
+                    Attribute alchDamage = type.getAttribute();
                     if (alchDamage == null) return true;
                     AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID2, "Smite", entry.getValue(), AttributeModifier.Operation.ADDITION);
                     attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
@@ -420,7 +425,9 @@ public class AlembicDamageHandler {
                 }
             } else if (entry.getKey().equals(Enchantments.IMPALING)) {
                 if (target.isInWaterOrRain()) {
-                    Attribute alchDamage = DamageTypeManager.getDamageType("arcane_damage").getAttribute();
+                    AlembicDamageType type = DamageTypeManager.getDamageType("arcane_damage");
+                    if (type == null) return true;
+                    Attribute alchDamage = type.getAttribute();
                     if (alchDamage == null) return true;
                     AttributeModifier attributeModifier = new AttributeModifier(TEMP_MOD_UUID, "Impaling", entry.getValue(), AttributeModifier.Operation.ADDITION);
                     attacker.getAttribute(alchDamage).addTransientModifier(attributeModifier);
