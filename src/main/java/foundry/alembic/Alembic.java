@@ -2,6 +2,7 @@ package foundry.alembic;
 
 import com.mojang.logging.LogUtils;
 import foundry.alembic.attribute.AttributeSetRegistry;
+import foundry.alembic.compat.Compat;
 import foundry.alembic.compat.TESCompat;
 import foundry.alembic.mobeffect.AlembicMobEffectRegistry;
 import foundry.alembic.networking.AlembicPacketHandler;
@@ -46,9 +47,7 @@ public class Alembic {
             AlembicClient.init(modEventBus);
         }
 
-        if (ModList.get().isLoaded("tslatentitystatus")) {
-            TESCompat.registerClaimant();
-        }
+        Compat.init();
     }
 
     public static ResourceLocation location(String name) {

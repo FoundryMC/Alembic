@@ -108,6 +108,10 @@ repositories {
     maven {
         url = "https://maven.shadowsoffire.dev/releases"
     }
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
 }
 
 dependencies {
@@ -131,6 +135,10 @@ dependencies {
 
     implementation(fg.deobf( "dev.shadowsoffire:ApothicAttributes:1.20.1-1.2.1"))
     implementation(fg.deobf("dev.shadowsoffire:Placebo:1.20.1-8.6.0"))
+
+    compileOnly(fg.deobf("top.theillusivec4.curios:curios-forge:5.9.1+1.20.1:api"))
+    runtimeOnly(fg.deobf("top.theillusivec4.curios:curios-forge:5.9.1+1.20.1"))
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

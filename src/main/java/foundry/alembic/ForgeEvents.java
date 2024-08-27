@@ -7,8 +7,6 @@ import foundry.alembic.command.AlembicCommand;
 import foundry.alembic.damage.AlembicDamageHandler;
 import foundry.alembic.event.AlembicFoodChangeEvent;
 import foundry.alembic.networking.AlembicPacketHandler;
-import foundry.alembic.networking.ClientboundSyncItemStatsPacket;
-import foundry.alembic.networking.ClientboundSyncShieldStatsPacket;
 import foundry.alembic.override.OverrideManager;
 import foundry.alembic.stats.entity.EntityStatsManager;
 import foundry.alembic.stats.item.ItemStatManager;
@@ -163,7 +161,6 @@ public class ForgeEvents {
         if (!ItemStatManager.hasStats(stack.getItem())) {
             return;
         }
-        // TODO: if curios compat is implemented, make sure to do something for it
         ItemStatManager.getStats(stack.getItem(), new VanillaSlotType(event.getSlotType()))
                 .forEach(itemStat -> itemStat.computeAttributes(event.getOriginalModifiers(), event::addModifier, event::removeAttribute));
     }
